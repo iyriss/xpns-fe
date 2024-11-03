@@ -32,10 +32,10 @@ export const action: ActionFunction = async ({ request }) => {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ title: parsed.billStatement }),
   });
-  const { billStatement } = await res.json();
+  const { data } = await res.json();
 
   const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
-    return { ...transactionRow, billStatement: billStatement._id };
+    return { ...transactionRow, billStatement: data._id };
   });
 
   const response = await fetch('http://localhost:5000/api/transactions', {
@@ -139,7 +139,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto w-full max-w-[1020px]'>
+    <div className='mx-auto w-full max-w-[1020px] rounded bg-white p-5'>
       {data?.success ? (
         <div className='mx-auto flex w-full flex-col items-center'>
           <div>Transactions uploaded ✅.</div>
@@ -148,7 +148,7 @@ export default function () {
             <Button type='button' onClick={() => window.location.reload()}>
               I want to upload more
             </Button>
-            <Button type='button' onClick={() => navigate('/transactions')}>
+            <Button type='button' onClick={() => navigate('/bill-statements')}>
               I want to expense them
             </Button>
             <Button type='button' variant='outline' onClick={() => navigate('/')}>
@@ -158,7 +158,7 @@ export default function () {
         </div>
       ) : (
         <>
-          <h1 className='my-4 text-2xl font-extrabold'>Add expenses</h1>
+          <h1 className='my-4 text-2xl font-semibold'>Add expenses</h1>
 
           <div className='text-light my-2'>
             Upload your bill statement to start tracking your expenses.
@@ -169,14 +169,14 @@ export default function () {
             method='POST'
             encType='multipart/form-data'
           >
-            <div className='flex flex-col items-center rounded border-gray-400 bg-white p-5 shadow-sm'>
-              <div className='mb-4 flex w-full flex-col gap-1'>
+            <div className='flex flex-col items-center rounded border-gray-400'>
+              <div className='my-4 flex w-full flex-col gap-1'>
                 <label htmlFor='billStatement'>
                   Bill statement title<span className='text-error'> *</span>
                 </label>
                 <input
                   name='billStatement'
-                  className='border-border w-fit min-w-[400px] border px-4 py-2 font-semibold placeholder:font-normal'
+                  className='w-fit min-w-[400px] border border-border px-4 py-2 font-semibold placeholder:font-normal'
                   required
                   placeholder='e.g. August 2024 checking account'
                 />

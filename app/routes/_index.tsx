@@ -14,10 +14,10 @@ export default function () {
             Upload bill statements
           </div>
           <div
-            onClick={() => navigate('/transactions')}
+            onClick={() => navigate('/bill-statements')}
             className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#604ab0] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'
           >
-            Expense transactions
+            Uncaptured transactions
           </div>
           <div className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#38917D] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'>
             Past expenses
