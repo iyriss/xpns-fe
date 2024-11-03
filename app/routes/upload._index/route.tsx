@@ -139,24 +139,30 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto max-w-[1020px] p-5'>
-      <h1 className='my-4 text-2xl font-extrabold'>Add expenses</h1>
-
+    <div className='mx-auto w-full max-w-[1020px]'>
       {data?.success ? (
-        <div>
-          <div>Transactions uploaded ✅. Want to upload more?</div>
-          <div className='my-4 flex gap-8'>
-            <Button type='button' variant='outline' onClick={() => navigate('/')}>
-              Nah, thanks
-            </Button>
+        <div className='mx-auto flex w-full flex-col items-center'>
+          <div>Transactions uploaded ✅.</div>
+          <div className='mb-6'>What you want to do now?</div>
+          <div className='my-4 flex min-w-[280px] flex-col gap-4'>
             <Button type='button' onClick={() => window.location.reload()}>
-              Yes, let's do it
+              I want to upload more
+            </Button>
+            <Button type='button' onClick={() => navigate('/transactions')}>
+              I want to expense them
+            </Button>
+            <Button type='button' variant='outline' onClick={() => navigate('/')}>
+              Just back to dashboard bruh
             </Button>
           </div>
         </div>
       ) : (
         <>
-          <div className='text-light my-2'>Upload your bill statement to track your expenses.</div>
+          <h1 className='my-4 text-2xl font-extrabold'>Add expenses</h1>
+
+          <div className='text-light my-2'>
+            Upload your bill statement to start tracking your expenses.
+          </div>
           <fetcher.Form
             action='/upload'
             onSubmit={handleSubmit}

@@ -5,7 +5,6 @@ export default function () {
   const navigate = useNavigate();
   return (
     <div className='h-full min-h-screen w-full p-5'>
-      <div className='mb-10 text-4xl font-extrabold'>xpnss</div>
       <div className='flex'>
         <div className='m-auto grid w-fit grid-cols-2 grid-rows-2 gap-5'>
           <div
