@@ -2,9 +2,7 @@ import { Links, Meta, Outlet, Scripts } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from './tailwind.css?url';
 
-export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: String(stylesheet) },
-];
+export const links: LinksFunction = () => [{ rel: 'stylesheet', href: String(stylesheet) }];
 
 export default function App() {
   return (
@@ -14,7 +12,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className='font-comme bg-[#faf6f2]'>
         <Outlet />
 
         <Scripts />
