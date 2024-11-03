@@ -12,7 +12,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className='font-comme bg-[#faf6f2]'>
+      <body className='font-quicksand bg-[#f6f8fa]'>
         <Outlet />
 
         <Scripts />

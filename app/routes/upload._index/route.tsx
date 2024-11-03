@@ -1,41 +1,47 @@
 import { ActionFunction, json } from '@remix-run/node';
-import { useActionData, useFetcher } from '@remix-run/react';
-import { useState } from 'react';
+import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
+import { FormEvent, useState } from 'react';
 import { z } from 'zod';
+import { Button } from '../../components/Button';
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  const transactionsRows = JSON.parse(formData.get('transactions') as string);
 
-  const TransactionsSchema = z.array(
-    z.object({
-      date: z.string().datetime(),
-      description: z.string(),
-      subdescription: z.string(),
-      typeOfTransaction: z.enum(['Debit', 'Credit']),
-      amount: z.number(),
-    })
-  );
+  const TransactionsSchema = z.object({
+    billStatement: z.string(),
+    transactions: z
+      .string()
+      .transform((str) => JSON.parse(str)) // Parse JSON string to array
+      .pipe(
+        z.array(
+          z.object({
+            date: z.string().datetime(),
+            description: z.string(),
+            subdescription: z.string(),
+            typeOfTransaction: z.enum(['Debit', 'Credit']),
+            amount: z.number(),
+          }),
+        ),
+      ),
+  });
 
-  TransactionsSchema.parse(transactionsRows);
+  const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
 
-  const res = await fetch('http://localhost:5000/api/billing-cycles', {
+  const res = await fetch('http://localhost:5000/api/bill-statements', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ title: 'first one' }),
+    body: JSON.stringify({ title: parsed.billStatement }),
   });
-  const { billingCycle } = await res.json();
+  const { billStatement } = await res.json();
 
-  const transactionWithBillingCycle = transactionsRows.map(
-    (transactionRow: any) => {
-      return { ...transactionRow, billingCycle: billingCycle._id };
-    }
-  );
+  const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
+    return { ...transactionRow, billStatement: billStatement._id };
+  });
 
   const response = await fetch('http://localhost:5000/api/transactions', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(transactionWithBillingCycle),
+    body: JSON.stringify(transactionWithBillStatement),
   });
 
   if (response.statusText === 'OK') {
@@ -50,6 +56,7 @@ export default function () {
   const [rows, setRows] = useState<string[][]>([]);
 
   const fetcher = useFetcher();
+  const navigate = useNavigate();
   const data = fetcher.data as ReturnType<typeof useActionData<typeof action>>;
 
   const handleUpload = (files: FileList | null) => {
@@ -100,11 +107,19 @@ export default function () {
     };
     reader.readAsText(file);
   };
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!rows?.length) {
       //   toast.error('No transactions to submit.');
+      return;
+    }
+
+    const formData = new FormData(e.currentTarget);
+    const billStatement = formData.get('billStatement');
+    if (!billStatement) {
+      //   toast.error('Please provide a title.');
       return;
     }
 
@@ -114,70 +129,97 @@ export default function () {
         description: row[1],
         subdescription: row[2],
         typeOfTransaction: row[3],
-        amount: Number(row[4]),
+        amount: Math.round(Number(row[4]) * 100),
       };
       return transaction;
     });
 
-    fetcher.submit(
-      { transactions: JSON.stringify(transactions) },
-      { method: 'post' }
-    );
+    formData.append('transactions', JSON.stringify(transactions)); // JSON stringify the transactions array
+    fetcher.submit(formData, { method: 'post' });
   };
 
   return (
-    <div>
-      {data?.success && <div>Transactions uploaded. Want to upload more?</div>}
-      {rows?.length && !data?.success ? (
-        <div className='overflow-x-auto'>
+    <div className='mx-auto max-w-[1020px] p-5'>
+      <h1 className='my-4 text-2xl font-extrabold'>Add expenses</h1>
+
+      {data?.success ? (
+        <div>
+          <div>Transactions uploaded ✅. Want to upload more?</div>
+          <div className='my-4 flex gap-8'>
+            <Button type='button' variant='outline' onClick={() => navigate('/')}>
+              Nah, thanks
+            </Button>
+            <Button type='button' onClick={() => window.location.reload()}>
+              Yes, let's do it
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className='text-light my-2'>Upload your bill statement to track your expenses.</div>
           <fetcher.Form
             action='/upload'
             onSubmit={handleSubmit}
             method='POST'
             encType='multipart/form-data'
           >
-            <input name='billingCycle' type='text' />
-            <button
+            <div className='flex flex-col items-center rounded border-gray-400 bg-white p-5 shadow-sm'>
+              <div className='mb-4 flex w-full flex-col gap-1'>
+                <label htmlFor='billStatement'>
+                  Bill statement title<span className='text-error'> *</span>
+                </label>
+                <input
+                  name='billStatement'
+                  className='border-border w-fit min-w-[400px] border px-4 py-2 font-semibold placeholder:font-normal'
+                  required
+                  placeholder='e.g. August 2024 checking account'
+                />
+              </div>
+              {rows?.length && !data?.success ? (
+                <table className='w-full border border-gray-200'>
+                  <thead>
+                    <tr>
+                      {headers.map((header, index) => (
+                        <th key={index} className='border-b bg-[#38917D]/20 px-4 py-2'>
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex} className='border-b px-4 py-2 text-center'>
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className='relative flex h-40 w-full cursor-pointer items-center justify-center rounded-sm border border-dashed border-[#38917D] bg-[#38917D]/10 hover:bg-[#38917D]/20'>
+                  <input
+                    type='file'
+                    className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
+                    onChange={(e) => handleUpload(e.currentTarget.files)}
+                    accept='text/csv'
+                  />
+                  <div className='cursor-pointer'>Upload bill statement</div>
+                </div>
+              )}
+            </div>
+
+            <Button
               type='submit'
-              disabled={
-                fetcher.state === 'submitting' || fetcher.state === 'loading'
-              }
+              className='ml-auto mt-8'
+              disabled={fetcher.state === 'submitting' || fetcher.state === 'loading'}
             >
               Submit
-            </button>
+            </Button>
           </fetcher.Form>
-          <table className='min-w-full border border-gray-200'>
-            <thead>
-              <tr>
-                {headers.map((header, index) => (
-                  <th key={index} className='px-4 py-2 border-b'>
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {row.map((cell, cellIndex) => (
-                    <td
-                      key={cellIndex}
-                      className='text-center px-4 py-2 border-b'
-                    >
-                      {cell}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <input
-          type='file'
-          onChange={(e) => handleUpload(e.currentTarget.files)}
-          accept='text/csv'
-        />
+        </>
       )}
     </div>
   );

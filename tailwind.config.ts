@@ -5,7 +5,27 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        comme: ['Comme', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
+      },
+      colors: {
+        primary: {
+          DEFAULT: '#38917d',
+        },
+        border: {
+          DEFAULT: '#eaeaea',
+        },
+        muted: {
+          DEFAULT: '#afafaf',
+        },
+        'light-silver': {
+          DEFAULT: '#D8D8D8',
+        },
+        error: {
+          DEFAULT: '#c13615',
+        },
+        lead: {
+          DEFAULT: '#1f1f1f',
+        },
       },
     },
   },
