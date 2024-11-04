@@ -23,9 +23,28 @@ export default function () {
   const { billStatement, transactions } = useLoaderData() as any;
   console.log({ billStatement, transactions });
 
+  const dates = transactions.reduce(
+    (acc: any, transaction: any) => {
+      if (acc.nearest < transaction.date) {
+        acc.nearest = transaction.date;
+      }
+      if (acc.furthest > transaction.date) {
+        acc.furthest = transaction.date;
+      }
+      return acc;
+    },
+    { nearest: transactions[0].date, furthest: transactions[0].date },
+  );
+
+  console.log(dates);
+
   return (
     <div className='mx-auto w-full max-w-[1020px] rounded p-5'>
-      <h1 className='my-4 text-2xl font-semibold'>{billStatement.title}</h1>
+      <h1 className='mt-4 text-2xl font-semibold'>{billStatement.title}</h1>
+      <div className='mb-5 mt-1 text-muted'>
+        <span>{displayLongDate(dates.nearest)}</span> -{' '}
+        <span>{displayLongDate(dates.furthest)}</span>
+      </div>
       {transactions.map((transaction: any) => (
         <div
           key={transaction._id}
@@ -34,7 +53,7 @@ export default function () {
           <EllipsisVerticalIcon className='-transform-y-1/2 invisible absolute right-0 size-6 text-muted hover:text-[#604ab0] group-hover:visible' />
 
           <div className='flex w-full items-center gap-4'>
-            <div className='text-sm text-[#38917D] text-muted'>
+            <div className='text-sm text-[#38917D]'>
               <div className='text-medium text-xl'>
                 {displayDate(transaction.date)?.split(' ')[1]}
               </div>
@@ -86,6 +105,20 @@ function displayDate(date: string) {
   const options: Intl.DateTimeFormatOptions = {
     month: 'short',
     day: '2-digit',
+    timeZone: 'UTC',
+  };
+  return new Intl.DateTimeFormat('en-CA', options).format(new Date(date));
+}
+
+function displayLongDate(date: string) {
+  if (!date) {
+    return null;
+  }
+
+  const options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
     timeZone: 'UTC',
   };
   return new Intl.DateTimeFormat('en-CA', options).format(new Date(date));
