@@ -18,7 +18,7 @@ export const action: ActionFunction = async ({ request }) => {
             date: z.string().datetime(),
             description: z.string(),
             subdescription: z.string(),
-            typeOfTransaction: z.enum(['Debit', 'Credit']),
+            type: z.enum(['Debit', 'Credit']),
             amount: z.number(),
           }),
         ),
@@ -128,7 +128,7 @@ export default function () {
         date: new Date(row[0]),
         description: row[1],
         subdescription: row[2],
-        typeOfTransaction: row[3],
+        type: row[3],
         amount: Math.round(Number(row[4]) * 100),
       };
       return transaction;
