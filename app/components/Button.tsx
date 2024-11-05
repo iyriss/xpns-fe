@@ -16,11 +16,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'px-4 py-2 disabled:opacity-50 rounded-[3px] flex items-center justify-center cursor-pointer flex items-center justify-center disabled:cursor-not-allowed';
+    'px-4 py-1 disabled:opacity-50 rounded-[3px] flex items-center justify-center cursor-pointer flex items-center justify-center disabled:cursor-not-allowed';
 
   const variantStyles = {
     primary: 'text-white border border-primary bg-primary enabled:hover:opacity-95',
-    outline: 'border border-solid border-lead bg-transparent text-lead enabled:hover:shadow',
+    outline:
+      'border border-solid border-light-silver bg-transparent text-lead enabled:hover:shadow-sm',
     text: 'border-none bg-none hover:text-primary',
   };
 

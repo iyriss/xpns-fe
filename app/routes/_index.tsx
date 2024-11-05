@@ -19,8 +19,11 @@ export default function () {
           >
             Uncaptured transactions
           </div>
-          <div className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#38917D] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'>
-            Past expenses
+          <div
+            onClick={() => navigate('/groups')}
+            className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#38917D] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'
+          >
+            Groups and expenses
           </div>
           <div className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#403734] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'>
             Balances

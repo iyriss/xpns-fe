@@ -12,7 +12,7 @@ body {
 
 @font-face {
   font-family: 'Quicksand';
-  src: url('/public/assets/fonts/Quicksand.ttf') format('truetype');
+  src: url('/assets/fonts/Quicksand.ttf') format('truetype');
   font-style: normal;
   font-weight: 100 900;
   font-style: normal;
