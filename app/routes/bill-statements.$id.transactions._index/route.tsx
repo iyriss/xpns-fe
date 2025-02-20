@@ -9,44 +9,90 @@ import {
   ChartPieIcon,
 } from '@heroicons/react/24/solid';
 import { useState } from 'react';
+import { z } from 'zod';
 import { Button } from '../../components/Button';
+import { requireUserId } from '../../utils/session.server';
+
+enum Allocation {
+  OTHER_MEMBER = 'other_member',
+  HALF = 'half',
+  MINE = 'mine',
+}
 
 export const loader: LoaderFunction = async ({ params, request, context }) => {
+  const userId = await requireUserId(request);
   const billStatementId = params.id;
   const res = await fetch(
-    `http://localhost:5000/api/bill-statements/${billStatementId}/transactions`,
+    `${process.env.API_URL}/api/bill-statements/${billStatementId}/transactions`,
   );
-  const data = await res.json();
-  return json({ billStatement: data.billStatement, transactions: data.transactions });
+  const { data } = await res.json();
+  const { billStatement, transactions, groups } = data;
+  return json({ billStatement, transactions, groups, userId });
 };
 
 export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request);
   const formData = await request.formData();
+  //todo: check which user is logged in and store as owner
   for (var pair of formData.entries()) {
     console.log('pair', pair[0], pair[1]);
   }
-  // TODO: next: store in databse as split
-  return null;
+
+  const Schema = z.object({
+    allocation: z.string(),
+    kind: z.string(),
+    transaction: z.string(),
+    group: z.string(),
+    members: z.any(),
+    amount: z.number(),
+  });
+
+  const { allocation, kind, transaction, group, members, amount } = Schema.parse(
+    Object.fromEntries(formData),
+  );
+
+  if (allocation === Allocation.MINE) {
+    const transactionAllocation = await fetch(`${process.env.API_URL}/api/allocations`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        kind,
+        amount,
+        owner: userId,
+        members,
+      }),
+    });
+
+    if (transactionAllocation.statusText === 'OK') {
+      const res = await fetch(`${process.env.API_URL}/api/transactions/${transaction}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name, members, group }),
+      });
+
+      const { data } = await res.json();
+      console.log('datal', data);
+      if (res.statusText === 'OK') {
+        return json({ success: true });
+      } else {
+        return json({ success: false });
+      }
+    }
+  }
 };
 
-enum TransactionSplit {
-  JUST_OTHER = 'just_other',
-  HALF = 'half',
-  JUST_ME = 'just_me',
-}
-
-const transactionSplitCopy = (name?: string) => {
+const AllocationCopy = (name?: string) => {
   return {
-    just_other: `Save this transaction as paid fully for ${name}`,
-    just_me: 'Save this transaction as paid for you only?',
+    OTHER_MEMBER: `Save this transaction as paid fully for ${name}`,
+    MINE: 'Save this transaction as paid for you only?',
     half: `Save this transaction and split 50% 50% with ${name}`,
   };
 };
+
 export default function () {
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
-  const [splitType, setSplitType] = useState<TransactionSplit | ''>('');
-  const { billStatement, transactions } = useLoaderData() as any;
-  console.log({ billStatement, transactions });
+  const [allocationType, setAllocationType] = useState<Allocation | ''>('');
+  const { billStatement, transactions, groups } = useLoaderData() as any;
 
   function handleSelected(transaction: string) {
     setTransactionIdSelected(transaction);
@@ -64,7 +110,7 @@ export default function () {
     },
     { nearest: transactions[0].date, furthest: transactions[0].date },
   );
-  console.log('transaction', transactions);
+
   return (
     <div className='mx-auto w-full max-w-[1020px] rounded p-5'>
       <h1 className='mt-4 text-2xl font-semibold'>{billStatement.title}</h1>
@@ -78,14 +124,15 @@ export default function () {
           <Form
             method='POST'
             key={transaction._id}
-            className='group relative my-3 h-fit w-full cursor-pointer rounded bg-white px-6 py-3'
+            className={`group relative my-3 h-fit w-full cursor-pointer rounded bg-white px-6 py-3 ${selected ? 'border border-primary' : ''}`}
+            onClick={() => handleSelected(transaction._id)}
           >
             <input hidden type='text' defaultValue={transaction._id} name='transaction' />
             <div className='flex items-center justify-between'>
-              <EllipsisVerticalIcon className='-transform-y-1/2 invisible absolute right-0 size-6 h-full text-muted hover:text-[#604ab0] group-hover:visible' />
+              <EllipsisVerticalIcon className='-transform-y-1/2 invisible absolute right-0 size-6 h-full text-muted group-hover:visible' />
               <div className='flex w-full items-center gap-4'>
                 <div className='text-sm text-[#38917D]'>
-                  <div className='text-medium text-xl'>
+                  <div className='text-xl font-semibold'>
                     {displayDate(transaction.date)?.split(' ')[1]}
                   </div>
                   <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
@@ -100,76 +147,97 @@ export default function () {
                   ${Number(transaction.amount) / 100}
                 </div>
               </div>
-              {transaction.type === 'Credit' ? (
-                <div className='w-full' />
-              ) : (
-                <div className='flex w-full justify-center gap-4 pr-2 text-xs text-muted'>
-                  <div
-                    className={`relative flex cursor-pointer flex-col items-center justify-between ${selected && splitType === TransactionSplit.JUST_ME ? 'text-[#604ab0]' : ''} hover:text-[#604ab0]`}
-                    onClick={() => {
-                      handleSelected(transaction._id);
-                      setSplitType(TransactionSplit.JUST_ME);
-                    }}
-                  >
-                    <UserIcon className='size-4' />
-                    Just me
-                    <input
-                      type='radio'
-                      id={TransactionSplit.JUST_ME}
-                      name='split'
-                      value={TransactionSplit.JUST_ME}
-                      className='absolute left-0 top-0 z-10 h-full w-full cursor-pointer opacity-0'
-                    />
+            </div>
+            {transaction.type === 'Credit' && <div className='w-full' />}
+
+            {selected && (
+              <>
+                <div className='border-t-secondary mt-4 flex w-full gap-4 border-t py-4'>
+                  <div className='flex min-w-[100px]'>
+                    Allocation<span className='text-error'> *</span>
                   </div>
-                  <div
-                    className={`relative flex cursor-pointer flex-col items-center justify-between ${selected && splitType === TransactionSplit.HALF ? 'text-[#604ab0]' : ''} hover:text-[#604ab0]`}
-                    onClick={() => {
-                      handleSelected(transaction._id);
-                      setSplitType(TransactionSplit.HALF);
-                    }}
-                  >
-                    <DivideIcon className='size-4' />
-                    Half
-                    <input
-                      type='radio'
-                      id={TransactionSplit.HALF}
-                      name='split'
-                      value={TransactionSplit.HALF}
-                      className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
-                    />
-                  </div>
-                  <div
-                    className={`relative flex cursor-pointer flex-col items-center justify-between ${selected && splitType === TransactionSplit.JUST_OTHER ? 'text-[#604ab0]' : ''} hover:text-[#604ab0]`}
-                    onClick={() => {
-                      handleSelected(transaction._id);
-                      setSplitType(TransactionSplit.JUST_OTHER);
-                    }}
-                  >
-                    <GiftIcon className='size-4' />
-                    Just other
-                    <input
-                      type='radio'
-                      id={TransactionSplit.JUST_OTHER}
-                      name='split'
-                      value={TransactionSplit.JUST_OTHER}
-                      className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
-                    />
-                  </div>
-                  <div className='flex flex-col items-center justify-between hover:text-[#604ab0]'>
-                    <ChartPieIcon className='size-4' />
-                    Custom
+                  <div className='flex w-full justify-between gap-4'>
+                    <div
+                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.MINE ? 'border-accent' : ''}`}
+                      onClick={() => {
+                        setAllocationType(Allocation.MINE);
+                      }}
+                    >
+                      <UserIcon className='size-3' />
+                      <span>Paid for me</span>
+                      <input
+                        type='radio'
+                        id={Allocation.MINE}
+                        name='allocation'
+                        value={Allocation.MINE}
+                        className='absolute left-0 top-0 z-10 h-full w-full cursor-pointer opacity-0'
+                      />
+                    </div>
+                    <div
+                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.HALF ? 'border-accent' : ''}`}
+                      onClick={() => {
+                        setAllocationType(Allocation.HALF);
+                      }}
+                    >
+                      <DivideIcon className='size-3' />
+                      <span>Divided equally</span>
+                      <input
+                        type='radio'
+                        id={Allocation.HALF}
+                        name='allocation'
+                        value={Allocation.HALF}
+                        className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
+                      />
+                    </div>
+
+                    <div
+                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.OTHER_MEMBER ? 'border-accent' : ''}`}
+                      onClick={() => {
+                        setAllocationType(Allocation.OTHER_MEMBER);
+                      }}
+                    >
+                      <GiftIcon className='size-3' />
+                      <span>Paid for Other</span>
+                      <input
+                        type='radio'
+                        id={Allocation.OTHER_MEMBER}
+                        name='allocation'
+                        value={Allocation.OTHER_MEMBER}
+                        className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
+                      />
+                    </div>
+                    <div
+                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.MINE ? 'border-accent' : ''}`}
+                      onClick={() => {
+                        handleSelected(transaction._id);
+                        setAllocationType(Allocation.MINE);
+                      }}
+                    >
+                      <ChartPieIcon className='size-3' />
+                      <span>Custom</span>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-            {selected && (
-              <div className='mt-4 flex items-center justify-end gap-2'>
-                <div className='mr-4'>{splitType && transactionSplitCopy('Dilly')[splitType]}?</div>
-                <Button type='submit'>Save</Button>
-                <Button variant='outline' type='button'>
-                  Cancel
-                </Button>
-              </div>
+                <div className='flex w-full items-center gap-4 py-4'>
+                  <div className='min-w-[100px]'>
+                    Group<span className='text-error'>*</span>
+                  </div>
+                  <select name='group' required className='h-10 min-w-[400px] border px-4 py-2'>
+                    <option value={''} className='!text-muted'>
+                      Select an option
+                    </option>
+                    {groups.map((group: any) => (
+                      <option value={group._id}>{group.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className='flex items-center justify-end gap-2 py-4'>
+                  <Button type='submit'>Save</Button>
+                  <Button variant='outline' type='button'>
+                    Cancel
+                  </Button>
+                </div>
+              </>
             )}
           </Form>
         );

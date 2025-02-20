@@ -11,6 +11,9 @@ export default {
         primary: {
           DEFAULT: '#38917d',
         },
+        accent: {
+          DEFAULT: '#604ab0',
+        },
         border: {
           DEFAULT: '#eaeaea',
         },

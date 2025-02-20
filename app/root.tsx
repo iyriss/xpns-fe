@@ -1,11 +1,27 @@
 import { Links, Meta, Outlet, Scripts } from '@remix-run/react';
-import type { LinksFunction } from '@remix-run/node';
+import { LinksFunction, LoaderFunction, redirect } from '@remix-run/node';
 import stylesheet from './tailwind.css?url';
 import { NavLayout } from './layouts/NavLayout';
+import { getUserId } from './utils/session.server';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: String(stylesheet) }];
 
-export default function App() {
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await getUserId(request);
+  const url = new URL(request.url);
+
+  if (url.pathname === '/login') {
+    return { userId };
+  }
+
+  if (!userId) {
+    return redirect('/login');
+  }
+
+  return { userId };
+};
+
+export default function Root() {
   return (
     <html>
       <head>
@@ -13,7 +29,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className='font-quicksand bg-[#f6f8fa]'>
+      <body className='bg-[#f6f8fa] font-quicksand'>
         <NavLayout>
           <Outlet />
         </NavLayout>

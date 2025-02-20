@@ -2,7 +2,6 @@ import { ActionFunction, json, LoaderFunction } from '@remix-run/node';
 import { Form, useLoaderData, useSubmit } from '@remix-run/react';
 import { useState } from 'react';
 import { z } from 'zod';
-import { UserGroupIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
 
 const members = [
@@ -11,7 +10,7 @@ const members = [
 ];
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  const res = await fetch('http://localhost:5000/api/groups');
+  const res = await fetch(`${process.env.API_URL}/api/groups`);
   const jsonRes = await res.json();
   return json({ groups: jsonRes.data });
 };
@@ -29,7 +28,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const { name, members } = GroupSchema.parse(Object.fromEntries(formData));
 
-  const res = await fetch('http://localhost:5000/api/groups', {
+  const res = await fetch(`${process.env.API_URL}/api/groups`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name, members }),

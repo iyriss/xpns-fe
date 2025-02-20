@@ -3,7 +3,7 @@ import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  const res = await fetch('http://localhost:5000/api/bill-statements');
+  const res = await fetch(`${process.env.API_URL}/api/bill-statements`);
   const jsonRes = await res.json();
   return json({ billStatements: jsonRes.data });
 };

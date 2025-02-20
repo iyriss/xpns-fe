@@ -27,7 +27,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
 
-  const res = await fetch('http://localhost:5000/api/bill-statements', {
+  const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ title: parsed.billStatement }),
@@ -35,10 +35,10 @@ export const action: ActionFunction = async ({ request }) => {
   const { data } = await res.json();
 
   const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
-    return { ...transactionRow, billStatement: data._id };
+    return { ...transactionRow, billStatement: data._id, owner: '66c09938421b2d29d74728a8' };
   });
 
-  const response = await fetch('http://localhost:5000/api/transactions', {
+  const response = await fetch(`${process.env.API_URL}s/api/transactions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(transactionWithBillStatement),
