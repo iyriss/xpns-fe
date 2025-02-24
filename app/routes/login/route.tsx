@@ -1,39 +1,56 @@
-import { ActionFunction, json } from '@remix-run/node';
-import { Form, useActionData, Link } from '@remix-run/react';
-import { createUserSession } from '../../utils/session.server';
+import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node';
+import { Form, useActionData, Link, useNavigation } from '@remix-run/react';
+import { Button } from '../../components/Button';
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const response = await fetch(`${process.env.API_URL}/api/auth/me`, {
+    headers: { Cookie: request.headers.get('Cookie') || '' },
+    credentials: 'include',
+  });
+
+  if (response.ok) {
+    return redirect('/');
+  }
+
+  return null;
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const email = form.get('email');
   const password = form.get('password');
-  const name = form.get('name');
 
-  const response = await fetch(`${process.env.API_URL}/api/login`, {
+  const response = await fetch(`${process.env.API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ email, password }),
+    credentials: 'include',
   });
 
-  const { userId } = await response.json();
-
-  if (!userId) {
-    return json({ error: 'Invalid credentials' });
+  if (!response.ok) {
+    const data = await response.json();
+    return json({ error: data.message || 'Invalid credentials' }, { status: response.status });
   }
 
-  const redirectTo = (form.get('redirectTo') as string) || '/';
-  return createUserSession(userId, redirectTo);
+  return redirect('/', {
+    headers: {
+      // Forward any headers from the API response
+      ...(response.headers.get('Set-Cookie')
+        ? { 'Set-Cookie': response.headers.get('Set-Cookie') }
+        : {}),
+    },
+  });
 };
 
 export default function Login() {
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+
+  const isSubmitting = navigation.state === 'submitting';
 
   return (
     <div className='mx-auto mt-8 max-w-md'>
       <Form method='post' className='space-y-4'>
-        <div>
-          <label htmlFor='name'>Name</label>
-          <input type='text' name='name' id='name' required className='w-full border p-2' />
-        </div>
         <div>
           <label htmlFor='email'>Email</label>
           <input type='email' name='email' id='email' required className='w-full border p-2' />
@@ -49,9 +66,13 @@ export default function Login() {
           />
         </div>
         {actionData?.error && <div className='text-red-500'>{actionData.error}</div>}
-        <button type='submit' className='w-full rounded bg-primary p-2 text-white'>
-          Log in
-        </button>
+        <Button
+          type='submit'
+          className='w-full rounded bg-primary p-2 text-white'
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Logging in...' : 'Log in'}
+        </Button>
         <div className='text-center'>
           <p>
             Don't have an account?{' '}

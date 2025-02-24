@@ -22,7 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
     primary: 'text-white border border-primary bg-primary enabled:hover:opacity-95',
     outline:
       'border border-solid border-light-silver bg-transparent text-lead enabled:hover:shadow-sm',
-    text: 'border-none bg-none hover:text-primary',
+    text: 'border-none bg-none text-primary hover:text-primary/80 hover:underline',
   };
 
   return (
