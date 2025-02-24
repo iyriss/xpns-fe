@@ -3,9 +3,13 @@ import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
 import { FormEvent, useState } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
+import { getUserId } from '../../utils/session.server';
 
 export const action: ActionFunction = async ({ request }) => {
+  const userId = await getUserId(request);
+
   const formData = await request.formData();
+  const cookieHeader = request.headers.get('Cookie');
 
   const TransactionsSchema = z.object({
     billStatement: z.string(),
@@ -29,18 +33,25 @@ export const action: ActionFunction = async ({ request }) => {
 
   const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
     body: JSON.stringify({ title: parsed.billStatement }),
   });
+
   const { data } = await res.json();
 
+  if (!data) {
+    return json({ success: false });
+  }
+
   const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
-    return { ...transactionRow, billStatement: data._id, owner: '66c09938421b2d29d74728a8' };
+    return { ...transactionRow, billStatement: data._id, user: data.user };
   });
 
-  const response = await fetch(`${process.env.API_URL}s/api/transactions`, {
+  const response = await fetch(`${process.env.API_URL}/api/transactions`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
     body: JSON.stringify(transactionWithBillStatement),
   });
 

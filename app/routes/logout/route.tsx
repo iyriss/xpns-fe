@@ -7,13 +7,6 @@ const authCookie = createCookie('auth_token', {
   path: '/',
 });
 
-const refreshCookie = createCookie('refreshToken', {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
-  path: '/api/auth/refresh',
-});
-
 export const action: ActionFunction = async ({ request }) => {
   const response = await fetch(`${process.env.API_URL}/api/auth/logout`, {
     method: 'POST',
@@ -30,10 +23,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   return redirect('/login', {
     headers: {
-      'Set-Cookie': [
-        await authCookie.serialize('', { maxAge: 0 }),
-        await refreshCookie.serialize('', { maxAge: 0 }),
-      ],
+      'Set-Cookie': [await authCookie.serialize('', { maxAge: 0 })],
     },
   });
 };
