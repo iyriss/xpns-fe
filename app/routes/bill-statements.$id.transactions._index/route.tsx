@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { ActionFunction, json } from '@remix-run/node';
 import { LoaderFunction } from '@remix-run/node';
-import { Form, useLoaderData, useNavigate } from '@remix-run/react';
+import { Form, useLoaderData } from '@remix-run/react';
 import {
   EllipsisVerticalIcon,
   DivideIcon,
@@ -8,32 +9,46 @@ import {
   UserIcon,
   ChartPieIcon,
 } from '@heroicons/react/24/solid';
-import { useState } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
-import { requireUserId } from '../../utils/session.server';
+import AllocationForm from './AllocationForm';
+import { getUserId } from '../../utils/session.server';
 
 enum Allocation {
-  OTHER_MEMBER = 'other_member',
   HALF = 'half',
   MINE = 'mine',
+  PARTNER = 'partner',
+  CUSTOM = 'custom',
 }
 
 export const loader: LoaderFunction = async ({ params, request, context }) => {
-  const userId = await requireUserId(request);
   const billStatementId = params.id;
   const res = await fetch(
     `${process.env.API_URL}/api/bill-statements/${billStatementId}/transactions`,
+    {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
+    },
   );
   const { data } = await res.json();
+
+  const users = await fetch(`${process.env.API_URL}/api/users`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
+  });
+
+  const { data: usersData } = await users.json();
+  const userId = await getUserId(request);
+  const usersWithoutUser = usersData.filter((u: any) => u._id.toString() !== userId?.toString());
+
   const { billStatement, transactions, groups } = data;
-  return json({ billStatement, transactions, groups, userId });
+
+  return json({ billStatement, transactions, groups, users: usersWithoutUser });
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
   const formData = await request.formData();
-  //todo: check which user is logged in and store as owner
+
   for (var pair of formData.entries()) {
     console.log('pair', pair[0], pair[1]);
   }
@@ -58,7 +73,7 @@ export const action: ActionFunction = async ({ request }) => {
       body: JSON.stringify({
         kind,
         amount,
-        owner: userId,
+        // owner: userId,
         members,
       }),
     });
@@ -92,7 +107,8 @@ const AllocationCopy = (name?: string) => {
 export default function () {
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
   const [allocationType, setAllocationType] = useState<Allocation | ''>('');
-  const { billStatement, transactions, groups } = useLoaderData() as any;
+  const [allocationBase, setAllocationBase] = useState<'fixed' | 'percentage'>('fixed');
+  const { billStatement, transactions, groups, users } = useLoaderData() as any;
 
   function handleSelected(transaction: string) {
     setTransactionIdSelected(transaction);
@@ -144,7 +160,7 @@ export default function () {
                   <span className='mr-4 font-semibold'>
                     {transaction.type === 'Credit' ? 'Deposit' : 'Paid'}
                   </span>
-                  ${Number(transaction.amount) / 100}
+                  ${-(Number(transaction.amount) / 100)}
                 </div>
               </div>
             </div>
@@ -152,7 +168,7 @@ export default function () {
 
             {selected && (
               <>
-                <div className='border-t-secondary mt-4 flex w-full gap-4 border-t py-4'>
+                <div className='border-t-secondary mt-4 flex w-full items-center gap-4 border-t py-4'>
                   <div className='flex min-w-[100px]'>
                     Allocation<span className='text-error'> *</span>
                   </div>
@@ -191,18 +207,18 @@ export default function () {
                     </div>
 
                     <div
-                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.OTHER_MEMBER ? 'border-accent' : ''}`}
+                      className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.PARTNER ? 'border-accent' : ''}`}
                       onClick={() => {
-                        setAllocationType(Allocation.OTHER_MEMBER);
+                        setAllocationType(Allocation.PARTNER);
                       }}
                     >
                       <GiftIcon className='size-3' />
-                      <span>Paid for Other</span>
+                      <span>Paid for partner</span>
                       <input
                         type='radio'
-                        id={Allocation.OTHER_MEMBER}
+                        id={Allocation.PARTNER}
                         name='allocation'
-                        value={Allocation.OTHER_MEMBER}
+                        value={Allocation.PARTNER}
                         className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
                       />
                     </div>
@@ -210,14 +226,30 @@ export default function () {
                       className={`hover:border-accent relative flex cursor-pointer items-center justify-between gap-1 rounded-full border border-light-silver/40 px-3 py-1 ${selected && allocationType === Allocation.MINE ? 'border-accent' : ''}`}
                       onClick={() => {
                         handleSelected(transaction._id);
-                        setAllocationType(Allocation.MINE);
+                        setAllocationType(Allocation.CUSTOM);
                       }}
                     >
                       <ChartPieIcon className='size-3' />
                       <span>Custom</span>
+                      <input
+                        type='radio'
+                        id={Allocation.CUSTOM}
+                        name='allocation'
+                        value={Allocation.CUSTOM}
+                        className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
+                      />
                     </div>
                   </div>
                 </div>
+
+                {allocationType === Allocation.CUSTOM && (
+                  <AllocationForm
+                    allocationBase={allocationBase}
+                    onAllocationBaseChange={setAllocationBase}
+                    users={users}
+                  />
+                )}
+
                 <div className='flex w-full items-center gap-4 py-4'>
                   <div className='min-w-[100px]'>
                     Group<span className='text-error'>*</span>

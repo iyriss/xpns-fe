@@ -3,7 +3,11 @@ import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  const res = await fetch(`${process.env.API_URL}/api/bill-statements`);
+  const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
+  });
+
   const jsonRes = await res.json();
   return json({ billStatements: jsonRes.data });
 };
@@ -15,14 +19,13 @@ export default function () {
   return (
     <div className='mx-auto w-full max-w-[1020px] rounded bg-white p-5'>
       <h1 className='my-4 text-2xl font-semibold'>Uncaptured bill statements</h1>
-      {billStatements.length ? (
+      {billStatements?.length ? (
         <>
           <table className='w-full'>
             <thead>
               <tr className='bg-[#38917D]/20'>
-                <th className='py-5'>Title</th>
-                <th className='py-5'>Transaction dates</th>
-                <th className='py-5'>Transactions</th>
+                <th className='px-2 py-5 text-left'>Title</th>
+                <th className='px-2 py-5 text-left'>Created at</th>
               </tr>
             </thead>
             <tbody>
@@ -30,15 +33,13 @@ export default function () {
                 return (
                   <tr
                     key={billStatement._id}
-                    className='cursor-pointer border-b border-border/40 text-center hover:text-[#38917D]'
+                    className='cursor-pointer border-b border-border/40 text-center hover:bg-gray-100'
                     onClick={() => navigate(`/bill-statements/${billStatement._id}/transactions`)}
                   >
-                    <td className='py-5'>{billStatement.title}</td>
-                    <td className='py-5'>
-                      {displayDate(billStatement.nearestTransaction)} -{' '}
-                      {displayDate(billStatement.furthestTransaction)}
+                    <td className='w-3/4 px-2 py-5 text-left'>{billStatement.title}</td>
+                    <td className='w-1/4 px-2 py-5 text-left'>
+                      {displayDate(billStatement.createdAt)}
                     </td>
-                    <td className='py-5'>{billStatement.transactionCount}</td>
                   </tr>
                 );
               })}
