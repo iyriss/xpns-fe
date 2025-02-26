@@ -4,7 +4,6 @@ import { ActionFunction, json } from '@remix-run/node';
 import { LoaderFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
-import { getUserId } from '../../utils/session.server';
 import TransactionCard from './TransactionCard';
 
 export const loader: LoaderFunction = async ({ params, request, context }) => {
@@ -17,6 +16,7 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
     },
   );
   const { data } = await res.json();
+  const userId = data.transactions[0].user;
 
   const users = await fetch(`${process.env.API_URL}/api/users`, {
     credentials: 'include',
@@ -24,7 +24,7 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
   });
 
   const { data: usersData } = await users.json();
-  const userId = await getUserId(request);
+
   const usersWithoutUser = usersData.filter((u: any) => u._id.toString() !== userId?.toString());
 
   const { billStatement, transactions, groups } = data;
@@ -139,7 +139,9 @@ export default function () {
                 Select a group
               </option>
               {groups.map((group: any) => (
-                <option value={group._id}>{group.name}</option>
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
               ))}
             </select>
           </div>
