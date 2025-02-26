@@ -24,16 +24,13 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
   });
 
   const { data: usersData } = await users.json();
-
-  const usersWithoutUser = usersData.filter((u: any) => u._id.toString() !== userId?.toString());
-
   const { billStatement, transactions, groups } = data;
 
   return json({
     billStatement,
     transactions,
     groups,
-    users: usersWithoutUser,
+    users: usersData,
     currentUser: userId,
   });
 };
@@ -94,6 +91,7 @@ export default function () {
 
   const allocatedTransactions = transactions.filter((t: any) => t.group);
   const unallocatedTransactions = transactions.filter((t: any) => !t.group);
+
   function handleSelected(transaction: string) {
     setTransactionIdSelected(transaction);
   }

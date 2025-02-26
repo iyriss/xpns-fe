@@ -5,6 +5,7 @@ import { useState } from 'react';
 type CustomAllocationFormProps = {
   allocationBase: 'fixed' | 'percentage';
   users: any[];
+  amount: number;
   formRef: React.RefObject<HTMLDivElement>;
   onAllocationBaseChange: (allocationBase: 'fixed' | 'percentage') => void;
 };
@@ -12,6 +13,7 @@ type CustomAllocationFormProps = {
 export default function CustomAllocationForm({
   allocationBase,
   users,
+  amount,
   onAllocationBaseChange,
   formRef,
 }: CustomAllocationFormProps) {
@@ -59,7 +61,8 @@ export default function CustomAllocationForm({
       {[...Array(members + 1)].map((_, index) => (
         <div className='flex gap-4 py-4 transition-all duration-300' key={index}>
           <div className='min-w-[100px]'>
-            <select name={`user-${index}`} required className='h-10 border px-4 py-2'>
+            <select name={`user-${index}`} required className='h-10 min-w-20 border px-2 py-2'>
+              <option value=''>Select</option>
               {users.map((user: any) => (
                 <option key={user._id} value={user._id}>
                   {user.name}
@@ -75,8 +78,10 @@ export default function CustomAllocationForm({
             )}
             <input
               type='number'
+              min={1}
+              max={allocationBase === 'percentage' ? 99 : amount}
               name={`amount-${index}`}
-              className={`h-10 max-w-[88px] border px-4 py-2`}
+              className={`h-10 min-w-[206px] border px-4 py-2 text-right`}
             />
             {allocationBase === 'percentage' && (
               <div className='flex h-10 w-5 items-center justify-center border border-l-0 bg-white'>

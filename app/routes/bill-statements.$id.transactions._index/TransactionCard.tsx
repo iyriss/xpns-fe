@@ -290,7 +290,10 @@ export default function TransactionCard({
                       />
                     </div>
                   </div>
-                  <span>Divided equally</span>
+                  <span>
+                    Divided equally{' '}
+                    <span className='text-sm text-muted'>(÷ {currentGroupMembers.length})</span>
+                  </span>
                 </label>
 
                 <label className='flex cursor-pointer items-center gap-2'>
@@ -317,13 +320,15 @@ export default function TransactionCard({
                     </div>
                   </div>
                   <span>
-                    Paid for{' '}
-                    <select required name='partner-id' className='rounded-full border px-2 py-1'>
-                      {users.map((user: any) => (
-                        <option key={user._id} value={user._id}>
-                          {user.name}
-                        </option>
-                      ))}
+                    Paid for
+                    <select required name='partner-id' className='px-2 py-1'>
+                      {users
+                        .filter((user: any) => user._id !== currentUser)
+                        .map((user: any) => (
+                          <option key={user._id} value={user._id}>
+                            {user.name}
+                          </option>
+                        ))}
                     </select>
                   </span>
                 </label>
@@ -364,6 +369,7 @@ export default function TransactionCard({
             <CustomAllocationForm
               formRef={formRef}
               allocationBase={allocationBase}
+              amount={Math.abs(Number(transaction.amount) / 100)}
               onAllocationBaseChange={(e) => {
                 setAllocationBase(e);
               }}
