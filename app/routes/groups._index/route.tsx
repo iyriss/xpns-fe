@@ -5,7 +5,10 @@ import { z } from 'zod';
 import { Button } from '../../components/Button';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  const res = await fetch(`${process.env.API_URL}/api/groups`);
+  const res = await fetch(`${process.env.API_URL}/api/groups`, {
+    headers: { Cookie: request.headers.get('Cookie') || '' },
+    credentials: 'include',
+  });
   const jsonRes = await res.json();
 
   const users = await fetch(`${process.env.API_URL}/api/users`, {
@@ -33,11 +36,13 @@ export const action: ActionFunction = async ({ request }) => {
 
   const res = await fetch(`${process.env.API_URL}/api/groups`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
     body: JSON.stringify({ name, members }),
   });
+
   const { data } = await res.json();
-  console.log('datal', data);
+
   if (res.statusText === 'OK') {
     return json({ success: true });
   } else {
@@ -164,20 +169,10 @@ export default function () {
                   <div className='absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg'>
                     <div className='border-b border-gray-200 p-2'>
                       <div className='flex justify-between'>
-                        <Button
-                          type='button'
-                          variant='text'
-                          onClick={handleSelectAll}
-                          className='hover:text-primary-active text-sm text-primary'
-                        >
+                        <Button type='button' variant='text' onClick={handleSelectAll}>
                           Select All
                         </Button>
-                        <Button
-                          type='button'
-                          variant='text'
-                          onClick={handleClearAll}
-                          className='hover:text-primary-active text-sm text-primary'
-                        >
+                        <Button type='button' variant='text' onClick={handleClearAll}>
                           Clear All
                         </Button>
                       </div>

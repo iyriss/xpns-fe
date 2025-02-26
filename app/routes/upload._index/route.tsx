@@ -3,11 +3,8 @@ import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
 import { FormEvent, useState } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
-import { getUserId } from '../../utils/session.server';
 
 export const action: ActionFunction = async ({ request }) => {
-  const userId = await getUserId(request);
-
   const formData = await request.formData();
   const cookieHeader = request.headers.get('Cookie');
 
