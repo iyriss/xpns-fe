@@ -1,10 +1,8 @@
 import { ActionFunction, LoaderFunction, json, redirect } from '@remix-run/node';
-import { Form, useActionData } from '@remix-run/react';
-import { createUserSession, getUserId } from '../../utils/session.server';
+import { Form, Link, useActionData } from '@remix-run/react';
+import { Button } from '../../components/Button';
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect('/');
   return null;
 };
 
@@ -28,15 +26,17 @@ export const action: ActionFunction = async ({ request }) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return json({ error: data.error || 'Signup failed' }, { status: response.status });
+      return json({ error: data.error || 'Invalid credentials' });
     }
 
-    if (!data.userId) {
-      console.error('No userId in response:', data);
-      return json({ error: 'Invalid server response' }, { status: 500 });
-    }
-
-    return createUserSession(data.userId, '/');
+    return redirect('/', {
+      headers: {
+        // Forward any headers from the API response
+        ...(response.headers.get('Set-Cookie')
+          ? { 'Set-Cookie': response.headers.get('Set-Cookie') }
+          : {}),
+      },
+    });
   } catch (error) {
     return json({ error: 'Error creating account' }, { status: 500 });
   }
@@ -68,9 +68,17 @@ export default function SignUp() {
           />
         </div>
         {actionData?.error && <div className='text-red-500'>{actionData.error}</div>}
-        <button type='submit' className='w-full rounded bg-primary p-2 text-white'>
+        <Button type='submit' className='w-full rounded bg-primary p-2 text-white'>
           Create Account
-        </button>
+        </Button>
+        <div className='text-center'>
+          <p>
+            Already have an account?{' '}
+            <Link to='/login' className='text-primary hover:underline'>
+              Log in
+            </Link>
+          </p>
+        </div>
       </Form>
     </div>
   );
