@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request }) => {
     transactionId: z.string(),
     group: z.string(),
     allocation: z.object({
-      kind: z.enum(['percentage', 'fixed']),
+      method: z.enum(['percentage', 'fixed']),
       members: z.array(
         z.object({
           user: z.string(),

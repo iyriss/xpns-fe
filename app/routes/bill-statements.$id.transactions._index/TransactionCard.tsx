@@ -37,6 +37,16 @@ function displayDate(date: string) {
   return new Intl.DateTimeFormat('en-CA', options).format(new Date(date));
 }
 
+function divideAmountEqually(membersCount: number) {
+  let basePercentage = Math.floor(100 / membersCount);
+  let remainder = 100 % membersCount;
+
+  return Array.from(
+    { length: membersCount },
+    (_, i) => basePercentage + (i < remainder ? 1 : 0), // Add 'remainder'
+  );
+}
+
 export default function TransactionCard({
   transaction,
   selected,
@@ -80,17 +90,17 @@ export default function TransactionCard({
     const groupId = formData.get('group');
     const allocationType = formData.get('allocation');
 
-    const transaction = {
+    const transactionData = {
       transactionId: transactionId as string,
       group: groupId,
       allocation: {
-        kind: 'percentage',
+        method: 'percentage',
         members: [],
       },
     } as {
       group: string;
       allocation: {
-        kind: 'percentage' | 'fixed';
+        method: 'percentage' | 'fixed';
         members: {
           user: string;
           portion: number;
@@ -100,8 +110,8 @@ export default function TransactionCard({
 
     switch (allocationType) {
       case Allocation.MINE:
-        transaction.allocation.kind = 'percentage';
-        transaction.allocation.members = [
+        transactionData.allocation.method = 'percentage';
+        transactionData.allocation.members = [
           {
             user: currentUser,
             portion: 100,
@@ -110,18 +120,21 @@ export default function TransactionCard({
         break;
 
       case Allocation.HALF:
-        // make sure that amount equals 100 and round to 2 decimal places and if needed e.g. 3.3 + 3.3 + 3.4
-        transaction.allocation.kind = 'percentage';
-        transaction.allocation.members = currentGroupMembers.map((member: any) => ({
-          user: member,
-          portion: 100 / currentGroupMembers.length,
-        }));
+        // TODO: make sure that amount equals 100
+        transactionData.allocation.method = 'percentage';
+        const portion = divideAmountEqually(currentGroupMembers.length);
+        transactionData.allocation.members = currentGroupMembers.map(
+          (member: any, index: number) => ({
+            user: member,
+            portion: portion[index],
+          }),
+        );
         break;
 
       case Allocation.PARTNER:
         const partnerId = formData.get('partner-id');
-        transaction.allocation.kind = 'percentage';
-        transaction.allocation.members = [
+        transactionData.allocation.method = 'percentage';
+        transactionData.allocation.members = [
           {
             user: partnerId as string,
             portion: 100,
@@ -132,15 +145,15 @@ export default function TransactionCard({
       case Allocation.CUSTOM:
         const allocations = getAllocations();
         if (allocationBase === 'percentage') {
-          transaction.allocation.kind = 'percentage';
-          transaction.allocation.members = allocations.map(({ userId, amount }) => ({
+          transactionData.allocation.method = 'percentage';
+          transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
             portion: amount,
           }));
         } else {
           const total = allocations.reduce((sum, { amount }) => sum + amount, 0);
-          transaction.allocation.kind = 'fixed';
-          transaction.allocation.members = allocations.map(({ userId, amount }) => ({
+          transactionData.allocation.method = 'fixed';
+          transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
             portion: (amount / total) * 100,
           }));
@@ -148,19 +161,24 @@ export default function TransactionCard({
         break;
     }
 
-    formData.append('data', JSON.stringify(transaction));
-
+    formData.append('data', JSON.stringify(transactionData));
     submit(formData, {
       method: 'POST',
       action: `/bill-statements/${billStatementId}/transactions`,
     });
   }
 
+  function handleClick() {
+    if (transaction.type === 'Debit') {
+      onTransactionSelected(transaction._id);
+    }
+  }
+
   return (
     <Form
       key={transaction._id}
-      className={`group relative my-3 h-fit w-full cursor-pointer rounded bg-white px-6 py-3 ${selected ? 'border border-dashed border-primary' : ''}`}
-      onClick={() => onTransactionSelected(transaction._id)}
+      className={`group relative my-3 h-fit w-full rounded bg-white px-6 py-3 ${selected ? 'border border-dashed border-primary' : ''} ${transaction.type === 'Debit' ? 'cursor-pointer' : 'bg-[#d9b99b]/20'}`}
+      onClick={handleClick}
       onSubmit={handleSubmit}
     >
       <div className='relative'>
@@ -185,7 +203,7 @@ export default function TransactionCard({
               <span className='mr-4 font-semibold'>
                 {transaction.type === 'Credit' ? 'Deposit' : 'Paid'}
               </span>
-              ${-(Number(transaction.amount) / 100)}
+              ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
             </div>
           </div>
         </div>
@@ -347,7 +365,6 @@ export default function TransactionCard({
               formRef={formRef}
               allocationBase={allocationBase}
               onAllocationBaseChange={(e) => {
-                console.log('e', e);
                 setAllocationBase(e);
               }}
               users={users}
@@ -356,7 +373,15 @@ export default function TransactionCard({
 
           <div className='flex items-center justify-end gap-2 py-4'>
             <Button type='submit'>Save</Button>
-            <Button variant='outline' type='button'>
+            <Button
+              variant='outline'
+              type='button'
+              onClick={() => {
+                onTransactionSelected('');
+                setGroupSelected('');
+                setAllocationType(Allocation.MINE);
+              }}
+            >
               Cancel
             </Button>
           </div>
