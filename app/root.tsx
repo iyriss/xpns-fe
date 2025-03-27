@@ -25,9 +25,6 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     });
 
-    console.log('API Response status:', response.status);
-    console.log('API Response headers:', Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
       return redirect('/login');
     }

@@ -160,7 +160,7 @@ export default function () {
               I want to expense them
             </Button>
             <Button type='button' variant='outline' onClick={() => navigate('/')}>
-              Just back to dashboard bruh
+              Back to dashboard
             </Button>
           </div>
         </div>

@@ -3,8 +3,7 @@ import { Form, json, useSubmit } from '@remix-run/react';
 import { useRef, useState } from 'react';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
-import { z } from 'zod';
-import { ActionFunction } from '@remix-run/node';
+import { displayDate } from '../../utils/date-helpers';
 
 type TransactionCardProps = {
   transaction: any;
@@ -22,19 +21,6 @@ enum Allocation {
   MINE = 'mine',
   PARTNER = 'partner',
   CUSTOM = 'custom',
-}
-
-function displayDate(date: string) {
-  if (!date) {
-    return null;
-  }
-
-  const options: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: '2-digit',
-    timeZone: 'UTC',
-  };
-  return new Intl.DateTimeFormat('en-CA', options).format(new Date(date));
 }
 
 function divideAmountEqually(membersCount: number) {

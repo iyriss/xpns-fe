@@ -17,27 +17,31 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
-  const email = form.get('email');
-  const password = form.get('password');
+  const email = form.get('email')?.toString();
+  const password = form.get('password')?.toString();
+
+  if (!email || !password) {
+    return json({ error: 'Email and password are required' }, { status: 400 });
+  }
 
   const response = await fetch(`${process.env.API_URL}/api/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
     body: JSON.stringify({ email, password }),
     credentials: 'include',
   });
 
   if (!response.ok) {
     const data = await response.json();
-    return json({ error: data.message || 'Invalid credentials' }, { status: response.status });
+    return json({ error: data.error || 'Invalid credentials' }, { status: response.status });
   }
+
+  const cookies = response.headers.get('set-cookie');
 
   return redirect('/', {
     headers: {
       // Forward any headers from the API response
-      ...(response.headers.get('Set-Cookie')
-        ? { 'Set-Cookie': response.headers.get('Set-Cookie') }
-        : {}),
+      ...(response.headers.get('Set-Cookie') ? { 'Set-Cookie': cookies } : {}),
     },
   });
 };
@@ -76,7 +80,7 @@ export default function Login() {
         <div className='text-center'>
           <p>
             Don't have an account?{' '}
-            <Link to='/signup' className='text-primary hover:underline'>
+            <Link to='/signup' className='cursor-pointer text-primary hover:underline'>
               Sign up
             </Link>
           </p>

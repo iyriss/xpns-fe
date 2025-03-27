@@ -1,5 +1,5 @@
 import { ActionFunction, json, LoaderFunction } from '@remix-run/node';
-import { Form, useLoaderData, useSubmit } from '@remix-run/react';
+import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
@@ -265,17 +265,30 @@ export default function () {
 
       {!!groups?.length ? (
         <div className='my-6 rounded bg-white px-6 py-3'>
-          {groups.map(({ name }: { name: string }, idx: number) => {
-            const lastGroup = idx === groups.length - 1;
-            return (
-              <div
-                className={`h-fit w-full cursor-pointer py-4 hover:text-[#38917D] ${lastGroup ? '' : 'border-b border-border/40'}`}
-              >
-                •&nbsp;&nbsp;
-                {name}
-              </div>
-            );
-          })}
+          {groups.map(
+            (
+              { name, _id, members }: { name: string; _id: string; members: string[] },
+              idx: number,
+            ) => {
+              const lastGroup = idx === groups.length - 1;
+              return (
+                <Link
+                  className={`block h-fit w-full cursor-pointer py-4 hover:text-[#38917D] ${lastGroup ? '' : 'border-b border-border/40'}`}
+                  key={name}
+                  to={`/groups/${_id}`}
+                >
+                  <span className='mr-2 inline-block h-[6px] w-[6px] rounded-full bg-current align-middle' />
+                  {name}
+                  <div className='text-sm text-muted'>
+                    {members.length} members
+                    {members?.length && (
+                      <span> - ({members.map((member) => (member as any).name).join(', ')})</span>
+                    )}
+                  </div>
+                </Link>
+              );
+            },
+          )}
         </div>
       ) : creatingGroup ? null : (
         <div className='my-6 rounded bg-white px-6 py-3'>
