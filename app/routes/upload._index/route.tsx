@@ -1,6 +1,6 @@
+import { FormEvent, useState } from 'react';
 import { ActionFunction, json } from '@remix-run/node';
 import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
-import { FormEvent, useState } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
 
@@ -28,35 +28,45 @@ export const action: ActionFunction = async ({ request }) => {
 
   const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
 
-  const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
+  const billStatementRes = await fetch(`${process.env.API_URL}/api/bill-statements`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
     body: JSON.stringify({ title: parsed.billStatement }),
   });
 
-  const { data } = await res.json();
+  const { data } = await billStatementRes.json();
 
   if (!data) {
     return json({ success: false });
   }
 
   const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
-    return { ...transactionRow, billStatement: data._id, user: data.user };
+    return {
+      ...transactionRow,
+      billStatement: data._id,
+      user: data.user,
+    };
   });
 
-  const response = await fetch(`${process.env.API_URL}/api/transactions`, {
+  const transactionsRes = await fetch(`${process.env.API_URL}/api/transactions`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
     body: JSON.stringify(transactionWithBillStatement),
   });
 
-  if (response.statusText === 'OK') {
-    return json({ success: true });
-  } else {
-    return json({ success: false });
+  if (transactionsRes.status !== 200) {
+    // If transactions upload fails, delete the bill statement
+    await fetch(`${process.env.API_URL}/api/bill-statements/${data._id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
+    });
+    return json({ success: false, error: 'Failed to upload transactions' });
   }
+
+  return json({ success: true });
 };
 
 export default function () {
@@ -137,7 +147,7 @@ export default function () {
         description: row[1],
         subdescription: row[2],
         type: row[3],
-        amount: Math.round(Number(row[4]) * 100),
+        amount: Math.abs(Math.round(Number(row[4]) * 100)),
       };
       return transaction;
     });
@@ -151,13 +161,13 @@ export default function () {
       {data?.success ? (
         <div className='mx-auto flex w-full flex-col items-center'>
           <div>Transactions uploaded ✅.</div>
-          <div className='mb-6'>What you want to do now?</div>
+          <div className='mb-6'>What's next?</div>
           <div className='my-4 flex min-w-[280px] flex-col gap-4'>
             <Button type='button' onClick={() => window.location.reload()}>
-              I want to upload more
+              Upload more
             </Button>
             <Button type='button' onClick={() => navigate('/bill-statements')}>
-              I want to expense them
+              Expense transactions
             </Button>
             <Button type='button' variant='outline' onClick={() => navigate('/')}>
               Back to dashboard
