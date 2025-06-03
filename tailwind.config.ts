@@ -18,7 +18,7 @@ export default {
           DEFAULT: '#eaeaea',
         },
         muted: {
-          DEFAULT: '#afafaf',
+          DEFAULT: '#6b7280',
         },
         'light-silver': {
           DEFAULT: '#D8D8D8',

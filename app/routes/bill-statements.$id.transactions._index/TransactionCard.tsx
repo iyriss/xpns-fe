@@ -137,11 +137,15 @@ export default function TransactionCard({
             portion: amount,
           }));
         } else {
-          const total = allocations.reduce((sum, { amount }) => sum + amount, 0);
+          const total = allocations.reduce((sum, { amount }) => sum + amount * 100, 0);
+
+          if (total !== transaction.amount) {
+            throw new Error('Total amount does not match transaction amount');
+          }
           transactionData.allocation.method = 'fixed';
           transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
-            portion: (amount / total) * 100,
+            portion: amount * 100,
           }));
         }
         break;

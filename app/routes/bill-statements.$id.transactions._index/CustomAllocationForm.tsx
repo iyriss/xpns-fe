@@ -1,6 +1,6 @@
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type CustomAllocationFormProps = {
   allocationBase: 'fixed' | 'percentage';
@@ -18,9 +18,52 @@ export default function CustomAllocationForm({
   formRef,
 }: CustomAllocationFormProps) {
   const [members, setMembers] = useState(0);
+  const [inputValues, setInputValues] = useState<{ [key: string]: number }>({});
+  const [selectedUsers, setSelectedUsers] = useState<{ [key: string]: string }>({});
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState('');
 
   const handleAddMember = () => {
     setMembers((prev) => prev + 1);
+  };
+
+  const handleInputChange = (index: number, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setInputValues((prev) => ({ ...prev, [`amount-${index}`]: numValue }));
+  };
+
+  const handleUserSelect = (index: number, userId: string) => {
+    setSelectedUsers((prev) => ({ ...prev, [`user-${index}`]: userId }));
+  };
+
+  useEffect(() => {
+    const newTotal = Object.values(inputValues).reduce((sum, val) => sum + val, 0);
+    setTotal(newTotal);
+
+    if (allocationBase === 'percentage') {
+      if (newTotal > 100) {
+        setError('Total cannot exceed 100%');
+      } else if (newTotal < 100) {
+        setError('Total must equal 100%');
+      } else {
+        setError('');
+      }
+    } else {
+      if (newTotal > amount) {
+        setError(`Total cannot exceed $${amount}`);
+      } else if (newTotal < amount) {
+        setError(`Total must equal $${amount}`);
+      } else {
+        setError('');
+      }
+    }
+  }, [inputValues, allocationBase, amount]);
+
+  const isUserSelected = (userId: string, currentIndex: number) => {
+    return Object.entries(selectedUsers).some(([key, value]) => {
+      const index = parseInt(key.split('-')[1]);
+      return value === userId && index !== currentIndex;
+    });
   };
 
   return (
@@ -52,7 +95,6 @@ export default function CustomAllocationForm({
               onChange={() => onAllocationBaseChange('percentage')}
               className='peer sr-only'
             />
-
             <span>Percentage</span>
           </label>
         </div>
@@ -61,10 +103,16 @@ export default function CustomAllocationForm({
       {[...Array(members + 1)].map((_, index) => (
         <div className='flex gap-4 py-4 transition-all duration-300' key={index}>
           <div className='min-w-[100px]'>
-            <select name={`user-${index}`} required className='h-10 min-w-20 border px-2 py-2'>
+            <select
+              name={`user-${index}`}
+              required
+              className='h-10 min-w-20 border px-2 py-2'
+              value={selectedUsers[`user-${index}`] || ''}
+              onChange={(e) => handleUserSelect(index, e.target.value)}
+            >
               <option value=''>Select</option>
               {users.map((user: any) => (
-                <option key={user._id} value={user._id}>
+                <option key={user._id} value={user._id} disabled={isUserSelected(user._id, index)}>
                   {user.name}
                 </option>
               ))}
@@ -78,10 +126,13 @@ export default function CustomAllocationForm({
             )}
             <input
               type='number'
-              min={1}
-              max={allocationBase === 'percentage' ? 99 : amount}
+              min={0.01}
+              step={0.01}
+              max={allocationBase === 'percentage' ? 100 : amount}
               name={`amount-${index}`}
-              className={`h-10 min-w-[206px] border px-4 py-2 text-right`}
+              value={inputValues[`amount-${index}`] || ''}
+              onChange={(e) => handleInputChange(index, e.target.value)}
+              className={`h-10 min-w-[206px] border px-4 py-2 text-right ${error ? 'border-error' : ''}`}
             />
             {allocationBase === 'percentage' && (
               <div className='flex h-10 w-5 items-center justify-center border border-l-0 bg-white'>
@@ -97,6 +148,15 @@ export default function CustomAllocationForm({
           )}
         </div>
       ))}
+
+      <div className='mt-2 flex justify-between px-4'>
+        <div className='text-sm text-muted'>
+          Total: {allocationBase === 'fixed' ? '$' : ''}
+          {total.toFixed(2)}
+          {allocationBase === 'percentage' ? '%' : ''}
+        </div>
+        {error && <div className='text-sm text-error'>{error}</div>}
+      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function () {
             onClick={() => navigate('/bill-statements')}
             className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#604ab0] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'
           >
-            Uncaptured transactions
+            Uncaptured
           </div>
           <div
             onClick={() => navigate('/groups')}

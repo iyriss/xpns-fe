@@ -75,14 +75,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-const AllocationCopy = (name?: string) => {
-  return {
-    OTHER_MEMBER: `Save this transaction as paid fully for ${name}`,
-    MINE: 'Save this transaction as paid for you only?',
-    half: `Save this transaction and split 50% 50% with ${name}`,
-  };
-};
-
 export default function () {
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
   const [defaultGroup, setDefaultGroup] = useState('');
