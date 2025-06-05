@@ -161,7 +161,6 @@ export default function () {
       {data?.success ? (
         <div className='mx-auto flex w-full flex-col items-center'>
           <div>Transactions uploaded ✅.</div>
-          <div className='mb-6'>What's next?</div>
           <div className='my-4 flex min-w-[280px] flex-col gap-4'>
             <Button type='button' onClick={() => window.location.reload()}>
               Upload more

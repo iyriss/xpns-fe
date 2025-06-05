@@ -1,5 +1,5 @@
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import { Form, json, useSubmit } from '@remix-run/react';
+import { Form, json, useNavigate, useSubmit } from '@remix-run/react';
 import { useRef, useState } from 'react';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
@@ -53,6 +53,7 @@ export default function TransactionCard({
 
   const formRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
+  const navigate = useNavigate();
 
   const currentGroup = groupSelected || defaultGroup;
   const currentGroupMembers = groups.find((group) => group._id === currentGroup)?.members;
@@ -167,13 +168,16 @@ export default function TransactionCard({
   return (
     <Form
       key={transaction._id}
-      className={`group relative my-3 h-fit w-full rounded bg-white px-6 py-3 ${selected ? 'border border-dashed border-primary' : ''} ${transaction.type === 'Debit' ? 'cursor-pointer' : 'bg-[#d9b99b]/20'}`}
+      className={`group relative h-fit w-full border-b border-border py-4 ${transaction.type === 'Debit' ? 'cursor-pointer' : 'bg-border/70 opacity-40'}`}
       onClick={handleClick}
       onSubmit={handleSubmit}
     >
+      {selected && (
+        <div className='pointer-events-none absolute -inset-x-8 inset-y-0 h-full rounded border border-dashed border-primary' />
+      )}
       <div className='relative'>
         <div
-          className={`absolute -inset-x-4 -inset-y-2 ${selected ? 'rounded bg-primary/10' : ''}`}
+          className={`absolute -inset-x-4 -inset-y-2 ${selected ? 'rounded bg-primary/20' : ''}`}
         />
 
         <input hidden type='text' defaultValue={transaction._id} name='transaction' />
@@ -206,22 +210,35 @@ export default function TransactionCard({
             <div className='min-w-[100px]'>
               Group<span className='text-error'>*</span>
             </div>
-            <select
-              name='group'
-              required
-              className='h-10 min-w-[400px] border px-4 py-2'
-              value={currentGroup}
-              onChange={handleGroupSelected}
-            >
-              <option value={''} className='!text-muted'>
-                Select a group
-              </option>
-              {groups.map((group: any) => (
-                <option key={group._id} value={group._id}>
-                  {group.name}
+            {groups.length > 0 ? (
+              <select
+                name='group'
+                required
+                className='h-10 min-w-[400px] border px-4 py-2'
+                value={currentGroup}
+                onChange={handleGroupSelected}
+              >
+                <option value={''} className='!text-muted'>
+                  Select a group
                 </option>
-              ))}
-            </select>
+                {groups.map((group: any) => (
+                  <option key={group._id} value={group._id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className='text-muted'>
+                <Button
+                  variant='text'
+                  className='!inline !px-0'
+                  onClick={() => navigate('/groups')}
+                >
+                  Create a group
+                </Button>
+                <span> to start tracking your expenses.</span>
+              </div>
+            )}
           </div>
 
           {currentGroupMembers?.length > 1 ? (
@@ -368,11 +385,14 @@ export default function TransactionCard({
           )}
 
           <div className='flex items-center justify-end gap-2 py-4'>
-            <Button type='submit'>Save</Button>
+            <Button type='submit' disabled={!currentGroup}>
+              Save
+            </Button>
             <Button
               variant='outline'
               type='button'
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 onTransactionSelected('');
                 setGroupSelected('');
                 setAllocationType(Allocation.MINE);

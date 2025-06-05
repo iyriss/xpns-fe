@@ -16,7 +16,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'px-4 py-1 disabled:opacity-50 rounded-[3px] flex items-center justify-center cursor-pointer flex items-center justify-center disabled:cursor-not-allowed';
+    'px-4 py-1 disabled:bg-gray-200 disabled:border-gray-200 disabled:cursor-not-allowed rounded-[3px] flex items-center justify-center cursor-pointer flex items-center justify-center disabled:cursor-not-allowed';
 
   const variantStyles = {
     primary: 'text-white border border-primary bg-primary enabled:hover:opacity-95',
