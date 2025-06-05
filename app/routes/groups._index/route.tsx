@@ -267,7 +267,12 @@ export default function () {
         <div className='my-6 rounded bg-white px-6 py-3'>
           {groups.map(
             (
-              { name, _id, members }: { name: string; _id: string; members: string[] },
+              {
+                name,
+                _id,
+                members,
+                user,
+              }: { name: string; _id: string; members: string[]; user: string },
               idx: number,
             ) => {
               const lastGroup = idx === groups.length - 1;
@@ -277,8 +282,13 @@ export default function () {
                   key={name}
                   to={`/groups/${_id}`}
                 >
-                  <span className='mr-2 inline-block h-[6px] w-[6px] rounded-full bg-current align-middle' />
-                  {name}
+                  <div className='flex items-center gap-2'>
+                    <span className='mr-2 inline-block h-[6px] w-[6px] rounded-full bg-current align-middle' />
+                    <div>{name}</div>
+                    {user === currentUser._id && (
+                      <div className='ml-auto text-sm text-muted'>Your group</div>
+                    )}
+                  </div>
                   <div className='text-sm text-muted'>
                     {members.length} members
                     {members?.length && (

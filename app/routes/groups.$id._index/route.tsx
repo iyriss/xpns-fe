@@ -58,73 +58,79 @@ export default function () {
         </div>
       </div>
 
-      {groupTransactions.map((transaction: any) => {
-        return (
-          <div key={transaction._id} className={`my-3 h-fit w-full rounded bg-white px-6 py-3`}>
-            <div className='flex flex-col gap-3'>
-              {/* Top section with date and description */}
-              <div className='flex items-center justify-between'>
-                <div className='flex w-full items-center gap-4'>
-                  <div className='text-sm text-[#38917D]'>
-                    <div className='text-xl font-semibold'>
-                      {displayDate(transaction.date)?.split(' ')[1]}
+      {groupTransactions?.length ? (
+        groupTransactions.map((transaction: any) => {
+          return (
+            <div key={transaction._id} className={`my-3 h-fit w-full rounded bg-white px-6 py-3`}>
+              <div className='flex flex-col gap-3'>
+                {/* Top section with date and description */}
+                <div className='flex items-center justify-between'>
+                  <div className='flex w-full items-center gap-4'>
+                    <div className='text-sm text-[#38917D]'>
+                      <div className='text-xl font-semibold'>
+                        {displayDate(transaction.date)?.split(' ')[1]}
+                      </div>
+                      <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
                     </div>
-                    <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
+                    <div className='font-medium'>
+                      {transaction.subdescription.trim() || transaction.description}
+                    </div>
                   </div>
-                  <div className='font-medium'>
-                    {transaction.subdescription.trim() || transaction.description}
+                  <div className='text-lg font-semibold'>
+                    ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
                   </div>
                 </div>
-                <div className='text-lg font-semibold'>
-                  ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
-                </div>
-              </div>
 
-              {/* Payment details section */}
-              <div className='border-t pt-2'>
-                <div className='flex items-center gap-2 text-sm'>
-                  <span className='font-medium text-emerald-600'>
-                    {isCurrentUser(transaction.payer._id) || transaction.payer.name}
-                  </span>
-                  <span>paid</span>
-                </div>
+                {/* Payment details section */}
+                <div className='border-t pt-2'>
+                  <div className='flex items-center gap-2 text-sm'>
+                    <span className='font-medium text-emerald-600'>
+                      {isCurrentUser(transaction.user._id) || transaction.user.name}
+                    </span>
+                    <span>paid</span>
+                  </div>
 
-                {transaction.allocation?.members && (
-                  <div className='mt-2 space-y-1'>
-                    {transaction.allocation.members.map((member: any) => {
-                      if (member.user._id === transaction.payer._id) return null;
+                  {transaction.allocation?.members && (
+                    <div className='mt-2 space-y-1'>
+                      {transaction.allocation.members.map((member: any) => {
+                        if (member.user._id === transaction.user._id) return null;
 
-                      // Calculate the amount based on allocation method
-                      const totalAmount = Math.abs(Number(transaction.amount));
-                      const amountOwed = (totalAmount * (member.portion / 100)) / 100;
+                        // Calculate the amount based on allocation method
+                        const totalAmount = Math.abs(Number(transaction.amount));
+                        const amountOwed = (totalAmount * (member.portion / 100)) / 100;
 
-                      return (
-                        <div key={member.user._id} className='flex items-center text-sm'>
-                          <div className='flex items-center gap-2'>
-                            <span className='font-medium'>
-                              {isCurrentUser(member.user._id) || member.user.name}
-                            </span>
-                            <span className='text-muted'>owes</span>
-                            <span className='font-medium text-gray-900'>
-                              ${amountOwed.toFixed(2)}
-                            </span>
-                            {transaction.allocation.method === 'percentage' && (
-                              <span className='text-muted'>({member.portion}%)</span>
-                            )}
+                        return (
+                          <div key={member.user._id} className='flex items-center text-sm'>
+                            <div className='flex items-center gap-2'>
+                              <span className='font-medium'>
+                                {isCurrentUser(member.user._id) || member.user.name}
+                              </span>
+                              <span className='text-muted'>
+                                {isCurrentUser(member.user._id) ? 'owe' : 'owes'}
+                              </span>
+                              <span className='font-medium text-gray-900'>
+                                ${amountOwed.toFixed(2)}
+                              </span>
+                              {transaction.allocation.method === 'percentage' && (
+                                <span className='text-muted'>({member.portion}%)</span>
+                              )}
+                            </div>
+                            <div className='ml-1 text-sm text-muted'>
+                              to {isCurrentUser(transaction.user._id) || transaction.user.name}
+                            </div>
                           </div>
-                          <div className='ml-1 text-sm text-muted'>
-                            to {isCurrentUser(transaction.payer._id) || transaction.payer.name}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      ) : (
+        <div className='text-muted'>No transactions.</div>
+      )}
     </div>
   );
 }

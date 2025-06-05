@@ -241,7 +241,7 @@ export default function TransactionCard({
             )}
           </div>
 
-          {currentGroupMembers?.length > 1 ? (
+          {!!currentGroupMembers?.length ? (
             <div className='mt-4 flex w-full items-center gap-4 py-4'>
               <div className='flex min-w-[100px]'>
                 Allocation<span className='text-error'> *</span>
@@ -255,7 +255,10 @@ export default function TransactionCard({
                       id={Allocation.MINE}
                       name='allocation'
                       value={Allocation.MINE}
-                      checked={allocationType === Allocation.MINE}
+                      checked={
+                        allocationType === Allocation.MINE ||
+                        (currentGroupMembers.length === 1 && currentGroupMembers[0] === currentUser)
+                      }
                       onChange={() => setAllocationType(Allocation.MINE)}
                       className='peer sr-only'
                     />
@@ -271,103 +274,115 @@ export default function TransactionCard({
                       />
                     </div>
                   </div>
-                  <span>Just me</span>
-                </label>
-
-                <label className='flex cursor-pointer items-center gap-2'>
-                  <div className='relative'>
-                    <input
-                      type='radio'
-                      id={Allocation.HALF}
-                      name='allocation'
-                      value={Allocation.HALF}
-                      checked={allocationType === Allocation.HALF}
-                      onChange={() => setAllocationType(Allocation.HALF)}
-                      className='peer sr-only'
-                    />
-                    <div
-                      className={`relative h-4 w-4 rounded-full border ${
-                        allocationType === Allocation.HALF ? 'border-primary' : 'border-gray-300'
-                      }`}
-                    >
-                      <div
-                        className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
-                          allocationType === Allocation.HALF ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      />
-                    </div>
-                  </div>
                   <span>
-                    Divided equally{' '}
-                    <span className='text-sm text-muted'>(÷ {currentGroupMembers.length})</span>
+                    Me <span className='text-sm text-muted'>(Only member in this group)</span>
                   </span>
                 </label>
 
-                <label className='flex cursor-pointer items-center gap-2'>
-                  <div className='relative'>
-                    <input
-                      type='radio'
-                      id={Allocation.PARTNER}
-                      name='allocation'
-                      value={Allocation.PARTNER}
-                      checked={allocationType === Allocation.PARTNER}
-                      onChange={() => setAllocationType(Allocation.PARTNER)}
-                      className='peer sr-only'
-                    />
-                    <div
-                      className={`relative h-4 w-4 rounded-full border ${
-                        allocationType === Allocation.PARTNER ? 'border-primary' : 'border-gray-300'
-                      }`}
-                    >
-                      <div
-                        className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
-                          allocationType === Allocation.PARTNER ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <span>
-                    Paid for
-                    <select required name='partner-id' className='px-2 py-1'>
-                      {users
-                        .filter((user: any) => user._id !== currentUser)
-                        .map((user: any) => (
-                          <option key={user._id} value={user._id}>
-                            {user.name}
-                          </option>
-                        ))}
-                    </select>
-                  </span>
-                </label>
+                {currentGroupMembers.length > 1 && (
+                  <>
+                    <label className='flex cursor-pointer items-center gap-2'>
+                      <div className='relative'>
+                        <input
+                          type='radio'
+                          id={Allocation.HALF}
+                          name='allocation'
+                          value={Allocation.HALF}
+                          checked={allocationType === Allocation.HALF}
+                          onChange={() => setAllocationType(Allocation.HALF)}
+                          className='peer sr-only'
+                        />
+                        <div
+                          className={`relative h-4 w-4 rounded-full border ${
+                            allocationType === Allocation.HALF
+                              ? 'border-primary'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          <div
+                            className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
+                              allocationType === Allocation.HALF ? 'opacity-100' : 'opacity-0'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                      <span>
+                        Divided equally{' '}
+                        <span className='text-sm text-muted'>(÷ {currentGroupMembers.length})</span>
+                      </span>
+                    </label>
 
-                <label className='flex cursor-pointer items-center gap-2'>
-                  <div className='relative'>
-                    <input
-                      type='radio'
-                      id={Allocation.CUSTOM}
-                      name='allocation'
-                      value={Allocation.CUSTOM}
-                      checked={allocationType === Allocation.CUSTOM}
-                      onChange={() => {
-                        onTransactionSelected(transaction._id);
-                        setAllocationType(Allocation.CUSTOM);
-                      }}
-                      className='peer sr-only'
-                    />
-                    <div
-                      className={`relative h-4 w-4 rounded-full border ${
-                        allocationType === Allocation.CUSTOM ? 'border-primary' : 'border-gray-300'
-                      }`}
-                    >
-                      <div
-                        className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
-                          allocationType === Allocation.CUSTOM ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <span>Custom</span>
-                </label>
+                    <label className='flex cursor-pointer items-center gap-2'>
+                      <div className='relative'>
+                        <input
+                          type='radio'
+                          id={Allocation.PARTNER}
+                          name='allocation'
+                          value={Allocation.PARTNER}
+                          checked={allocationType === Allocation.PARTNER}
+                          onChange={() => setAllocationType(Allocation.PARTNER)}
+                          className='peer sr-only'
+                        />
+                        <div
+                          className={`relative h-4 w-4 rounded-full border ${
+                            allocationType === Allocation.PARTNER
+                              ? 'border-primary'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          <div
+                            className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
+                              allocationType === Allocation.PARTNER ? 'opacity-100' : 'opacity-0'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                      <span>
+                        Paid for
+                        <select required name='partner-id' className='px-2 py-1'>
+                          {users
+                            .filter((user: any) => user._id !== currentUser)
+                            .map((user: any) => (
+                              <option key={user._id} value={user._id}>
+                                {user.name}
+                              </option>
+                            ))}
+                        </select>
+                      </span>
+                    </label>
+
+                    <label className='flex cursor-pointer items-center gap-2'>
+                      <div className='relative'>
+                        <input
+                          type='radio'
+                          id={Allocation.CUSTOM}
+                          name='allocation'
+                          value={Allocation.CUSTOM}
+                          checked={allocationType === Allocation.CUSTOM}
+                          onChange={() => {
+                            onTransactionSelected(transaction._id);
+                            setAllocationType(Allocation.CUSTOM);
+                          }}
+                          className='peer sr-only'
+                        />
+                        <div
+                          className={`relative h-4 w-4 rounded-full border ${
+                            allocationType === Allocation.CUSTOM
+                              ? 'border-primary'
+                              : 'border-gray-300'
+                          }`}
+                        >
+                          <div
+                            className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
+                              allocationType === Allocation.CUSTOM ? 'opacity-100' : 'opacity-0'
+                            }`}
+                          />
+                        </div>
+                      </div>
+                      <span>Custom</span>
+                    </label>
+                  </>
+                )}
               </div>
             </div>
           ) : null}
