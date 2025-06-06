@@ -17,9 +17,9 @@ type TransactionCardProps = {
 };
 
 enum Allocation {
-  HALF = 'half',
+  EQUALLY = 'equally',
   MINE = 'mine',
-  PARTNER = 'partner',
+  PEER = 'peer',
   CUSTOM = 'custom',
 }
 
@@ -98,7 +98,7 @@ export default function TransactionCard({
         ];
         break;
 
-      case Allocation.HALF:
+      case Allocation.EQUALLY:
         transactionData.allocation.method = 'fixed';
         const totalAmount = transaction.amount;
         const minimumAmountPerPerson = Math.floor(totalAmount / currentGroupMembers.length);
@@ -120,12 +120,12 @@ export default function TransactionCard({
         );
         break;
 
-      case Allocation.PARTNER:
-        const partnerId = formData.get('partner-id');
+      case Allocation.PEER:
+        const peerId = formData.get('peer-id');
         transactionData.allocation.method = 'percentage';
         transactionData.allocation.members = [
           {
-            user: partnerId as string,
+            user: peerId as string,
             portion: 100,
             amount: transaction.amount,
           },
@@ -290,23 +290,23 @@ export default function TransactionCard({
                       <div className='relative'>
                         <input
                           type='radio'
-                          id={Allocation.HALF}
+                          id={Allocation.EQUALLY}
                           name='allocation'
-                          value={Allocation.HALF}
-                          checked={allocationType === Allocation.HALF}
-                          onChange={() => setAllocationType(Allocation.HALF)}
+                          value={Allocation.EQUALLY}
+                          checked={allocationType === Allocation.EQUALLY}
+                          onChange={() => setAllocationType(Allocation.EQUALLY)}
                           className='peer sr-only'
                         />
                         <div
                           className={`relative h-4 w-4 rounded-full border ${
-                            allocationType === Allocation.HALF
+                            allocationType === Allocation.EQUALLY
                               ? 'border-primary'
                               : 'border-gray-300'
                           }`}
                         >
                           <div
                             className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
-                              allocationType === Allocation.HALF ? 'opacity-100' : 'opacity-0'
+                              allocationType === Allocation.EQUALLY ? 'opacity-100' : 'opacity-0'
                             }`}
                           />
                         </div>
@@ -321,30 +321,30 @@ export default function TransactionCard({
                       <div className='relative'>
                         <input
                           type='radio'
-                          id={Allocation.PARTNER}
+                          id={Allocation.PEER}
                           name='allocation'
-                          value={Allocation.PARTNER}
-                          checked={allocationType === Allocation.PARTNER}
-                          onChange={() => setAllocationType(Allocation.PARTNER)}
+                          value={Allocation.PEER}
+                          checked={allocationType === Allocation.PEER}
+                          onChange={() => setAllocationType(Allocation.PEER)}
                           className='peer sr-only'
                         />
                         <div
                           className={`relative h-4 w-4 rounded-full border ${
-                            allocationType === Allocation.PARTNER
+                            allocationType === Allocation.PEER
                               ? 'border-primary'
                               : 'border-gray-300'
                           }`}
                         >
                           <div
                             className={`absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ${
-                              allocationType === Allocation.PARTNER ? 'opacity-100' : 'opacity-0'
+                              allocationType === Allocation.PEER ? 'opacity-100' : 'opacity-0'
                             }`}
                           />
                         </div>
                       </div>
                       <span>
                         Paid for
-                        <select required name='partner-id' className='px-2 py-1'>
+                        <select required name='peer-id' className='px-2 py-1'>
                           {users
                             .filter((user: any) => user._id !== currentUser)
                             .map((user: any) => (
