@@ -87,17 +87,22 @@ export default function () {
                     <span className='font-medium text-emerald-600'>
                       {isCurrentUser(transaction.user._id) || transaction.user.name}
                     </span>
-                    <span>paid</span>
+                    <span>paid for this transaction</span>
                   </div>
 
                   {transaction.allocation?.members && (
                     <div className='mt-2 space-y-1'>
                       {transaction.allocation.members.map((member: any) => {
-                        if (member.user._id === transaction.user._id) return null;
-
-                        // Calculate the amount based on allocation method
-                        const totalAmount = Math.abs(Number(transaction.amount));
-                        const amountOwed = (totalAmount * (member.portion / 100)) / 100;
+                        const amountOwed = member.amount / 100;
+                        if (member.user._id === transaction.user._id) {
+                          return (
+                            <div key={member.user._id} className='flex items-center text-sm'>
+                              <span className='font-medium text-muted'>
+                                You paid ${amountOwed.toFixed(2)} for yourself
+                              </span>
+                            </div>
+                          );
+                        }
 
                         return (
                           <div key={member.user._id} className='flex items-center text-sm'>

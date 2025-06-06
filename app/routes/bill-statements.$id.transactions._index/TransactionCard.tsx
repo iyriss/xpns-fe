@@ -23,16 +23,6 @@ enum Allocation {
   CUSTOM = 'custom',
 }
 
-function divideAmountEqually(membersCount: number) {
-  let basePercentage = Math.floor(100 / membersCount);
-  let remainder = 100 % membersCount;
-
-  return Array.from(
-    { length: membersCount },
-    (_, i) => basePercentage + (i < remainder ? 1 : 0), // Add 'remainder'
-  );
-}
-
 export default function TransactionCard({
   transaction,
   selected,
@@ -91,6 +81,7 @@ export default function TransactionCard({
         members: {
           user: string;
           portion: number;
+          amount: number;
         }[];
       };
     };
@@ -102,19 +93,30 @@ export default function TransactionCard({
           {
             user: currentUser,
             portion: 100,
+            amount: transaction.amount,
           },
         ];
         break;
 
       case Allocation.HALF:
-        // TODO: make sure that amount equals 100
-        transactionData.allocation.method = 'percentage';
-        const portion = divideAmountEqually(currentGroupMembers.length);
+        transactionData.allocation.method = 'fixed';
+        const totalAmount = transaction.amount;
+        const minimumAmountPerPerson = Math.floor(totalAmount / currentGroupMembers.length);
+        const extraCentsToDistribute = totalAmount % currentGroupMembers.length;
+
         transactionData.allocation.members = currentGroupMembers.map(
-          (member: any, index: number) => ({
-            user: member,
-            portion: portion[index],
-          }),
+          (member: any, index: number) => {
+            // If this person should get an extra cent (based on their position in the list)
+            const getsExtraCent = index < extraCentsToDistribute;
+            // Their final amount is either minimum + 1 cent or just minimum
+            const finalAmount = getsExtraCent ? minimumAmountPerPerson + 1 : minimumAmountPerPerson;
+
+            return {
+              user: member,
+              portion: finalAmount,
+              amount: finalAmount,
+            };
+          },
         );
         break;
 
@@ -125,6 +127,7 @@ export default function TransactionCard({
           {
             user: partnerId as string,
             portion: 100,
+            amount: transaction.amount,
           },
         ];
         break;
@@ -136,6 +139,7 @@ export default function TransactionCard({
           transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
             portion: amount,
+            amount: transaction.amount * amount,
           }));
         } else {
           const total = allocations.reduce((sum, { amount }) => sum + amount * 100, 0);
@@ -147,6 +151,7 @@ export default function TransactionCard({
           transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
             portion: amount * 100,
+            amount: amount * 100,
           }));
         }
         break;
@@ -197,7 +202,7 @@ export default function TransactionCard({
               <span className='mr-4 font-semibold'>
                 {transaction.type === 'Credit' ? 'Deposit' : 'Paid'}
               </span>
-              ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
+              ${(Number(transaction.amount) / 100).toFixed(2)}
             </div>
           </div>
         </div>
@@ -391,7 +396,7 @@ export default function TransactionCard({
             <CustomAllocationForm
               formRef={formRef}
               allocationBase={allocationBase}
-              amount={Math.abs(Number(transaction.amount) / 100)}
+              amount={Number(transaction.amount) / 100}
               onAllocationBaseChange={(e) => {
                 setAllocationBase(e);
               }}

@@ -49,6 +49,7 @@ export const action: ActionFunction = async ({ request }) => {
         z.object({
           user: z.string(),
           portion: z.number(),
+          amount: z.number(),
         }),
       ),
     }),
