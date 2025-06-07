@@ -2,6 +2,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { LoaderFunction, json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { displayDate } from '../../utils/date-helpers';
+import Settlements from './Settlements';
 
 export const loader: LoaderFunction = async ({ request, context, params }) => {
   const res = await fetch(`${process.env.API_URL}/api/groups/${params.id}`, {
@@ -14,7 +15,9 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
     headers: { Cookie: request.headers.get('Cookie') || '' },
     credentials: 'include',
   });
-  const { data: groupData } = await groupRes.json();
+  const {
+    data: { groupTransactions, settlements },
+  } = await groupRes.json();
 
   const currentUserRes = await fetch(`${process.env.API_URL}/api/auth/me`, {
     headers: { Cookie: request.headers.get('Cookie') || '' },
@@ -23,15 +26,11 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
 
   const currentUser = await currentUserRes.json();
 
-  return json({ group: data, groupTransactions: groupData, currentUser });
+  return json({ group: data, groupTransactions, currentUser, settlements });
 };
 
 export default function () {
-  const { group, groupTransactions, currentUser } = useLoaderData<typeof loader>();
-
-  console.log('currentUser', currentUser);
-  console.log('group', group);
-  console.log('groupTransactions', groupTransactions);
+  const { group, groupTransactions, currentUser, settlements } = useLoaderData<typeof loader>();
 
   const isCurrentUser = (id: string) => (currentUser._id === id ? 'You' : null);
 
@@ -57,6 +56,30 @@ export default function () {
           )}
         </div>
       </div>
+      <div className='flex items-center justify-between py-3'>
+        <div>Transactions sum:</div>
+        <div>
+          ${' '}
+          {groupTransactions.length
+            ? (
+                groupTransactions.reduce(
+                  (sum: number, transaction: { amount: number }) => sum + transaction.amount,
+                  0,
+                ) / 100
+              ).toFixed(2)
+            : 0}
+        </div>
+      </div>
+
+      {group.members.length > 2 && (
+        <div className='rounded bg-primary px-3 py-2 text-white'>
+          <Settlements
+            settlements={settlements}
+            members={group.members}
+            currentUser={currentUser}
+          />
+        </div>
+      )}
 
       {groupTransactions?.length ? (
         groupTransactions.map((transaction: any) => {
@@ -83,7 +106,7 @@ export default function () {
 
                 {/* Payment details section */}
                 <div className='border-t pt-2'>
-                  <div className='flex items-center gap-2 text-sm'>
+                  <div className='flex items-center gap-1 text-sm'>
                     <span className='font-medium text-emerald-600'>
                       {isCurrentUser(transaction.user._id) || transaction.user.name}
                     </span>
@@ -94,37 +117,52 @@ export default function () {
                     <div className='mt-2 space-y-1'>
                       {transaction.allocation.members.map((member: any) => {
                         const amountOwed = member.amount / 100;
-                        if (member.user._id === transaction.user._id) {
+                        if (
+                          currentUser._id === transaction.user._id &&
+                          member.user._id === currentUser._id
+                        ) {
                           return (
                             <div key={member.user._id} className='flex items-center text-sm'>
                               <span className='font-medium text-muted'>
-                                You paid ${amountOwed.toFixed(2)} for yourself
+                                You covered ${amountOwed.toFixed(2)} for yourself
                               </span>
                             </div>
                           );
+                        } else if (
+                          currentUser._id !== transaction.user._id &&
+                          member.user._id === transaction.user._id
+                        ) {
+                          return (
+                            <div key={member.user._id} className='flex items-center text-sm'>
+                              <span className='font-medium text-muted'>
+                                {transaction.user.name} covered ${amountOwed.toFixed(2)} for them
+                              </span>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={member.user._id} className='flex items-center text-sm'>
+                              <div className='flex items-center gap-1'>
+                                <span className='font-medium'>
+                                  {isCurrentUser(member.user._id) || member.user.name}
+                                </span>
+                                <span className='text-muted'>
+                                  {isCurrentUser(member.user._id) ? 'owe' : 'owes'}
+                                </span>
+                                <span className='text-sm text-muted'>
+                                  {isCurrentUser(transaction.user._id)?.toLowerCase() ||
+                                    transaction.user.name}
+                                </span>
+                                <span className='font-medium text-gray-900'>
+                                  ${amountOwed.toFixed(2)}
+                                </span>
+                                {transaction.allocation.method === 'percentage' && (
+                                  <span className='text-muted'>({member.portion}%)</span>
+                                )}
+                              </div>
+                            </div>
+                          );
                         }
-
-                        return (
-                          <div key={member.user._id} className='flex items-center text-sm'>
-                            <div className='flex items-center gap-2'>
-                              <span className='font-medium'>
-                                {isCurrentUser(member.user._id) || member.user.name}
-                              </span>
-                              <span className='text-muted'>
-                                {isCurrentUser(member.user._id) ? 'owe' : 'owes'}
-                              </span>
-                              <span className='font-medium text-gray-900'>
-                                ${amountOwed.toFixed(2)}
-                              </span>
-                              {transaction.allocation.method === 'percentage' && (
-                                <span className='text-muted'>({member.portion}%)</span>
-                              )}
-                            </div>
-                            <div className='ml-1 text-sm text-muted'>
-                              to {isCurrentUser(transaction.user._id) || transaction.user.name}
-                            </div>
-                          </div>
-                        );
                       })}
                     </div>
                   )}
