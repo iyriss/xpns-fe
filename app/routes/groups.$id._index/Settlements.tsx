@@ -10,6 +10,7 @@ export default function Settlements({ settlements, members, currentUser }: Settl
       {settlements.map((settlement: any, i: number) => {
         const debtor = members.find((member: any) => member._id === settlement.from);
         const creditor = members.find((member: any) => member._id === settlement.to);
+
         if (!debtor || !creditor) return null;
 
         const amount = settlement.amount / 100;
@@ -18,7 +19,7 @@ export default function Settlements({ settlements, members, currentUser }: Settl
         return (
           <div
             key={`amount-${i}`}
-            className={`py-1 ${isCurrentUser === debtor._id || isCurrentUser === creditor._id ? 'font-bold' : ''}`}
+            className={`${isCurrentUser === debtor._id ? 'text-red-500' : ''} ${isCurrentUser === creditor._id ? 'text-green-800' : ''}`}
           >
             <span>{isCurrentUser === debtor._id ? 'You' : debtor.name}</span>
             {isCurrentUser === debtor._id ? ' owe ' : ' owes '}

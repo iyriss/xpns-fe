@@ -56,7 +56,7 @@ export default function () {
           )}
         </div>
       </div>
-      <div className='flex items-center justify-between py-3'>
+      <div className='mt-3 flex items-center justify-between'>
         <div>Transactions sum:</div>
         <div>
           ${' '}
@@ -72,7 +72,7 @@ export default function () {
       </div>
 
       {group.members.length > 2 && (
-        <div className='rounded bg-primary px-3 py-2 text-white'>
+        <div className='py-3'>
           <Settlements
             settlements={settlements}
             members={group.members}
