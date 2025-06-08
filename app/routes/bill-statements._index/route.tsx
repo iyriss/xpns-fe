@@ -17,7 +17,7 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='mx-auto w-full max-w-[1020px] rounded bg-white p-5'>
+    <div className='mx-auto mb-10 h-fit w-full max-w-[1020px] rounded bg-white p-5'>
       <h1 className='my-4 text-2xl font-semibold'>Uncaptured bill statements</h1>
       {billStatements?.length ? (
         <>

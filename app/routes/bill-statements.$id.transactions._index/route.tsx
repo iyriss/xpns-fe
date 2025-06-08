@@ -109,7 +109,7 @@ export default function () {
   );
 
   return (
-    <div className='mx-auto w-full max-w-[1020px] rounded-xl bg-white p-12'>
+    <div className='mx-auto mb-10 w-full max-w-[1020px] rounded-xl bg-white p-12'>
       <div className='flex justify-between'>
         <div>
           <h1 className='text-2xl font-semibold'>{billStatement?.title}</h1>
@@ -167,9 +167,11 @@ export default function () {
         );
       })}
 
-      {/* {allocatedTransactions.map((transaction: any) => {
+      <div className='mt-10'>
+        <h2 className='text-lg font-semibold'>Allocated transactions</h2>
+      </div>
+      {allocatedTransactions.map((transaction: any) => {
         const selected = transaction._id === transactionIdSelected;
-
         return (
           <TransactionCard
             key={transaction._id}
@@ -183,7 +185,7 @@ export default function () {
             onTransactionSelected={handleSelected}
           />
         );
-      })} */}
+      })}
     </div>
   );
 }

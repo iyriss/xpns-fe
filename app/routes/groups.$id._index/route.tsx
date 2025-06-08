@@ -32,14 +32,14 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
 export default function () {
   const { group, groupTransactions, currentUser, settlements } = useLoaderData<typeof loader>();
 
-  const isCurrentUser = (id: string) => (currentUser._id === id ? 'You' : null);
+  const isCurrentUser = (id: string) => currentUser._id === id;
 
   if (!group) {
     return <div>Group not found</div>;
   }
 
   return (
-    <div className='mx-auto w-full max-w-[1020px] rounded p-5'>
+    <div className='mx-auto mb-10 w-full max-w-[1020px] rounded p-5'>
       <div className='flex items-center justify-between'>
         <h1 className='my-4 text-2xl font-semibold'>{group.name} group transactions</h1>
         <div className='group relative text-base text-muted'>
@@ -89,7 +89,7 @@ export default function () {
                 {/* Top section with date and description */}
                 <div className='flex items-center justify-between'>
                   <div className='flex w-full items-center gap-4'>
-                    <div className='text-sm text-[#38917D]'>
+                    <div className='text-sm text-accent'>
                       <div className='text-xl font-semibold'>
                         {displayDate(transaction.date)?.split(' ')[1]}
                       </div>
@@ -108,7 +108,7 @@ export default function () {
                 <div className='border-t pt-2'>
                   <div className='flex items-center gap-1 text-sm'>
                     <span className='font-medium text-emerald-600'>
-                      {isCurrentUser(transaction.user._id) || transaction.user.name}
+                      {isCurrentUser(transaction.user._id) ? 'You' : transaction.user.name}
                     </span>
                     <span>paid for this transaction</span>
                   </div>
@@ -123,7 +123,7 @@ export default function () {
                         ) {
                           return (
                             <div key={member.user._id} className='flex items-center text-sm'>
-                              <span className='font-medium text-muted'>
+                              <span className='text-muted'>
                                 You covered ${amountOwed.toFixed(2)} for yourself
                               </span>
                             </div>
@@ -134,28 +134,30 @@ export default function () {
                         ) {
                           return (
                             <div key={member.user._id} className='flex items-center text-sm'>
-                              <span className='font-medium text-muted'>
+                              <span className='text-muted'>
                                 {transaction.user.name} covered ${amountOwed.toFixed(2)} for them
                               </span>
                             </div>
                           );
                         } else {
+                          const payer = isCurrentUser(member.user._id) ? 'You' : member.user.name;
+                          const payee = isCurrentUser(transaction.user._id)
+                            ? 'you'
+                            : transaction.user.name;
+
+                          const getTextColorClass = () => {
+                            if (payer === 'You') return 'text-red-600';
+                            if (payee === 'you') return 'text-green-600';
+                            return 'text-muted';
+                          };
+
                           return (
                             <div key={member.user._id} className='flex items-center text-sm'>
-                              <div className='flex items-center gap-1'>
-                                <span className='font-medium'>
-                                  {isCurrentUser(member.user._id) || member.user.name}
-                                </span>
-                                <span className='text-muted'>
-                                  {isCurrentUser(member.user._id) ? 'owe' : 'owes'}
-                                </span>
-                                <span className='text-sm text-muted'>
-                                  {isCurrentUser(transaction.user._id)?.toLowerCase() ||
-                                    transaction.user.name}
-                                </span>
-                                <span className='font-medium text-gray-900'>
-                                  ${amountOwed.toFixed(2)}
-                                </span>
+                              <div className={`flex items-center gap-1 ${getTextColorClass()}`}>
+                                <span>{payer}</span>
+                                <span>{isCurrentUser(member.user._id) ? 'owe' : 'owes'}</span>
+                                <span>{payee}</span>
+                                <span>${amountOwed.toFixed(2)}</span>
                                 {transaction.allocation.method === 'percentage' && (
                                   <span className='text-muted'>({member.portion}%)</span>
                                 )}

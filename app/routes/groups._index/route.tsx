@@ -82,7 +82,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto w-full max-w-[1020px]'>
+    <div className='mx-auto mb-10 w-full max-w-[1020px]'>
       <div className='flex items-center justify-between'>
         <h1 className='my-4 text-2xl font-semibold'>Groups</h1>
 
@@ -278,13 +278,13 @@ export default function () {
               const lastGroup = idx === groups.length - 1;
               return (
                 <Link
-                  className={`block h-fit w-full cursor-pointer py-4 hover:text-[#38917D] ${lastGroup ? '' : 'border-b border-border/40'}`}
+                  className={`group block h-fit w-full cursor-pointer py-4 hover:text-primary ${lastGroup ? '' : 'border-b border-border/40'}`}
                   key={name}
                   to={`/groups/${_id}`}
                 >
                   <div className='flex items-center gap-2'>
                     <span className='mr-2 inline-block h-[6px] w-[6px] rounded-full bg-current align-middle' />
-                    <div>{name}</div>
+                    <div className='group-hover:underline'>{name}</div>
                     {user === currentUser._id && (
                       <div className='ml-auto text-sm text-muted'>Your group</div>
                     )}

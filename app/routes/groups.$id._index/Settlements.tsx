@@ -19,7 +19,7 @@ export default function Settlements({ settlements, members, currentUser }: Settl
         return (
           <div
             key={`amount-${i}`}
-            className={`${isCurrentUser === debtor._id ? 'text-red-500' : ''} ${isCurrentUser === creditor._id ? 'text-green-800' : ''}`}
+            className={`${isCurrentUser === debtor._id ? 'text-red-500' : ''} ${isCurrentUser === creditor._id ? 'text-green-600' : ''}`}
           >
             <span>{isCurrentUser === debtor._id ? 'You' : debtor.name}</span>
             {isCurrentUser === debtor._id ? ' owe ' : ' owes '}

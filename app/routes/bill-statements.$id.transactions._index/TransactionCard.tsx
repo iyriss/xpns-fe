@@ -41,6 +41,7 @@ export default function TransactionCard({
   const [allocationType, setAllocationType] = useState<Allocation>(Allocation.MINE);
   const [allocationBase, setAllocationBase] = useState<'fixed' | 'percentage'>('fixed');
 
+  const ungroupedDebitSelected = transaction.type === 'Debit' && selected && !transaction?.group;
   const formRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -165,31 +166,48 @@ export default function TransactionCard({
   }
 
   function handleClick() {
-    if (transaction.type === 'Debit') {
-      onTransactionSelected(transaction._id);
-    }
+    onTransactionSelected(transaction._id);
+  }
+
+  function handleOptionsSelected(e: any) {
+    e.stopPropagation();
+    console.log('options selected');
+    // todo: show dropdown
   }
 
   return (
     <Form
       key={transaction._id}
-      className={`group relative h-fit w-full border-b border-border py-4 ${transaction.type === 'Debit' ? 'cursor-pointer' : 'bg-border/70 opacity-40'}`}
+      className={`group relative h-fit w-full border-b border-border py-4 ${transaction.type === 'Credit' || transaction?.group ? 'bg-border/70' : 'cursor-pointer'}`}
       onClick={handleClick}
       onSubmit={handleSubmit}
     >
-      {selected && (
-        <div className='pointer-events-none absolute -inset-x-8 inset-y-0 h-full rounded border border-dashed border-primary' />
+      {transaction.group && (
+        <div className='absolute right-6 top-3 italic'>
+          <span>In group: </span>
+          <span>{groups.find((group) => group._id === transaction.group)?.name}</span>
+        </div>
       )}
+
+      {ungroupedDebitSelected && (
+        <div className='pointer-events-none absolute -inset-x-8 inset-y-0 h-full rounded border border-dashed border-accent' />
+      )}
+
       <div className='relative'>
         <div
-          className={`absolute -inset-x-4 -inset-y-2 ${selected ? 'rounded bg-primary/20' : ''}`}
+          className={`absolute -inset-x-4 -inset-y-2 ${ungroupedDebitSelected ? 'rounded bg-accent/20' : ''}`}
         />
 
         <input hidden type='text' defaultValue={transaction._id} name='transaction' />
         <div className='flex items-center justify-between'>
-          <EllipsisVerticalIcon className='-transform-y-1/2 invisible absolute right-0 size-6 h-full text-muted group-hover:visible' />
-          <div className='flex w-full items-center gap-4'>
-            <div className='text-sm text-[#38917D]'>
+          <EllipsisVerticalIcon
+            onClick={handleOptionsSelected}
+            className='-transform-y-1/2 invisible absolute right-0 z-10 size-6 h-full cursor-pointer text-muted hover:text-primary group-hover:visible'
+          />
+          <div
+            className={`flex w-full items-center gap-4 ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
+          >
+            <div className='text-sm text-accent'>
               <div className='text-xl font-semibold'>
                 {displayDate(transaction.date)?.split(' ')[1]}
               </div>
@@ -197,7 +215,9 @@ export default function TransactionCard({
             </div>
             <div>{transaction.subdescription.trim() || transaction.description}</div>
           </div>
-          <div className='flex w-full items-center justify-center'>
+          <div
+            className={`flex w-full items-center justify-center ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
+          >
             <div className='text-center'>
               <span className='mr-4 font-semibold'>
                 {transaction.type === 'Credit' ? 'Deposit' : 'Paid'}
@@ -209,7 +229,7 @@ export default function TransactionCard({
       </div>
       {transaction.type === 'Credit' && <div className='w-full' />}
 
-      {selected && (
+      {ungroupedDebitSelected && (
         <>
           <div className='mt-4 flex w-full items-center gap-4 pt-4'>
             <div className='min-w-[100px]'>

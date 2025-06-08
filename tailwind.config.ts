@@ -9,11 +9,10 @@ export default {
       },
       colors: {
         primary: {
-          DEFAULT: '#38917d',
-          dark: '#42b299',
+          DEFAULT: '#5607df',
         },
         accent: {
-          DEFAULT: '#604ab0',
+          DEFAULT: '#38917D',
         },
         border: {
           DEFAULT: '#eaeaea',
