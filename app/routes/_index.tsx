@@ -16,13 +16,13 @@ export default function () {
         onClick={() => navigate('/bill-statements')}
         className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#604ab0] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'
       >
-        Uncaptured
+        Uncaptured expenses
       </div>
       <div
         onClick={() => navigate('/groups')}
         className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#38917D] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'
       >
-        Groups and expenses
+        Groups and settlements
       </div>
     </div>
   );

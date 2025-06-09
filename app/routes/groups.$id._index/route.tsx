@@ -151,12 +151,18 @@ export default function () {
                             return 'text-muted';
                           };
 
+                          const getActionText = () => {
+                            if (isCurrentUser(transaction.user._id))
+                              return `You lent ${member.user.name}`;
+                            if (isCurrentUser(member.user._id))
+                              return `You borrowed from ${transaction.user.name}`;
+                            return `${member.user.name} borrowed from ${transaction.user.name}`;
+                          };
+
                           return (
                             <div key={member.user._id} className='flex items-center text-sm'>
                               <div className={`flex items-center gap-1 ${getTextColorClass()}`}>
-                                <span>{payer}</span>
-                                <span>{isCurrentUser(member.user._id) ? 'owe' : 'owes'}</span>
-                                <span>{payee}</span>
+                                <span>{getActionText()}</span>
                                 <span>${amountOwed.toFixed(2)}</span>
                                 {transaction.allocation.method === 'percentage' && (
                                   <span className='text-muted'>({member.portion}%)</span>
