@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, useLoaderData } from '@remix-run/react';
 import { json, redirect, LoaderFunction, LinksFunction } from '@remix-run/node';
+import { Toaster } from 'sonner';
 import { NavLayout } from './layouts/NavLayout';
 import stylesheet from './tailwind.css?url';
 
@@ -50,6 +51,7 @@ export default function Root() {
       <body className='bg-[#f6f8fa] font-quicksand'>
         <NavLayout userName={user?.name}>
           <Outlet />
+          <Toaster position='top-center' richColors />
         </NavLayout>
 
         <Scripts />

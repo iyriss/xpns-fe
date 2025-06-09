@@ -1,15 +1,16 @@
+import { useRef, useState } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { Form, json, useNavigate, useSubmit } from '@remix-run/react';
-import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
 import { displayDate } from '../../utils/date-helpers';
+import Dropdown from './Dropdown';
 
 type TransactionCardProps = {
   transaction: any;
   selected: boolean;
   groups: any[];
-  users: any[];
   defaultGroup: string;
   currentUser: string;
   billStatementId: string;
@@ -27,27 +28,23 @@ export default function TransactionCard({
   transaction,
   selected,
   groups,
-  users,
   defaultGroup,
   currentUser,
   billStatementId,
   onTransactionSelected,
 }: TransactionCardProps) {
-  function handleGroupSelected(e: any) {
-    setGroupSelected(e.target.value);
-  }
-
   const [groupSelected, setGroupSelected] = useState('');
   const [allocationType, setAllocationType] = useState<Allocation>(Allocation.MINE);
   const [allocationBase, setAllocationBase] = useState<'fixed' | 'percentage'>('fixed');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const ungroupedDebitSelected = transaction.type === 'Debit' && selected && !transaction?.group;
   const formRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
   const navigate = useNavigate();
 
-  const currentGroup = groupSelected || defaultGroup;
-  const currentGroupMembers = groups.find((group) => group._id === currentGroup)?.members;
+  const currentGroupId = groupSelected || defaultGroup;
+  const currentGroup = groups.find((group) => group._id === currentGroupId);
 
   const getAllocations = () => {
     const selects = formRef.current?.querySelectorAll('select[name^="user-"]');
@@ -58,6 +55,10 @@ export default function TransactionCard({
       amount: Number((inputs?.[index] as HTMLInputElement).value),
     }));
   };
+
+  function handleGroupSelected(e: any) {
+    setGroupSelected(e.target.value);
+  }
 
   function handleSubmit(e: any) {
     e.preventDefault();
@@ -102,10 +103,10 @@ export default function TransactionCard({
       case Allocation.EQUALLY:
         transactionData.allocation.method = 'fixed';
         const totalAmount = transaction.amount;
-        const minimumAmountPerPerson = Math.floor(totalAmount / currentGroupMembers.length);
-        const extraCentsToDistribute = totalAmount % currentGroupMembers.length;
+        const minimumAmountPerPerson = Math.floor(totalAmount / currentGroup.members.length);
+        const extraCentsToDistribute = totalAmount % currentGroup.members.length;
 
-        transactionData.allocation.members = currentGroupMembers.map(
+        transactionData.allocation.members = currentGroup.members.map(
           (member: any, index: number) => {
             // If this person should get an extra cent (based on their position in the list)
             const getsExtraCent = index < extraCentsToDistribute;
@@ -113,12 +114,13 @@ export default function TransactionCard({
             const finalAmount = getsExtraCent ? minimumAmountPerPerson + 1 : minimumAmountPerPerson;
 
             return {
-              user: member,
+              user: member._id,
               portion: finalAmount,
               amount: finalAmount,
             };
           },
         );
+
         break;
 
       case Allocation.PEER:
@@ -137,16 +139,28 @@ export default function TransactionCard({
         const allocations = getAllocations();
         if (allocationBase === 'percentage') {
           transactionData.allocation.method = 'percentage';
+
           transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
             user: userId,
             portion: amount,
-            amount: transaction.amount * amount,
+            amount: (transaction.amount * amount) / 100,
           }));
+
+          const total = transactionData.allocation.members.reduce(
+            (sum, { amount }) => sum + amount,
+            0,
+          );
+
+          if (total === transaction.amount) {
+            toast.warning('Total amount does not match transaction amount');
+            return;
+          }
         } else {
           const total = allocations.reduce((sum, { amount }) => sum + amount * 100, 0);
 
           if (total !== transaction.amount) {
-            throw new Error('Total amount does not match transaction amount');
+            toast.warning('Total amount does not match transaction amount');
+            return;
           }
           transactionData.allocation.method = 'fixed';
           transactionData.allocation.members = allocations.map(({ userId, amount }) => ({
@@ -171,8 +185,7 @@ export default function TransactionCard({
 
   function handleOptionsSelected(e: any) {
     e.stopPropagation();
-    console.log('options selected');
-    // todo: show dropdown
+    setShowDropdown(!showDropdown);
   }
 
   return (
@@ -204,6 +217,7 @@ export default function TransactionCard({
             onClick={handleOptionsSelected}
             className='-transform-y-1/2 invisible absolute right-0 z-10 size-6 h-full cursor-pointer text-muted hover:text-primary group-hover:visible'
           />
+          {showDropdown && <Dropdown onClose={() => setShowDropdown(false)} />}
           <div
             className={`flex w-full items-center gap-4 ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
           >
@@ -240,7 +254,7 @@ export default function TransactionCard({
                 name='group'
                 required
                 className='h-10 min-w-[400px] border px-4 py-2'
-                value={currentGroup}
+                value={currentGroupId}
                 onChange={handleGroupSelected}
               >
                 <option value={''} className='!text-muted'>
@@ -266,7 +280,7 @@ export default function TransactionCard({
             )}
           </div>
 
-          {!!currentGroupMembers?.length ? (
+          {!!currentGroup?.members?.length ? (
             <div className='mt-4 flex w-full items-center gap-4 py-4'>
               <div className='flex min-w-[100px]'>
                 Allocation<span className='text-error'> *</span>
@@ -282,7 +296,8 @@ export default function TransactionCard({
                       value={Allocation.MINE}
                       checked={
                         allocationType === Allocation.MINE ||
-                        (currentGroupMembers.length === 1 && currentGroupMembers[0] === currentUser)
+                        (currentGroup.members.length === 1 &&
+                          currentGroup.members[0] === currentUser)
                       }
                       onChange={() => setAllocationType(Allocation.MINE)}
                       className='peer sr-only'
@@ -300,11 +315,14 @@ export default function TransactionCard({
                     </div>
                   </div>
                   <span>
-                    Me <span className='text-sm text-muted'>(Only member in this group)</span>
+                    Me{' '}
+                    <span className='text-sm text-muted'>
+                      {currentGroup.members.length === 1 && '(Only member in this group)'}
+                    </span>
                   </span>
                 </label>
 
-                {currentGroupMembers.length > 1 && (
+                {currentGroup.members.length > 1 && (
                   <>
                     <label className='flex cursor-pointer items-center gap-2'>
                       <div className='relative'>
@@ -333,7 +351,9 @@ export default function TransactionCard({
                       </div>
                       <span>
                         Divided equally{' '}
-                        <span className='text-sm text-muted'>(÷ {currentGroupMembers.length})</span>
+                        <span className='text-sm text-muted'>
+                          (÷ {currentGroup.members.length})
+                        </span>
                       </span>
                     </label>
 
@@ -365,7 +385,7 @@ export default function TransactionCard({
                       <span>
                         Paid for
                         <select required name='peer-id' className='px-2 py-1'>
-                          {users
+                          {currentGroup.members
                             .filter((user: any) => user._id !== currentUser)
                             .map((user: any) => (
                               <option key={user._id} value={user._id}>
@@ -417,10 +437,8 @@ export default function TransactionCard({
               formRef={formRef}
               allocationBase={allocationBase}
               amount={Number(transaction.amount) / 100}
-              onAllocationBaseChange={(e) => {
-                setAllocationBase(e);
-              }}
-              users={users}
+              groupMembers={currentGroup.members}
+              onAllocationBaseChange={(e) => setAllocationBase(e)}
             />
           )}
 

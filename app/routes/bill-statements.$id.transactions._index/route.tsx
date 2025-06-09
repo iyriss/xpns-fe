@@ -19,19 +19,12 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
   const { data } = await res.json();
   const userId = data.transactions[0].user;
 
-  const users = await fetch(`${process.env.API_URL}/api/users`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
-  });
-
-  const { data: usersData } = await users.json();
   const { billStatement, transactions, groups } = data;
 
   return json({
     billStatement,
     transactions,
     groups,
-    users: usersData,
     currentUser: userId,
   });
 };
@@ -81,7 +74,7 @@ export default function () {
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
   const [defaultGroup, setDefaultGroup] = useState('');
 
-  const { billStatement, transactions, groups, users, currentUser } = useLoaderData() as any;
+  const { billStatement, transactions, groups, currentUser } = useLoaderData() as any;
 
   const allocatedTransactions = transactions.filter((t: any) => t.group);
   const unallocatedTransactions = transactions.filter((t: any) => !t.group);
@@ -158,7 +151,6 @@ export default function () {
             transaction={transaction}
             selected={selected}
             groups={groups}
-            users={users}
             currentUser={currentUser}
             billStatementId={billStatement._id}
             defaultGroup={defaultGroup}
@@ -178,7 +170,6 @@ export default function () {
             transaction={transaction}
             selected={selected}
             groups={groups}
-            users={users}
             currentUser={currentUser}
             billStatementId={billStatement._id}
             defaultGroup={defaultGroup}

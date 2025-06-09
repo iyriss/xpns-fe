@@ -1,21 +1,21 @@
-import { PlusIcon } from '@heroicons/react/24/solid';
+import { MinusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
 import { useState, useEffect } from 'react';
 
 type CustomAllocationFormProps = {
   allocationBase: 'fixed' | 'percentage';
-  users: any[];
   amount: number;
+  groupMembers: any[];
   formRef: React.RefObject<HTMLDivElement>;
   onAllocationBaseChange: (allocationBase: 'fixed' | 'percentage') => void;
 };
 
 export default function CustomAllocationForm({
   allocationBase,
-  users,
   amount,
-  onAllocationBaseChange,
   formRef,
+  groupMembers,
+  onAllocationBaseChange,
 }: CustomAllocationFormProps) {
   const [members, setMembers] = useState(0);
   const [inputValues, setInputValues] = useState<{ [key: string]: number }>({});
@@ -25,6 +25,10 @@ export default function CustomAllocationForm({
 
   const handleAddMember = () => {
     setMembers((prev) => prev + 1);
+  };
+
+  const handleRemoveMember = () => {
+    setMembers((prev) => prev - 1);
   };
 
   const handleInputChange = (index: number, value: string) => {
@@ -111,7 +115,7 @@ export default function CustomAllocationForm({
               onChange={(e) => handleUserSelect(index, e.target.value)}
             >
               <option value=''>Select</option>
-              {users.map((user: any) => (
+              {groupMembers.map((user: any) => (
                 <option key={user._id} value={user._id} disabled={isUserSelected(user._id, index)}>
                   {user.name}
                 </option>
@@ -140,11 +144,20 @@ export default function CustomAllocationForm({
               </div>
             )}
           </div>
-          {index === members && (
+          {index < groupMembers.length - 1 && (
             <Button className='flex items-center gap-1' variant='text' onClick={handleAddMember}>
               <PlusIcon className='size-3 text-primary' />
               <span className='text-sm text-primary'>Add</span>
             </Button>
+          )}
+          {index > 0 && (
+            <div
+              className='flex items-center gap-1 text-red-500 hover:underline'
+              onClick={handleRemoveMember}
+            >
+              <MinusIcon className='size-3 text-red-500' />
+              <span className='text-sm text-red-500'>Remove</span>
+            </div>
           )}
         </div>
       ))}
