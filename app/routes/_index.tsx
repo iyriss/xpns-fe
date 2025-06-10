@@ -5,7 +5,7 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='m-auto -mt-20 flex h-full items-center gap-5'>
+    <div className='m-auto mt-10 flex h-full items-center gap-5'>
       <div
         onClick={() => navigate('/upload')}
         className='flex h-60 w-60 cursor-pointer items-center justify-center rounded-lg bg-[#ec9340] p-4 text-center text-2xl font-bold text-white shadow hover:opacity-95'

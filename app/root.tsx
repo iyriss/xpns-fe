@@ -14,8 +14,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   try {
     const cookie = request.headers.get('Cookie');
-    console.log('Incoming request cookie:', cookie);
-    console.log('All incoming headers:', Object.fromEntries(request.headers.entries()));
 
     const response = await fetch(`${process.env.API_URL}/api/auth/me`, {
       credentials: 'include',

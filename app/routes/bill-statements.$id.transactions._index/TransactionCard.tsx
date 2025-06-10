@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
 import { displayDate } from '../../utils/date-helpers';
-import Dropdown from './Dropdown';
-
+import Dropdown from './TransactionDropdown';
+import TransactionNote from './TransactionNote';
 type TransactionCardProps = {
   transaction: any;
   selected: boolean;
@@ -68,6 +68,7 @@ export default function TransactionCard({
     const transactionId = formData.get('transaction');
     const groupId = formData.get('group');
     const allocationType = formData.get('allocation');
+    const note = formData.get('note');
 
     const transactionData = {
       transactionId: transactionId as string,
@@ -76,27 +77,21 @@ export default function TransactionCard({
         method: 'percentage',
         members: [],
       },
+      note,
     } as {
       group: string;
       allocation: {
         method: 'percentage' | 'fixed';
-        members: {
-          user: string;
-          portion: number;
-          amount: number;
-        }[];
+        members: { user: string; portion: number; amount: number }[];
       };
+      note: string;
     };
 
     switch (allocationType) {
       case Allocation.MINE:
         transactionData.allocation.method = 'percentage';
         transactionData.allocation.members = [
-          {
-            user: currentUser,
-            portion: 100,
-            amount: transaction.amount,
-          },
+          { user: currentUser, portion: 100, amount: transaction.amount },
         ];
         break;
 
@@ -113,11 +108,7 @@ export default function TransactionCard({
             // Their final amount is either minimum + 1 cent or just minimum
             const finalAmount = getsExtraCent ? minimumAmountPerPerson + 1 : minimumAmountPerPerson;
 
-            return {
-              user: member._id,
-              portion: finalAmount,
-              amount: finalAmount,
-            };
+            return { user: member._id, portion: finalAmount, amount: finalAmount };
           },
         );
 
@@ -217,7 +208,9 @@ export default function TransactionCard({
             onClick={handleOptionsSelected}
             className='-transform-y-1/2 invisible absolute right-0 z-10 size-6 h-full cursor-pointer text-muted hover:text-primary group-hover:visible'
           />
-          {showDropdown && <Dropdown onClose={() => setShowDropdown(false)} />}
+          {showDropdown && (
+            <Dropdown transactionId={transaction._id} onClose={() => setShowDropdown(false)} />
+          )}
           <div
             className={`flex w-full items-center gap-4 ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
           >
@@ -441,6 +434,8 @@ export default function TransactionCard({
               onAllocationBaseChange={(e) => setAllocationBase(e)}
             />
           )}
+
+          <TransactionNote />
 
           <div className='flex items-center justify-end gap-2 py-4'>
             <Button type='submit' disabled={!currentGroup}>

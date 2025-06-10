@@ -46,9 +46,10 @@ export const action: ActionFunction = async ({ request }) => {
         }),
       ),
     }),
+    note: z.string(),
   });
 
-  const { transactionId, group, allocation } = TransactionSchema.parse(parsedData);
+  const { transactionId, group, allocation, note } = TransactionSchema.parse(parsedData);
 
   if (!transactionId || !group || !allocation) {
     return json({ success: false });
@@ -58,7 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
     method: 'PUT',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
-    body: JSON.stringify({ group, allocation }),
+    body: JSON.stringify({ group, allocation, note }),
   });
 
   const { data } = await res.json();

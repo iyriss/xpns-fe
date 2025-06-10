@@ -9,7 +9,7 @@ type NavLayoutProps = {
 export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
   const navigate = useNavigate();
   return (
-    <div className='h-full min-h-screen w-full'>
+    <div className='h-full w-full'>
       <div className='mx-auto flex h-full w-full flex-col'>
         <div className='flex justify-between p-5'>
           <div
@@ -25,7 +25,8 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
             </Button>
           </Form>
         </div>
-        <div className='flex h-full justify-center'>{children}</div>
+
+        <div className='mb-4 flex justify-center'>{children}</div>
       </div>
     </div>
   );
