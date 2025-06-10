@@ -160,24 +160,28 @@ export default function () {
         );
       })}
 
-      <div className='mt-10'>
-        <h2 className='text-lg font-semibold'>Allocated transactions</h2>
-      </div>
-      {allocatedTransactions.map((transaction: any) => {
-        const selected = transaction._id === transactionIdSelected;
-        return (
-          <TransactionCard
-            key={transaction._id}
-            transaction={transaction}
-            selected={selected}
-            groups={groups}
-            currentUser={currentUser}
-            billStatementId={billStatement._id}
-            defaultGroup={defaultGroup}
-            onTransactionSelected={handleSelected}
-          />
-        );
-      })}
+      {!!allocatedTransactions.length && (
+        <>
+          <div className='mt-10'>
+            <h2 className='text-lg font-semibold'>Allocated transactions</h2>
+          </div>
+          {allocatedTransactions.map((transaction: any) => {
+            const selected = transaction._id === transactionIdSelected;
+            return (
+              <TransactionCard
+                key={transaction._id}
+                transaction={transaction}
+                selected={selected}
+                groups={groups}
+                currentUser={currentUser}
+                billStatementId={billStatement._id}
+                defaultGroup={defaultGroup}
+                onTransactionSelected={handleSelected}
+              />
+            );
+          })}
+        </>
+      )}
     </div>
   );
 }

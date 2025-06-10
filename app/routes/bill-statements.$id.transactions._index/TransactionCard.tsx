@@ -209,7 +209,12 @@ export default function TransactionCard({
             className='-transform-y-1/2 invisible absolute right-0 z-10 size-6 h-full cursor-pointer text-muted hover:text-primary group-hover:visible'
           />
           {showDropdown && (
-            <Dropdown transactionId={transaction._id} onClose={() => setShowDropdown(false)} />
+            <Dropdown
+              transactionId={transaction._id}
+              onClose={() => setShowDropdown(false)}
+              onDeselectTransaction={() => onTransactionSelected('')}
+              isGrouped={transaction.group}
+            />
           )}
           <div
             className={`flex w-full items-center gap-4 ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
@@ -220,7 +225,13 @@ export default function TransactionCard({
               </div>
               <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
             </div>
-            <div>{transaction.subdescription.trim() || transaction.description}</div>
+            <div>
+              <div>{transaction.subdescription.trim() || transaction.description}</div>
+
+              {!transaction.subdescription.trim() ? null : (
+                <div className='text-sm text-muted'>{transaction.description}</div>
+              )}
+            </div>
           </div>
           <div
             className={`flex w-full items-center justify-center ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}

@@ -86,7 +86,6 @@ export default function () {
           return (
             <div key={transaction._id} className={`my-3 h-fit w-full rounded bg-white px-6 py-3`}>
               <div className='flex flex-col gap-3'>
-                {/* Top section with date and description */}
                 <div className='flex items-center justify-between'>
                   <div className='flex w-full items-center gap-4'>
                     <div className='text-sm text-accent'>
@@ -97,6 +96,14 @@ export default function () {
                     </div>
                     <div className='font-medium'>
                       {transaction.subdescription.trim() || transaction.description}
+                      {!transaction.subdescription.trim() ? null : (
+                        <div className='text-sm text-muted'>{transaction.description}</div>
+                      )}
+                      {transaction.note ? (
+                        <div className='rounded bg-yellow-600/30 px-2 py-1 text-sm'>
+                          {transaction.note}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                   <div className='text-lg font-semibold'>
@@ -104,7 +111,6 @@ export default function () {
                   </div>
                 </div>
 
-                {/* Payment details section */}
                 <div className='border-t pt-2'>
                   <div className='flex items-center gap-1 text-sm'>
                     <span className='font-medium text-emerald-600'>

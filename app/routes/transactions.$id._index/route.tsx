@@ -19,8 +19,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => null);
-        console.error('API error:', errorData);
         return json({ error: 'Failed to delete transaction' }, { status: res.status });
       }
 
@@ -28,6 +26,6 @@ export const action: ActionFunction = async ({ request, params }) => {
     }
   } catch (error) {
     console.error('Error in delete action:', error);
-    return json({ error: 'Internal server error' }, { status: 500 });
+    return json({ error: 'Error deleting transaction' }, { status: 400 });
   }
 };
