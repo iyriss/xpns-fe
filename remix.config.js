@@ -1,5 +1,5 @@
 module.exports = {
-  serverBuildTarget: 'node-cjs',
+  serverBuildTarget: 'vercel',
   server: './server.js',
   devServerBroadcastDelay: 1000,
   ignoredRouteFiles: ['.*'],
