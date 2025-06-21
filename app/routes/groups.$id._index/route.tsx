@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { LoaderFunction, json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { displayDate } from '../../utils/date-helpers';
 import Settlements from './Settlements';
+import Dropdown from '../bill-statements.$id.transactions._index/TransactionDropdown';
 
 export const loader: LoaderFunction = async ({ request, context, params }) => {
   const res = await fetch(`${process.env.API_URL}/api/groups/${params.id}`, {
@@ -31,6 +33,8 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
 
 export default function () {
   const { group, groupTransactions, currentUser, settlements } = useLoaderData<typeof loader>();
+
+  const [selected, setSelected] = useState('');
 
   const isCurrentUser = (id: string) => currentUser._id === id;
 
@@ -83,10 +87,28 @@ export default function () {
 
       {groupTransactions?.length ? (
         groupTransactions.map((transaction: any) => {
+          const isSelected = selected === transaction._id;
+
           return (
-            <div key={transaction._id} className={`my-3 h-fit w-full rounded bg-white px-6 py-3`}>
+            <div
+              key={transaction._id}
+              className={`group relative my-3 h-fit w-full rounded bg-white px-8 py-5`}
+            >
+              <div className='absolute inset-0 hidden rounded border border-dashed border-accent group-hover:block' />
+              <EllipsisVerticalIcon
+                className='absolute right-1 top-6 hidden size-6 cursor-pointer hover:text-primary group-hover:block'
+                onClick={() => setSelected(transaction._id)}
+              />
+              {isSelected && (
+                <Dropdown
+                  transactionId={transaction._id}
+                  isGrouped={true}
+                  onClose={() => setSelected('')}
+                  onDeselectTransaction={() => setSelected('')}
+                />
+              )}
               <div className='flex flex-col gap-3'>
-                <div className='flex items-center justify-between'>
+                <div className='flex justify-between'>
                   <div className='flex w-full items-center gap-4'>
                     <div className='text-sm text-accent'>
                       <div className='text-xl font-semibold'>
@@ -100,7 +122,7 @@ export default function () {
                         <div className='text-sm text-muted'>{transaction.description}</div>
                       )}
                       {transaction.note ? (
-                        <div className='rounded bg-yellow-600/30 px-2 py-1 text-sm'>
+                        <div className='rounded bg-yellow-500/20 px-2 py-1 text-sm'>
                           {transaction.note}
                         </div>
                       ) : null}
@@ -186,7 +208,7 @@ export default function () {
           );
         })
       ) : (
-        <div className='text-muted'>No transactions.</div>
+        <div className='py-4 text-muted'>No transactions.</div>
       )}
     </div>
   );

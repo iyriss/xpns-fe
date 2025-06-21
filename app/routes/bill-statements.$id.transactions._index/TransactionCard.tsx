@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import { Form, json, useNavigate, useSubmit } from '@remix-run/react';
+import { Form, json, useLocation, useNavigate, useSubmit } from '@remix-run/react';
 import { toast } from 'sonner';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
@@ -13,7 +13,7 @@ type TransactionCardProps = {
   groups: any[];
   defaultGroup: string;
   currentUser: string;
-  billStatementId: string;
+  billStatementId?: string;
   onTransactionSelected: (id: string) => void;
 };
 
@@ -38,7 +38,9 @@ export default function TransactionCard({
   const [allocationBase, setAllocationBase] = useState<'fixed' | 'percentage'>('fixed');
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const ungroupedDebitSelected = transaction.type === 'Debit' && selected && !transaction?.group;
+  const isGroupsPage = useLocation().pathname.includes('groups');
+  const ungroupedDebitSelected = transaction.type === 'Debit' && selected;
+
   const formRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
   const navigate = useNavigate();
@@ -182,18 +184,22 @@ export default function TransactionCard({
   return (
     <Form
       key={transaction._id}
-      className={`group relative h-fit w-full border-b border-border py-4 ${transaction.type === 'Credit' || transaction?.group ? 'bg-border/70' : 'cursor-pointer'}`}
+      className={`group relative h-fit w-full border-b border-border py-4 ${
+        (transaction.type === 'Credit' || transaction?.group) && !isGroupsPage
+          ? 'bg-border/70'
+          : 'cursor-pointer'
+      }`}
       onClick={handleClick}
       onSubmit={handleSubmit}
     >
-      {transaction.group && (
+      {transaction.group && !isGroupsPage && (
         <div className='absolute right-6 top-3 italic'>
           <span>In group: </span>
           <span>{groups.find((group) => group._id === transaction.group)?.name}</span>
         </div>
       )}
 
-      {ungroupedDebitSelected && (
+      {ungroupedDebitSelected && !isGroupsPage && (
         <div className='pointer-events-none absolute -inset-x-8 inset-y-0 h-full rounded border border-dashed border-accent' />
       )}
 
@@ -217,7 +223,7 @@ export default function TransactionCard({
             />
           )}
           <div
-            className={`flex w-full items-center gap-4 ${transaction.type === 'Credit' || !!transaction?.group ? 'opacity-50' : ''}`}
+            className={`flex w-full items-center gap-4 ${(transaction.type === 'Credit' || !!transaction?.group) && !isGroupsPage ? 'opacity-50' : ''}`}
           >
             <div className='text-sm text-accent'>
               <div className='text-xl font-semibold'>
