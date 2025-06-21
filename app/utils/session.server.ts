@@ -1,4 +1,4 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import { createCookieSessionStorage, redirect } from "@vercel/remix";
 
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {

@@ -1,4 +1,4 @@
-import { ActionFunction, json } from '@remix-run/node';
+import { ActionFunction, json } from '@vercel/remix';
 
 export const action: ActionFunction = async ({ request, params }) => {
   const transactionId = params.id;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import { LoaderFunction, json } from '@remix-run/node';
+import { LoaderFunction, json } from '@vercel/remix';
 import { useLoaderData } from '@remix-run/react';
 import { displayDate } from '../../utils/date-helpers';
 import Settlements from './Settlements';

@@ -1,4 +1,4 @@
-import { ActionFunction, createCookie, json, redirect } from '@remix-run/node';
+import { ActionFunction, createCookie, json, redirect } from '@vercel/remix';
 
 const authCookie = createCookie('auth_token', {
   httpOnly: true,

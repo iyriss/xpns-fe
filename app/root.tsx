@@ -1,5 +1,5 @@
 import { Links, Meta, Outlet, Scripts, useLoaderData } from '@remix-run/react';
-import { json, redirect, LoaderFunction, LinksFunction } from '@remix-run/node';
+import { json, redirect, LoaderFunction, LinksFunction } from '@vercel/remix';
 import { Toaster } from 'sonner';
 import { NavLayout } from './layouts/NavLayout';
 import stylesheet from './tailwind.css?url';

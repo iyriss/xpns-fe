@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { ActionFunction, json } from '@remix-run/node';
+import { ActionFunction, json } from '@vercel/remix';
 import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';

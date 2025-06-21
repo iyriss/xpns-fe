@@ -1,5 +1,5 @@
-import { json } from '@remix-run/node';
-import { LoaderFunction } from '@remix-run/node';
+import { json } from '@vercel/remix';
+import { LoaderFunction } from '@vercel/remix';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 
 export const loader: LoaderFunction = async ({ request, context }) => {

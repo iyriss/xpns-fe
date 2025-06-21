@@ -1,4 +1,4 @@
-import { ActionFunction, json, LoaderFunction } from '@remix-run/node';
+import { ActionFunction, json, LoaderFunction } from '@vercel/remix';
 import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react';
 import { useState, useEffect } from 'react';
 import { z } from 'zod';

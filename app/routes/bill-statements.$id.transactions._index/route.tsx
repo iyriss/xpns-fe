@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { z } from 'zod';
-import { ActionFunction, json } from '@remix-run/node';
-import { LoaderFunction } from '@remix-run/node';
+import { ActionFunction, json } from '@vercel/remix';
+import { LoaderFunction } from '@vercel/remix';
 import { useLoaderData, useNavigate } from '@remix-run/react';
 
 import TransactionCard from './TransactionCard';

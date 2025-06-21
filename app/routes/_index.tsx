@@ -1,4 +1,3 @@
-import { ActionFunction } from '@remix-run/node';
 import { useNavigate } from '@remix-run/react';
 
 export default function () {

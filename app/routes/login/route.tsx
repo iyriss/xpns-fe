@@ -1,4 +1,4 @@
-import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node';
+import { ActionFunction, json, LoaderFunction, redirect } from '@vercel/remix';
 import { Form, useActionData, Link, useNavigation } from '@remix-run/react';
 import { Button } from '../../components/Button';
 
