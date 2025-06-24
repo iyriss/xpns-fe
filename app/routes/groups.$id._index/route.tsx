@@ -44,8 +44,10 @@ export default function () {
 
   return (
     <div className='mx-auto mb-10 w-full max-w-[1020px] rounded p-5'>
+      <div className='text-sm font-semibold text-accent'>Group</div>
+
       <div className='flex items-center justify-between'>
-        <h1 className='my-4 text-2xl font-semibold'>{group.name} group transactions</h1>
+        <h1 className='mb-4 text-2xl font-semibold'>{group.name} group transactions</h1>
         <div className='group relative text-base text-muted'>
           <span className='cursor-pointer'>{group.members.length} members</span>
           {group.members?.length > 0 && (
@@ -122,7 +124,8 @@ export default function () {
                         <div className='text-sm text-muted'>{transaction.description}</div>
                       )}
                       {transaction.note ? (
-                        <div className='rounded bg-yellow-500/20 px-2 py-1 text-sm'>
+                        <div className='flex items-center gap-2 py-1 text-sm font-normal'>
+                          <div className='h-1 w-1 rounded-full bg-muted' />
                           {transaction.note}
                         </div>
                       ) : null}

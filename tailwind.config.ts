@@ -29,6 +29,9 @@ export default {
         lead: {
           DEFAULT: '#1f1f1f',
         },
+        'mist': { // gray-50
+          DEFAULT: '#fcfcfc',
+        },
       },
     },
   },

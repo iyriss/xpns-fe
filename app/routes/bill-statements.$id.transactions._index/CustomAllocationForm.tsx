@@ -46,17 +46,17 @@ export default function CustomAllocationForm({
 
     if (allocationBase === 'percentage') {
       if (newTotal > 100) {
-        setError('Total cannot exceed 100%');
+        setError('Total cannot exceed 100%.');
       } else if (newTotal < 100) {
-        setError('Total must equal 100%');
+        setError('Total must equal 100%.');
       } else {
         setError('');
       }
     } else {
       if (newTotal > amount) {
-        setError(`Total cannot exceed $${amount}`);
+        setError(`Total cannot exceed $${amount}.`);
       } else if (newTotal < amount) {
-        setError(`Total must equal $${amount}`);
+        setError(`Total must equal $${amount}.`);
       } else {
         setError('');
       }
@@ -76,7 +76,7 @@ export default function CustomAllocationForm({
         <div className='min-w-[100px]'>Ratio</div>
         <div className='flex w-full items-center'>
           <label
-            className={`min-w-[108px] cursor-pointer rounded-bl rounded-tl border border-primary px-4 py-2 text-center ${allocationBase === 'fixed' ? 'bg-primary text-white' : ''}`}
+            className={`min-w-[108px] cursor-pointer rounded-bl rounded-tl border border-accent px-4 py-2 text-center ${allocationBase === 'fixed' ? 'bg-accent text-white' : ''}`}
           >
             <input
               type='radio'
@@ -89,7 +89,7 @@ export default function CustomAllocationForm({
             <span>Fixed</span>
           </label>
           <label
-            className={`min-w-[108px] cursor-pointer rounded-br rounded-tr border border-primary px-4 py-2 text-center ${allocationBase === 'percentage' ? 'bg-primary text-white' : ''}`}
+            className={`min-w-[108px] cursor-pointer rounded-br rounded-tr border border-accent px-4 py-2 text-center ${allocationBase === 'percentage' ? 'bg-accent text-white' : ''}`}
           >
             <input
               type='radio'
@@ -162,7 +162,7 @@ export default function CustomAllocationForm({
         </div>
       ))}
 
-      <div className='mt-2 flex justify-between px-4'>
+      <div className='mt-2 flex justify-between'>
         <div className='text-sm text-muted'>
           Total: {allocationBase === 'fixed' ? '$' : ''}
           {total.toFixed(2)}

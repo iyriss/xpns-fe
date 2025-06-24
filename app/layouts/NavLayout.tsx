@@ -26,7 +26,7 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
           </Form>
         </div>
 
-        <div className='mb-4 flex justify-center'>{children}</div>
+        <div className='mx-5 mb-4 flex justify-center'>{children}</div>
       </div>
     </div>
   );

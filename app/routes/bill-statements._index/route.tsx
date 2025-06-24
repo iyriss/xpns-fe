@@ -24,8 +24,8 @@ export default function () {
           <table className='w-full'>
             <thead>
               <tr className='bg-[#38917D]/20'>
-                <th className='px-2 py-5 text-left'>Title</th>
-                <th className='px-2 py-5 text-left'>Created at</th>
+                <th className='px-2 py-5 text-left font-semibold'>Title</th>
+                <th className='px-2 py-5 text-left font-semibold'>Created at</th>
               </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@ export default function () {
                 return (
                   <tr
                     key={billStatement._id}
-                    className='cursor-pointer border-b border-border/40 text-center hover:bg-gray-100'
+                    className='cursor-pointer border-b border-border/40 text-center hover:bg-border/20'
                     onClick={() => navigate(`/bill-statements/${billStatement._id}/transactions`)}
                   >
                     <td className='w-3/4 px-2 py-5 text-left'>{billStatement.title}</td>
