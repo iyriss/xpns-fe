@@ -13,7 +13,7 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
       <div className='mx-auto h-full w-full'>
         <div className='flex justify-between p-5'>
           <div
-            className={`mb-5 cursor-pointer text-4xl font-extrabold text-accent ${
+            className={`mb-5 cursor-pointer text-4xl font-extrabold text-[#2a4c44] ${
               userName ? 'cursor-pointer' : 'cursor-default'
             }`}
             onClick={() => (userName ? navigate('/') : null)}
