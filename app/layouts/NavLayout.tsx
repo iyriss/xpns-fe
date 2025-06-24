@@ -13,7 +13,7 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
       <div className='mx-auto flex h-full w-full flex-col'>
         <div className='flex justify-between p-5'>
           <div
-            className='mb-5 cursor-pointer text-4xl font-extrabold'
+            className='mb-5 cursor-pointer text-4xl font-extrabold text-accent'
             onClick={() => navigate('/')}
           >
             xpns

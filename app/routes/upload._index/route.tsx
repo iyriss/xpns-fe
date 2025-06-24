@@ -222,12 +222,13 @@ export default function () {
                   </tbody>
                 </table>
               ) : (
-                <div className='relative flex h-40 w-full cursor-pointer items-center justify-center rounded-sm border border-dashed border-[#38917D] bg-[#38917D]/10 hover:bg-[#38917D]/20'>
+                <div className='relative flex h-40 w-full cursor-pointer items-center justify-center rounded-md border border-dashed border-[#38917D] bg-[#38917D]/10 hover:bg-[#38917D]/20'>
                   <input
                     type='file'
                     className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
                     onChange={(e) => handleUpload(e.currentTarget.files)}
                     accept='text/csv'
+                    multiple={false}
                   />
                   <div className='cursor-pointer'>Upload bill statement</div>
                 </div>
