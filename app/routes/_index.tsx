@@ -5,7 +5,7 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='m-auto mt-10 h-full rounded-xl bg-white px-12 py-10 md:flex md:flex-col md:justify-between'>
+    <div className='mx-auto mt-10 h-fit max-w-[1020px] rounded-xl bg-white px-12 py-10 md:flex md:flex-col md:justify-between'>
       <div className='flex flex-col items-center gap-5 md:flex-row'>
         <div className='mb-auto text-center text-4xl font-bold md:w-1/3 md:text-left md:text-5xl'>
           Manage your expenses
