@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { ActionFunction, json } from '@vercel/remix';
+import { useLoaderData, useNavigate, useActionData } from '@remix-run/react';
+import { toast } from 'sonner';
 import { LoaderFunction } from '@vercel/remix';
-import { useLoaderData, useNavigate } from '@remix-run/react';
 
 import ViewTransactionCard from './ViewTransactionCard';
 import { Button } from '../../components/Button';
 import EditTransactionCard from './EditTransactionCard';
+
+type ActionData = {
+  success: boolean;
+  data?: any;
+};
 
 export const loader: LoaderFunction = async ({ params, request, context }) => {
   const billStatementId = params.id;
@@ -85,10 +91,22 @@ export default function () {
   );
 
   const { billStatement, transactions, groups, currentUser } = useLoaderData() as any;
+  const actionData = useActionData<ActionData>();
 
   const allocatedTransactions = transactions.filter((t: any) => t.group);
   const unallocatedTransactions = transactions.filter((t: any) => !t.group);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (actionData) {
+      if (actionData.success) {
+        toast.success('Transaction saved successfully!');
+        setTransactionIdSelected('');
+      } else {
+        toast.error('Failed to save transaction. Please try again.');
+      }
+    }
+  }, [actionData]);
 
   function handleSelected(transaction: string) {
     setTransactionIdSelected(transaction);
