@@ -337,7 +337,10 @@ export default function EditTransactionCard({
                       variant='text'
                       className='pl-0 text-sm'
                       type='button'
-                      onClick={() => navigate('/groups')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/groups');
+                      }}
                     >
                       Create group
                     </Button>
