@@ -67,7 +67,7 @@ export default function ViewTransactionCard({
               <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
             </div>
             <div className='flex-1'>
-              <div className='font-medium text-gray-900'>
+              <div className='font-medium'>
                 {transaction.subdescription.trim() || transaction.description}
               </div>
               {transaction.subdescription.trim() && (

@@ -151,12 +151,13 @@ export default function () {
 
         <div className='mb-8 overflow-hidden border-b border-accent pb-8'>
           <div className='flex items-start justify-between gap-8'>
-            {groups.length > 0 ? (
-              <div className='flex-1'>
-                <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>
-                  <UserGroupIcon className='h-4 w-4 text-muted' />
-                  Default group
-                </label>
+            <div className='flex-1'>
+              <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>
+                <UserGroupIcon className='h-4 w-4 text-muted' />
+                Default group
+              </label>
+
+              {groups.length > 0 ? (
                 <select
                   name='group'
                   required
@@ -173,34 +174,20 @@ export default function () {
                     </option>
                   ))}
                 </select>
-              </div>
-            ) : (
-              <div className='flex-1'>
-                <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>
-                  <svg
-                    className='h-4 w-4 text-green-500'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
+              ) : (
+                <div className='flex items-center gap-1 text-sm text-muted'>
+                  No groups yet.
+                  <Button
+                    variant='text'
+                    className='!px-0 !text-sm'
+                    onClick={() => navigate('/groups')}
                   >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                    />
-                  </svg>
-                  Groups
-                </label>
-                <Button
-                  variant='text'
-                  onClick={() => navigate('/groups')}
-                  className='h-11 rounded-md px-6 text-sm text-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg'
-                >
-                  + Create your first group
-                </Button>
-              </div>
-            )}
+                    Create one
+                  </Button>
+                  .
+                </div>
+              )}
+            </div>
 
             <div className='flex-1'>
               <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>

@@ -277,7 +277,7 @@ export default function EditTransactionCard({
           <div className='mt-6 flex space-x-16'>
             <div className='w-1/2'>
               <div className='mb-4 flex items-center gap-8'>
-                <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                <label className='flex min-w-[88px] items-center gap-2 text-sm text-muted'>
                   <TagIcon className='h-4 w-4' />
                   Category
                 </label>
@@ -294,13 +294,9 @@ export default function EditTransactionCard({
                       </Button>
                     </div>
                   ) : (
-                    <button
-                      type='button'
-                      onClick={handleCategoryClick}
-                      className='text-sm text-primary transition-colors hover:text-primary/80'
-                    >
+                    <Button variant='text' className='pl-0 text-sm' onClick={handleCategoryClick}>
                       Choose
-                    </button>
+                    </Button>
                   )}
 
                   {showCategoryDropdown && (
@@ -316,7 +312,7 @@ export default function EditTransactionCard({
               </div>
 
               <div className='mb-4 flex items-center gap-8'>
-                <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                <label className='flex min-w-[88px] items-center gap-2 text-sm text-muted'>
                   <UserGroupIcon className='h-4 w-4' />
                   Group
                 </label>
@@ -339,7 +335,8 @@ export default function EditTransactionCard({
                   ) : (
                     <Button
                       variant='text'
-                      className='!h-8 !px-3 !text-sm !text-primary hover:!text-primary/80'
+                      className='pl-0 text-sm'
+                      type='button'
                       onClick={() => navigate('/groups')}
                     >
                       Create group

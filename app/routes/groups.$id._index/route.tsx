@@ -77,10 +77,10 @@ export default function () {
             <h1 className='mb-4 text-2xl font-semibold'>{group.name}</h1>
           </div>
           <div className='group relative text-right'>
-            <div className='text-2xl font-bold text-gray-900'>{group.members.length}</div>
+            <div className='text-2xl font-bold'>{group.members.length}</div>
             <div className='text-sm text-muted'>members</div>
             {group.members?.length > 0 && (
-              <div className='invisible absolute -left-2 top-full z-10 mt-2 w-max rounded-lg bg-gray-900 px-3 py-2 text-sm text-white opacity-0 transition-all group-hover:visible group-hover:opacity-100'>
+              <div className='invisible absolute -left-2 top-full z-10 mt-2 w-max rounded-lg px-3 py-2 text-sm text-white opacity-0 transition-all group-hover:visible group-hover:opacity-100'>
                 {group.members.map((member: any) => (
                   <div key={member._id} className='my-1 min-w-16'>
                     <span className='mr-2 inline-block h-1 w-1 rounded-full bg-current align-middle' />
@@ -98,7 +98,7 @@ export default function () {
           <div className='flex items-center justify-between'>
             <div>
               <p className='text-sm font-medium text-muted'>Total Transactions</p>
-              <p className='text-2xl font-bold text-gray-900'>{groupTransactions.length}</p>
+              <p className='text-2xl font-bold'>{groupTransactions.length}</p>
             </div>
             <ListBulletIcon className='h-6 w-6 text-blue-600' />
           </div>
@@ -108,7 +108,7 @@ export default function () {
           <div className='flex items-center justify-between'>
             <div>
               <p className='text-sm font-medium text-muted'>Total Amount</p>
-              <p className='text-2xl font-bold text-gray-900'>${totalAmount.toFixed(2)}</p>
+              <p className='text-2xl font-bold'>${totalAmount.toFixed(2)}</p>
             </div>
             <CurrencyDollarIcon className='h-6 w-6 text-green-600' />
           </div>
@@ -117,7 +117,7 @@ export default function () {
 
       {group.members.length > 1 && (
         <div className='mb-8 rounded-xl border border-border/40 bg-white p-6 shadow-sm'>
-          <h2 className='mb-4 text-lg font-semibold text-gray-900'>Settlements</h2>
+          <h2 className='mb-4 text-lg font-semibold'>Settlements</h2>
           <Settlements
             settlements={settlements}
             members={group.members}
@@ -127,7 +127,7 @@ export default function () {
       )}
       <hr className='border-1 my-8 border-accent' />
 
-      <h2 className='mb-6 text-lg font-semibold text-gray-900'>Transactions</h2>
+      <h2 className='mb-6 text-lg font-semibold'>Transactions</h2>
 
       {groupTransactions?.length ? (
         <div className='space-y-4'>
@@ -280,7 +280,7 @@ export default function () {
           <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
             <CalculatorIcon className='h-8 w-8 text-muted/60' />
           </div>
-          <h3 className='text-lg font-medium text-gray-900'>No transactions yet</h3>
+          <h3 className='text-lg font-medium'>No transactions yet</h3>
           <p className='text-sm text-muted'>
             Transactions will appear here once they are added to this group.
           </p>

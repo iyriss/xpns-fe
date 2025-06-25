@@ -70,7 +70,7 @@ export default function () {
           <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
             <FolderOpenIcon className='h-8 w-8 text-muted/60' />
           </div>
-          <h3 className='text-lg font-medium text-gray-900'>No bill statements to show.</h3>
+          <h3 className='text-lg font-medium'>No bill statements to show.</h3>
           <p className='text-sm text-muted'>
             Bill statements will appear here once they are added.
           </p>

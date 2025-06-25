@@ -1,8 +1,15 @@
+import { useState, useEffect, useRef } from 'react';
 import { ActionFunction, json, LoaderFunction } from '@vercel/remix';
 import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react';
-import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
+import {
+  ChevronDownIcon,
+  FolderOpenIcon,
+  UserGroupIcon,
+  UserPlusIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/solid';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const res = await fetch(`${process.env.API_URL}/api/groups`, {
@@ -56,12 +63,24 @@ export default function () {
   const [selectedMembers, setSelectedMembers] = useState<Array<{ _id: string; name: string }>>([]);
   const { groups, users, currentUser } = useLoaderData<typeof loader>();
   const submit = useSubmit();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedMembers([{ _id: currentUser._id, name: currentUser.name }]);
   }, [currentUser]);
 
-  const otherUsers = users?.filter((user) => user._id !== currentUser._id) || [];
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
+  const otherUsers = users?.filter((user: any) => user._id !== currentUser._id) || [];
 
   const handleMemberToggle = (member: { _id: string; name: string }) => {
     setSelectedMembers((prev) => {
@@ -95,7 +114,7 @@ export default function () {
 
       {creatingGroup && (
         <Form
-          className='bg-white p-5'
+          className='rounded-lg border border-border bg-white p-5 shadow-sm'
           onSubmit={(e) => {
             e.preventDefault();
             setCreatingGroup(false);
@@ -105,19 +124,21 @@ export default function () {
         >
           <div className='flex gap-4'>
             <div className='flex w-full flex-col gap-1'>
-              <label htmlFor='name'>
+              <label htmlFor='name' className='flex items-center text-sm text-muted'>
+                <UserGroupIcon className='mr-2 inline h-4 w-4' />
                 Group name<span className='text-error'> *</span>
               </label>
               <input
                 name='name'
                 autoComplete='off'
-                className='w-full border border-border px-4 py-2 font-semibold placeholder:font-normal'
+                className='w-full border border-border px-4 py-2 text-sm font-semibold placeholder:font-normal placeholder:text-muted/70'
                 required
                 placeholder='e.g. Roadtrip to Portland'
               />
             </div>
             <div className='flex w-full flex-col gap-1'>
-              <label>
+              <label className='flex items-center text-sm text-muted'>
+                <UserPlusIcon className='mr-2 inline h-4 w-4 text-muted' />
                 Members<span className='text-error'> *</span>
               </label>
 
@@ -125,22 +146,11 @@ export default function () {
                 <button
                   type='button'
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className='flex w-full items-center justify-between rounded border border-border px-4 py-2 text-left hover:bg-gray-50'
+                  className='flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-border bg-white px-3 py-2 text-sm transition-all hover:border-gray-400'
                 >
                   <span>{selectedMembers.length} members selected</span>
-                  <svg
-                    className={`h-5 w-5 transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M19 9l-7 7-7-7'
-                    />
-                  </svg>
+
+                  <ChevronDownIcon className={`h-5 w-5 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {selectedMembers.length > 0 && (
@@ -148,16 +158,19 @@ export default function () {
                     {selectedMembers.map((member) => (
                       <span
                         key={member._id}
-                        className='group inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm'
+                        className='group inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm hover:text-primary'
                       >
                         {member.name}
+                        {member._id === currentUser._id && (
+                          <span className='ml-1 text-xs text-muted'>(You)</span>
+                        )}
                         {member._id !== currentUser._id && (
                           <button
                             type='button'
                             onClick={() => handleMemberToggle(member)}
-                            className='ml-2 text-gray-500 hover:text-gray-700 group-hover:text-primary'
+                            className='ml-2 group-hover:text-primary'
                           >
-                            x
+                            <XMarkIcon className='h-4 w-4' />
                           </button>
                         )}
                       </span>
@@ -166,71 +179,63 @@ export default function () {
                 )}
 
                 {isDropdownOpen && (
-                  <div className='absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg'>
-                    <div className='border-b border-gray-200 p-2'>
-                      <div className='flex justify-between'>
-                        <Button type='button' variant='text' onClick={handleSelectAll}>
+                  <div
+                    ref={dropdownRef}
+                    className='absolute z-10 mt-1 w-full rounded-lg border border-border/40 bg-white py-4 shadow-lg'
+                  >
+                    <div className='border-b border-border pb-2'>
+                      <div className='flex justify-between px-4'>
+                        <Button
+                          type='button'
+                          variant='text'
+                          onClick={handleSelectAll}
+                          className='text-sm'
+                        >
                           Select All
                         </Button>
-                        <Button type='button' variant='text' onClick={handleClearAll}>
+                        <Button
+                          type='button'
+                          variant='text'
+                          onClick={handleClearAll}
+                          className='text-sm'
+                        >
                           Clear All
                         </Button>
                       </div>
                     </div>
                     <div className='max-h-60 overflow-auto'>
-                      <label className='flex cursor-not-allowed items-center gap-2 p-2 text-muted hover:bg-gray-50'>
+                      <label className='flex cursor-not-allowed items-center gap-2 p-2 text-muted hover:bg-border'>
                         <div className='relative h-4 w-4'>
                           <input
                             type='checkbox'
                             checked
                             disabled
-                            className='peer h-4 w-4 cursor-not-allowed appearance-none rounded border border-gray-300 disabled:opacity-50'
+                            className='peer h-4 w-4 cursor-not-allowed appearance-none rounded border border-border bg-accent/80 disabled:opacity-50'
                           />
-                          <svg
-                            className='pointer-events-none absolute left-0 top-[2px] h-4 w-4 opacity-70'
-                            viewBox='0 0 16 16'
-                            fill='none'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <rect width='16' height='16' fill='#38917D' rx='2' />
-                            <path
-                              d='M12 5L6.5 10.5L4 8'
-                              stroke='white'
-                              strokeWidth='2'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                            />
-                          </svg>
+                          <span className='pointer-events-none absolute left-[2px] top-[1px] text-sm text-white opacity-70'>
+                            ✓
+                          </span>
                         </div>
-                        {currentUser.name} (You)
+                        {currentUser.name}
+                        <span className='text-xs text-muted'> (You)</span>
                       </label>
 
-                      {otherUsers.map((user) => (
+                      {otherUsers.map((user: any) => (
                         <label
                           key={user._id}
-                          className='flex cursor-pointer items-center gap-2 p-2 hover:bg-gray-50'
+                          className='group flex cursor-pointer items-center gap-2 p-2 hover:bg-border'
                         >
                           <div className='relative h-4 w-4'>
                             <input
                               type='checkbox'
                               checked={selectedMembers.some((m) => m._id === user._id)}
                               onChange={() => handleMemberToggle(user)}
-                              className='peer h-4 w-4 appearance-none rounded border border-gray-300 checked:border-primary checked:bg-primary'
+                              className='peer h-4 w-4 appearance-none rounded border border-border checked:border-accent checked:bg-accent group-hover:border-accent'
                             />
-                            <svg
-                              className='pointer-events-none absolute left-0 top-[2px] h-4 w-4 opacity-0 peer-checked:opacity-100'
-                              viewBox='0 0 16 16'
-                              fill='none'
-                              xmlns='http://www.w3.org/2000/svg'
-                            >
-                              <path
-                                d='M12 5L6.5 10.5L4 8'
-                                stroke='white'
-                                strokeWidth='2'
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                              />
-                            </svg>
+
+                            <span className='pointer-events-none absolute left-[2px] top-[1px] text-sm text-white opacity-0 peer-checked:opacity-100'>
+                              ✓
+                            </span>
                           </div>
                           {user.name}
                         </label>
@@ -248,9 +253,6 @@ export default function () {
             </div>
           </div>
           <div className='flex h-10 justify-end gap-2'>
-            <Button type='submit' className='w-fit'>
-              Save
-            </Button>
             <Button
               type='button'
               variant='outline'
@@ -259,12 +261,15 @@ export default function () {
             >
               Cancel
             </Button>
+            <Button type='submit' className='w-fit'>
+              Save
+            </Button>
           </div>
         </Form>
       )}
 
       {!!groups?.length ? (
-        <div className='my-6 rounded bg-white px-6 py-3'>
+        <div className='my-6 rounded bg-white py-3'>
           {groups.map(
             (
               {
@@ -283,7 +288,7 @@ export default function () {
                   to={`/groups/${_id}`}
                 >
                   <div className='flex items-center gap-2'>
-                    <span className='mr-2 inline-block h-[6px] w-[6px] rounded-full bg-current align-middle' />
+                    <UserGroupIcon className='h-4 w-4 text-accent' />
                     <div className='group-hover:underline'>{name}</div>
                     {user === currentUser._id && (
                       <div className='ml-auto text-sm text-muted'>Your group</div>
@@ -292,7 +297,18 @@ export default function () {
                   <div className='text-sm text-muted'>
                     {members.length} members
                     {members?.length && (
-                      <span> - ({members.map((member) => (member as any).name).join(', ')})</span>
+                      <span>
+                        {' '}
+                        - (
+                        {members
+                          .map((member: any) => {
+                            const name =
+                              member?._id === currentUser._id ? 'You' : (member as any).name;
+                            return name;
+                          })
+                          .join(', ')}
+                        )
+                      </span>
                     )}
                   </div>
                 </Link>
@@ -301,8 +317,11 @@ export default function () {
           )}
         </div>
       ) : creatingGroup ? null : (
-        <div className='my-6 rounded bg-white px-6 py-3'>
-          <div className='text-muted'>No groups created yet.</div>
+        <div className='py-12 text-center'>
+          <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
+            <FolderOpenIcon className='h-8 w-8 text-muted/60' />
+          </div>
+          <h3 className='text-lg font-medium'>No groups created yet.</h3>
         </div>
       )}
     </div>
