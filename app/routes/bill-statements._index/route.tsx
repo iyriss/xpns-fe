@@ -1,7 +1,13 @@
 import { json } from '@vercel/remix';
 import { LoaderFunction } from '@vercel/remix';
 import { useLoaderData, useNavigate } from '@remix-run/react';
-import { CalendarIcon, ClockIcon, DocumentCurrencyDollarIcon } from '@heroicons/react/24/solid';
+import {
+  CalendarIcon,
+  ClockIcon,
+  DocumentCurrencyDollarIcon,
+  FolderOpenIcon,
+} from '@heroicons/react/24/solid';
+import { Button } from '../../components/Button';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
@@ -60,7 +66,21 @@ export default function () {
           </table>
         </>
       ) : (
-        <div className='text-muted'>No bill statements to show.</div>
+        <div className='py-12 text-center'>
+          <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
+            <FolderOpenIcon className='h-8 w-8 text-muted/60' />
+          </div>
+          <h3 className='text-lg font-medium text-gray-900'>No bill statements to show.</h3>
+          <p className='text-sm text-muted'>
+            Bill statements will appear here once they are added.
+          </p>
+          <div className='mt-4 flex items-center justify-center'>
+            <span className='text-primary'>+</span>
+            <Button variant='text' onClick={() => navigate('/upload')} className='pl-2'>
+              Upload my first bill statement
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

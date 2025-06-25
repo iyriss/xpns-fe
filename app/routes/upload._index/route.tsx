@@ -2,6 +2,8 @@ import { FormEvent, useState } from 'react';
 import { ActionFunction, json } from '@vercel/remix';
 import { useActionData, useFetcher, useNavigate } from '@remix-run/react';
 import { z } from 'zod';
+import { toast } from 'sonner';
+import { DocumentTextIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
 
 export const action: ActionFunction = async ({ request }) => {
@@ -27,6 +29,9 @@ export const action: ActionFunction = async ({ request }) => {
   });
 
   const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
+  if (!parsed.billStatement) {
+    return json({ success: false, error: 'Title is required.' });
+  }
 
   const billStatementRes = await fetch(`${process.env.API_URL}/api/bill-statements`, {
     method: 'POST',
@@ -130,14 +135,14 @@ export default function () {
     e.preventDefault();
 
     if (!rows?.length) {
-      //   toast.error('No transactions to submit.');
+      toast.error('No transactions to submit.');
       return;
     }
 
     const formData = new FormData(e.currentTarget);
     const billStatement = formData.get('billStatement');
     if (!billStatement) {
-      //   toast.error('Please provide a title.');
+      toast.error('Please provide a title.');
       return;
     }
 
@@ -157,94 +162,128 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto mb-10 h-fit w-full max-w-7xl rounded bg-white p-5'>
-      {data?.success ? (
-        <div className='mx-auto flex w-full flex-col items-center'>
-          <div>Transactions uploaded ✅.</div>
-          <div className='my-4 flex min-w-[280px] flex-col gap-4'>
-            <Button type='button' onClick={() => window.location.reload()}>
-              Upload more
-            </Button>
-            <Button type='button' onClick={() => navigate('/bill-statements')}>
-              Expense transactions
-            </Button>
-            <Button type='button' variant='outline' onClick={() => navigate('/')}>
-              Back to dashboard
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <h1 className='my-4 text-2xl font-semibold'>Add expenses</h1>
-
-          <div className='text-light my-2'>
-            Upload your bill statement to start tracking your expenses.
-          </div>
-          <fetcher.Form
-            action='/upload'
-            onSubmit={handleSubmit}
-            method='POST'
-            encType='multipart/form-data'
-          >
-            <div className='flex flex-col items-center rounded border-gray-400'>
-              <div className='my-4 flex w-full flex-col gap-1'>
-                <label htmlFor='billStatement'>
-                  Bill statement title<span className='text-error'> *</span>
-                </label>
-                <input
-                  name='billStatement'
-                  className='w-fit min-w-[400px] border border-border px-4 py-2 font-semibold placeholder:font-normal'
-                  required
-                  placeholder='e.g. August 2024 checking account'
-                />
-              </div>
-              {rows?.length && !data?.success ? (
-                <table className='w-full border border-gray-200'>
-                  <thead>
-                    <tr>
-                      {headers.map((header, index) => (
-                        <th key={index} className='border-b bg-[#38917D]/20 px-4 py-2'>
-                          {header}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {row.map((cell, cellIndex) => (
-                          <td key={cellIndex} className='border-b px-4 py-2 text-center'>
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className='relative flex h-40 w-full cursor-pointer items-center justify-center rounded-md border border-dashed border-[#38917D] bg-[#38917D]/10 hover:bg-[#38917D]/20'>
-                  <input
-                    type='file'
-                    className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
-                    onChange={(e) => handleUpload(e.currentTarget.files)}
-                    accept='text/csv'
-                    multiple={false}
-                  />
-                  <div className='cursor-pointer'>Upload bill statement</div>
-                </div>
-              )}
+    <div className='mx-auto max-w-7xl pb-10'>
+      <div className='h-fit w-full rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
+        {data?.success ? (
+          <div className='mx-auto flex w-full flex-col items-center'>
+            <div>Transactions uploaded ✅.</div>
+            <div className='my-4 flex min-w-[280px] flex-col gap-4'>
+              <Button type='button' onClick={() => window.location.reload()}>
+                Upload more
+              </Button>
+              <Button type='button' onClick={() => navigate('/bill-statements')}>
+                Expense transactions
+              </Button>
+              <Button type='button' variant='outline' onClick={() => navigate('/')}>
+                Back to dashboard
+              </Button>
             </div>
+          </div>
+        ) : (
+          <>
+            <h1 className='my-4 text-2xl font-semibold'>Add a bill statement</h1>
 
-            <Button
-              type='submit'
-              className='ml-auto mt-8'
-              disabled={fetcher.state === 'submitting' || fetcher.state === 'loading'}
+            <div className='text-light my-2'>
+              Upload your bill statement and start tracking your expenses.
+            </div>
+            <fetcher.Form
+              action='/upload'
+              onSubmit={handleSubmit}
+              method='POST'
+              encType='multipart/form-data'
             >
-              Submit
-            </Button>
-          </fetcher.Form>
-        </>
-      )}
+              <div className='flex flex-col items-center rounded border-gray-400'>
+                <div className='my-4 flex w-full flex-col gap-1'>
+                  <label htmlFor='billStatement'>
+                    Title<span className='text-error'> *</span>
+                  </label>
+                  <input
+                    name='billStatement'
+                    className='w-fit min-w-[400px] border border-border px-4 py-2 font-semibold placeholder:text-sm placeholder:font-normal placeholder:text-muted/70'
+                    required
+                    placeholder='e.g. August 2024 checking account'
+                  />
+                </div>
+                {rows?.length && !data?.success ? (
+                  <div className='w-full'>
+                    <div className='bg-gradient-to-r from-accent to-teal-600 px-6 py-4'>
+                      <h3 className='flex items-center gap-2 text-white'>
+                        <DocumentTextIcon className='h-5 w-5' />
+                        Preview ({rows.length} transactions)
+                      </h3>
+                    </div>
+                    <table className='w-full border border-gray-200'>
+                      <thead>
+                        <tr>
+                          {headers.map((header, index) => (
+                            <th
+                              key={index}
+                              className='border-b bg-[#38917D]/20 px-4 py-2 font-medium'
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                              <td key={cellIndex} className='border-b px-4 py-2 text-center'>
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className='relative flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-[#38917D] bg-[#38917D]/10 hover:bg-[#38917D]/20'>
+                    <input
+                      type='file'
+                      className='absolute left-0 top-0 h-full w-full cursor-pointer opacity-0'
+                      onChange={(e) => handleUpload(e.currentTarget.files)}
+                      accept='text/csv'
+                      multiple={false}
+                    />
+
+                    <div className='text-sm text-muted'>Drag and drop or click to browse</div>
+                    <div className='mt-2 text-xs font-medium text-accent'>CSV files only</div>
+                  </div>
+                )}
+              </div>
+              <div className='mt-8 flex items-center justify-end gap-2'>
+                <Button
+                  variant='outline'
+                  type='button'
+                  onClick={(e) => {
+                    if (rows.length > 0) {
+                      e.stopPropagation();
+                      setRows([]);
+                      setHeaders([]);
+                    } else {
+                      navigate('/');
+                    }
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  disabled={
+                    fetcher.state === 'submitting' ||
+                    fetcher.state === 'loading' ||
+                    rows.length === 0
+                  }
+                >
+                  Submit
+                </Button>
+              </div>
+            </fetcher.Form>
+          </>
+        )}
+      </div>
     </div>
   );
 }

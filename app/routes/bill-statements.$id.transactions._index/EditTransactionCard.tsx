@@ -460,7 +460,7 @@ export default function EditTransactionCard({
 
               <textarea
                 name='note'
-                className='w-full rounded-md border border-border/40 px-3 py-2 text-sm placeholder:text-muted/70 focus:border-primary focus:outline-none'
+                className='w-full rounded-md border border-border/40 px-3 py-2 text-sm placeholder:text-muted/70'
                 placeholder='Optional note about this expense...'
                 rows={2}
               />

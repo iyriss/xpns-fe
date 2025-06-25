@@ -35,7 +35,7 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
           )}
         </div>
 
-        <div className='mx-5 h-full'>{children}</div>
+        <div className='mx-5'>{children}</div>
       </div>
     </div>
   );
