@@ -10,11 +10,12 @@ type CategoryDropdownProps = {
 };
 
 const typeEmojis: { [key: string]: string } = {
-  essentials: '🏡',
+  essentials: '🍎',
   lifestyle: '🛍️',
   wellness: '🩺',
   financial: '💰',
   pet: '🐶',
+  home: '🏠',
   other: '🧩',
 };
 

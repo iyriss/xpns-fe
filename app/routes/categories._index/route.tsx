@@ -16,11 +16,12 @@ export const loader: LoaderFunction = async ({ request, context }) => {
 };
 
 const typeEmojis: { [key: string]: string } = {
-  essentials: '🏡',
+  essentials: '🍎',
   lifestyle: '🛍️',
   wellness: '🩺',
   financial: '💰',
   pet: '🐶',
+  home: '🏠',
   other: '🧩',
 };
 
