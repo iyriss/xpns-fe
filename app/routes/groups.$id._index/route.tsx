@@ -43,7 +43,7 @@ export default function () {
   }
 
   return (
-    <div className='mx-auto mb-10 w-full max-w-[1020px] rounded p-5'>
+    <div className='mx-auto mb-10 w-full max-w-7xl rounded p-5'>
       <div className='text-sm font-semibold text-accent'>Group</div>
 
       <div className='flex items-center justify-between'>

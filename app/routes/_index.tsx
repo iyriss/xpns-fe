@@ -5,9 +5,9 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='mx-auto mt-10 h-fit max-w-[1020px] rounded-xl bg-white px-12 py-10 md:flex md:flex-col md:justify-between'>
+    <div className='mx-auto mt-10 h-fit max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl md:flex md:flex-col md:justify-between'>
       <div className='flex flex-col items-center gap-5 md:flex-row'>
-        <div className='mb-auto text-center text-4xl font-bold md:w-1/3 md:text-left md:text-5xl'>
+        <div className='mb-auto text-center text-4xl font-bold leading-tight md:w-1/3 md:text-left md:text-5xl'>
           Manage your expenses
         </div>
         <div
@@ -22,7 +22,7 @@ export default function () {
       <div className='mt-auto flex flex-col justify-between gap-6 md:flex-row'>
         <div
           onClick={() => navigate('/bill-statements')}
-          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#3b875b] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#0a54cd] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
         >
           Uncaptured expenses
         </div>
@@ -31,6 +31,13 @@ export default function () {
           className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#058a80] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
         >
           Groups and settlements
+        </div>
+
+        <div
+          onClick={() => navigate('/categories')}
+          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#d38822] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+        >
+          Categories
         </div>
       </div>
     </div>

@@ -157,7 +157,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto mb-10 h-fit w-full max-w-[1020px] rounded bg-white p-5'>
+    <div className='mx-auto mb-10 h-fit w-full max-w-7xl rounded bg-white p-5'>
       {data?.success ? (
         <div className='mx-auto flex w-full flex-col items-center'>
           <div>Transactions uploaded ✅.</div>

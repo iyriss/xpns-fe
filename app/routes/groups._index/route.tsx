@@ -82,7 +82,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto mb-10 w-full max-w-[1020px]'>
+    <div className='mx-auto mb-10 h-fit w-full max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
       <div className='flex items-center justify-between'>
         <h1 className='my-4 text-2xl font-semibold'>Groups</h1>
 

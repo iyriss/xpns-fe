@@ -1,4 +1,4 @@
-import { Links, Meta, Outlet, Scripts, useLoaderData } from '@remix-run/react';
+import { Links, LiveReload, Meta, Outlet, Scripts, useLoaderData } from '@remix-run/react';
 import { json, redirect, LoaderFunction, LinksFunction } from '@vercel/remix';
 import { Toaster } from 'sonner';
 import { NavLayout } from './layouts/NavLayout';
@@ -46,13 +46,13 @@ export default function Root() {
         <Meta />
         <Links />
       </head>
-      <body className='bg-[#f6f8fa] font-quicksand'>
+      <body className='font-quicksand'>
+        <Scripts />
+        <LiveReload />
         <NavLayout userName={user?.name}>
           <Outlet />
           <Toaster position='top-center' richColors />
         </NavLayout>
-
-        <Scripts />
       </body>
     </html>
   );
