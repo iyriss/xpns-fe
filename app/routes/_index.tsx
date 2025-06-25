@@ -6,13 +6,13 @@ export default function () {
 
   return (
     <div className='mx-auto mt-10 h-fit max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl md:flex md:flex-col md:justify-between'>
-      <div className='flex flex-col items-center gap-5 md:flex-row'>
-        <div className='mb-auto text-center text-4xl font-bold leading-tight md:w-1/3 md:text-left md:text-5xl'>
-          Manage your expenses
+      <div className='mb-5 flex flex-col items-center gap-5 md:flex-row'>
+        <div className='mb-auto text-center text-4xl font-bold !leading-tight md:w-1/3 md:text-left md:text-5xl'>
+          Manage your monthly expenses.
         </div>
         <div
           onClick={() => navigate('/upload')}
-          className='mb-5 flex h-60 w-60 cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-primary p-4 text-center text-2xl text-muted shadow hover:border-solid hover:text-primary hover:opacity-95 md:ml-auto'
+          className='flex h-60 w-60 cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-primary p-4 text-center text-2xl text-muted shadow hover:border-solid hover:text-primary hover:opacity-95 md:ml-auto'
         >
           <PlusIcon className='mb-5 h-8 w-8 text-primary' />
           <span className='text-sm'>Upload bill statement</span>
