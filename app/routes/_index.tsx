@@ -1,4 +1,9 @@
-import { PlusIcon } from '@heroicons/react/24/solid';
+import {
+  DocumentCheckIcon,
+  DocumentCurrencyDollarIcon,
+  PlusIcon,
+  TagIcon,
+} from '@heroicons/react/24/solid';
 import { useNavigate } from '@remix-run/react';
 
 export default function () {
@@ -24,20 +29,24 @@ export default function () {
           onClick={() => navigate('/bill-statements')}
           className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#0a54cd] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
         >
+          <DocumentCurrencyDollarIcon className='mr-2 h-6 w-6' />
           Uncaptured expenses
-        </div>
-        <div
-          onClick={() => navigate('/groups')}
-          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#058a80] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
-        >
-          Groups and settlements
         </div>
 
         <div
           onClick={() => navigate('/categories')}
+          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#058a80] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+        >
+          <TagIcon className='mr-2 h-6 w-6' />
+          Categories
+        </div>
+
+        <div
+          onClick={() => navigate('/groups')}
           className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#d38822] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
         >
-          Categories
+          <DocumentCheckIcon className='mr-2 h-6 w-6' />
+          Groups and settlements
         </div>
       </div>
     </div>

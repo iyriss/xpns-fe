@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
+import {
+  CalculatorIcon,
+  CurrencyDollarIcon,
+  EllipsisVerticalIcon,
+  ListBulletIcon,
+  TagIcon,
+} from '@heroicons/react/24/solid';
 import { LoaderFunction, json } from '@vercel/remix';
 import { useLoaderData } from '@remix-run/react';
 import { displayDate } from '../../utils/date-helpers';
@@ -28,11 +34,24 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
 
   const currentUser = await currentUserRes.json();
 
-  return json({ group: data, groupTransactions, currentUser, settlements });
+  const categoriesRes = await fetch(`${process.env.API_URL}/api/categories`, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
+  });
+  const { data: categoriesData } = await categoriesRes.json();
+
+  return json({
+    group: data,
+    groupTransactions,
+    currentUser,
+    settlements,
+    categories: categoriesData,
+  });
 };
 
 export default function () {
-  const { group, groupTransactions, currentUser, settlements } = useLoaderData<typeof loader>();
+  const { group, groupTransactions, currentUser, settlements, categories } =
+    useLoaderData<typeof loader>();
 
   const [selected, setSelected] = useState('');
 
@@ -42,43 +61,63 @@ export default function () {
     return <div>Group not found</div>;
   }
 
+  const totalAmount = groupTransactions.length
+    ? groupTransactions.reduce(
+        (sum: number, transaction: { amount: number }) => sum + transaction.amount,
+        0,
+      ) / 100
+    : 0;
+
   return (
-    <div className='mx-auto mb-10 w-full max-w-7xl rounded p-5'>
-      <div className='text-sm font-semibold text-accent'>Group</div>
+    <div className='mx-auto mb-10 max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
+      <div className='mb-8'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <div className='text-sm font-semibold text-accent'>Group</div>
+            <h1 className='mb-4 text-2xl font-semibold'>{group.name}</h1>
+          </div>
+          <div className='group relative text-right'>
+            <div className='text-2xl font-bold text-gray-900'>{group.members.length}</div>
+            <div className='text-sm text-muted'>members</div>
+            {group.members?.length > 0 && (
+              <div className='invisible absolute -left-2 top-full z-10 mt-2 w-max rounded-lg bg-gray-900 px-3 py-2 text-sm text-white opacity-0 transition-all group-hover:visible group-hover:opacity-100'>
+                {group.members.map((member: any) => (
+                  <div key={member._id} className='my-1 min-w-16'>
+                    <span className='mr-2 inline-block h-1 w-1 rounded-full bg-current align-middle' />
+                    {member.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-      <div className='flex items-center justify-between'>
-        <h1 className='mb-4 text-2xl font-semibold'>{group.name} group transactions</h1>
-        <div className='group relative text-base text-muted'>
-          <span className='cursor-pointer'>{group.members.length} members</span>
-          {group.members?.length > 0 && (
-            <div className='invisible absolute -left-2 top-full z-10 mt-1 w-max rounded bg-gray-900 px-3 py-2 text-sm text-white opacity-0 transition-all group-hover:visible group-hover:opacity-100'>
-              {group.members.map((member: any) => (
-                <div key={member._id} className='my-2 min-w-16'>
-                  <span className='mr-2 inline-block h-1 w-1 rounded-full bg-current align-middle' />
-                  {member.name}
-                </div>
-              ))}
+      <div className='mb-8 grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className='rounded-xl border border-border/40 bg-white p-6 shadow-sm'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <p className='text-sm font-medium text-muted'>Total Transactions</p>
+              <p className='text-2xl font-bold text-gray-900'>{groupTransactions.length}</p>
             </div>
-          )}
+            <ListBulletIcon className='h-6 w-6 text-blue-600' />
+          </div>
         </div>
-      </div>
-      <div className='mt-3 flex items-center justify-between'>
-        <div>Transactions sum:</div>
-        <div>
-          ${' '}
-          {groupTransactions.length
-            ? (
-                groupTransactions.reduce(
-                  (sum: number, transaction: { amount: number }) => sum + transaction.amount,
-                  0,
-                ) / 100
-              ).toFixed(2)
-            : 0}
+
+        <div className='rounded-xl border border-border/40 bg-white p-6 shadow-sm'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <p className='text-sm font-medium text-muted'>Total Amount</p>
+              <p className='text-2xl font-bold text-gray-900'>${totalAmount.toFixed(2)}</p>
+            </div>
+            <CurrencyDollarIcon className='h-6 w-6 text-green-600' />
+          </div>
         </div>
       </div>
 
-      {group.members.length > 2 && (
-        <div className='py-3'>
+      {group.members.length > 1 && (
+        <div className='mb-8 rounded-xl border border-border/40 bg-white p-6 shadow-sm'>
+          <h2 className='mb-4 text-lg font-semibold text-gray-900'>Settlements</h2>
           <Settlements
             settlements={settlements}
             members={group.members}
@@ -86,132 +125,166 @@ export default function () {
           />
         </div>
       )}
+      <hr className='border-1 my-8 border-accent' />
+
+      <h2 className='mb-6 text-lg font-semibold text-gray-900'>Transactions</h2>
 
       {groupTransactions?.length ? (
-        groupTransactions.map((transaction: any) => {
-          const isSelected = selected === transaction._id;
+        <div className='space-y-4'>
+          {groupTransactions.map((transaction: any) => {
+            const isSelected = selected === transaction._id;
+            const selectedCategory = categories.find((c: any) => c._id === transaction.category);
 
-          return (
-            <div
-              key={transaction._id}
-              className={`group relative my-3 h-fit w-full rounded bg-white px-8 py-5`}
-            >
-              <div className='absolute inset-0 hidden rounded border border-dashed border-accent group-hover:block' />
-              <EllipsisVerticalIcon
-                className='absolute right-1 top-6 hidden size-6 cursor-pointer hover:text-primary group-hover:block'
-                onClick={() => setSelected(transaction._id)}
-              />
-              {isSelected && (
-                <Dropdown
-                  transactionId={transaction._id}
-                  isGrouped={true}
-                  onClose={() => setSelected('')}
-                  onDeselectTransaction={() => setSelected('')}
-                />
-              )}
-              <div className='flex flex-col gap-3'>
-                <div className='flex justify-between'>
-                  <div className='flex w-full items-center gap-4'>
-                    <div className='text-sm text-accent'>
-                      <div className='text-xl font-semibold'>
-                        {displayDate(transaction.date)?.split(' ')[1]}
-                      </div>
-                      <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
-                    </div>
-                    <div className='font-medium'>
-                      {transaction.subdescription.trim() || transaction.description}
-                      {!transaction.subdescription.trim() ? null : (
-                        <div className='text-sm text-muted'>{transaction.description}</div>
-                      )}
-                      {transaction.note ? (
-                        <div className='flex items-center gap-2 py-1 text-sm font-normal'>
-                          <div className='h-1 w-1 rounded-full bg-muted' />
-                          {transaction.note}
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className='text-lg font-semibold'>
-                    ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
-                  </div>
-                </div>
-
-                <div className='border-t pt-2'>
-                  <div className='flex items-center gap-1 text-sm'>
-                    <span className='font-medium text-emerald-600'>
-                      {isCurrentUser(transaction.user._id) ? 'You' : transaction.user.name}
-                    </span>
-                    <span>paid for this transaction</span>
-                  </div>
-
-                  {transaction.allocation?.members && (
-                    <div className='mt-2 space-y-1'>
-                      {transaction.allocation.members.map((member: any) => {
-                        const amountOwed = member.amount / 100;
-                        if (
-                          currentUser._id === transaction.user._id &&
-                          member.user._id === currentUser._id
-                        ) {
-                          return (
-                            <div key={member.user._id} className='flex items-center text-sm'>
-                              <span className='text-muted'>
-                                You covered ${amountOwed.toFixed(2)} for yourself
-                              </span>
-                            </div>
-                          );
-                        } else if (
-                          currentUser._id !== transaction.user._id &&
-                          member.user._id === transaction.user._id
-                        ) {
-                          return (
-                            <div key={member.user._id} className='flex items-center text-sm'>
-                              <span className='text-muted'>
-                                {transaction.user.name} covered ${amountOwed.toFixed(2)} for them
-                              </span>
-                            </div>
-                          );
-                        } else {
-                          const payer = isCurrentUser(member.user._id) ? 'You' : member.user.name;
-                          const payee = isCurrentUser(transaction.user._id)
-                            ? 'you'
-                            : transaction.user.name;
-
-                          const getTextColorClass = () => {
-                            if (payer === 'You') return 'text-red-600';
-                            if (payee === 'you') return 'text-green-600';
-                            return 'text-muted';
-                          };
-
-                          const getActionText = () => {
-                            if (isCurrentUser(transaction.user._id))
-                              return `You lent ${member.user.name}`;
-                            if (isCurrentUser(member.user._id))
-                              return `You borrowed from ${transaction.user.name}`;
-                            return `${member.user.name} borrowed from ${transaction.user.name}`;
-                          };
-
-                          return (
-                            <div key={member.user._id} className='flex items-center text-sm'>
-                              <div className={`flex items-center gap-1 ${getTextColorClass()}`}>
-                                <span>{getActionText()}</span>
-                                <span>${amountOwed.toFixed(2)}</span>
-                                {transaction.allocation.method === 'percentage' && (
-                                  <span className='text-muted'>({member.portion}%)</span>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        }
-                      })}
-                    </div>
+            return (
+              <div
+                key={transaction._id}
+                className={`group relative rounded-xl border border-border/40 bg-white p-6 transition-all hover:border-accent/50 hover:shadow-md ${
+                  isSelected ? 'border-accent shadow-md' : ''
+                }`}
+              >
+                <div className='absolute right-4 top-4'>
+                  <EllipsisVerticalIcon
+                    className='hidden size-5 cursor-pointer text-muted transition-colors hover:text-primary group-hover:block'
+                    onClick={() => setSelected(transaction._id)}
+                  />
+                  {isSelected && (
+                    <Dropdown
+                      transactionId={transaction._id}
+                      isGrouped={true}
+                      onClose={() => setSelected('')}
+                      onDeselectTransaction={() => setSelected('')}
+                    />
                   )}
                 </div>
+
+                <div className='flex flex-col gap-4'>
+                  <div className='flex items-start justify-between'>
+                    <div className='flex items-start gap-4'>
+                      <div className='text-center text-accent'>
+                        <div className='text-xl font-semibold'>
+                          {displayDate(transaction.date)?.split(' ')[1]}
+                        </div>
+                        <div className='text-sm'>
+                          {displayDate(transaction.date)?.split(' ')[0]}
+                        </div>
+                      </div>
+                      <div className='flex-1'>
+                        <div className='font-medium'>
+                          {transaction.subdescription.trim() || transaction.description}
+                        </div>
+                        {!transaction.subdescription.trim() ? null : (
+                          <div className='text-sm text-muted'>{transaction.description}</div>
+                        )}
+                        {selectedCategory && (
+                          <div className='mt-2 flex items-center gap-2'>
+                            <TagIcon className='h-4 w-4 text-muted' />
+                            <span className='text-sm text-muted'>{selectedCategory.name}</span>
+                          </div>
+                        )}
+                        {transaction.note && (
+                          <div className='mt-2 flex items-center gap-2 text-sm text-muted'>
+                            <div className='h-1 w-1 rounded-full bg-muted' />
+                            {transaction.note}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className='text-right'>
+                      <div className='text-lg font-semibold'>
+                        ${Math.abs(Number(transaction.amount) / 100).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className='rounded-lg bg-gray-50 px-4 py-2'>
+                    <div className='mb-1 flex items-center gap-1'>
+                      <span className='text-sm font-medium'>
+                        {isCurrentUser(transaction.user._id) ? 'You' : transaction.user.name} paid
+                        for this transaction
+                      </span>
+                    </div>
+
+                    {transaction.allocation?.members && (
+                      <div className='space-y-1'>
+                        {transaction.allocation.members.map((member: any) => {
+                          const amountOwed = member.amount / 100;
+                          if (
+                            currentUser._id === transaction.user._id &&
+                            member.user._id === currentUser._id
+                          ) {
+                            return (
+                              <div
+                                key={member.user._id}
+                                className='flex items-center text-sm text-muted'
+                              >
+                                <span>You covered ${amountOwed.toFixed(2)} for yourself</span>
+                              </div>
+                            );
+                          } else if (
+                            currentUser._id !== transaction.user._id &&
+                            member.user._id === transaction.user._id
+                          ) {
+                            return (
+                              <div
+                                key={member.user._id}
+                                className='flex items-center text-sm text-muted'
+                              >
+                                <span>
+                                  {transaction.user.name} covered ${amountOwed.toFixed(2)} for them
+                                </span>
+                              </div>
+                            );
+                          } else {
+                            const payer = isCurrentUser(member.user._id) ? 'You' : member.user.name;
+                            const payee = isCurrentUser(transaction.user._id)
+                              ? 'you'
+                              : transaction.user.name;
+
+                            const getTextColorClass = () => {
+                              if (payer === 'You') return 'text-red-600';
+                              if (payee === 'you') return 'text-green-600';
+                              return 'text-muted';
+                            };
+
+                            const getActionText = () => {
+                              if (isCurrentUser(transaction.user._id))
+                                return `You lent ${member.user.name}`;
+                              if (isCurrentUser(member.user._id))
+                                return `You borrowed from ${transaction.user.name}`;
+                              return `${member.user.name} borrowed from ${transaction.user.name}`;
+                            };
+
+                            return (
+                              <div key={member.user._id} className='flex items-center text-sm'>
+                                <div className={`flex items-center gap-1 ${getTextColorClass()}`}>
+                                  <span>{getActionText()}</span>
+                                  <span className='font-medium'>${amountOwed.toFixed(2)}</span>
+                                  {transaction.allocation.method === 'percentage' && (
+                                    <span className='text-muted'>({member.portion}%)</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })
+            );
+          })}
+        </div>
       ) : (
-        <div className='py-4 text-muted'>No transactions.</div>
+        <div className='py-12 text-center'>
+          <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
+            <CalculatorIcon className='h-8 w-8 text-muted/60' />
+          </div>
+          <h3 className='text-lg font-medium text-gray-900'>No transactions yet</h3>
+          <p className='text-sm text-muted'>
+            Transactions will appear here once they are added to this group.
+          </p>
+        </div>
       )}
     </div>
   );

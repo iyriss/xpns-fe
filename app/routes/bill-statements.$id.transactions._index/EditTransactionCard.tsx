@@ -1,16 +1,25 @@
 import { useRef, useState } from 'react';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import { Form, useLocation, useNavigate, useSubmit } from '@remix-run/react';
+import {
+  CurrencyDollarIcon,
+  EllipsisVerticalIcon,
+  PencilSquareIcon,
+  TagIcon,
+  UserGroupIcon,
+  UserIcon,
+} from '@heroicons/react/24/solid';
+import { Form, useFetcher, useLocation, useNavigate } from '@remix-run/react';
 import { toast } from 'sonner';
 import CustomAllocationForm from './CustomAllocationForm';
 import { Button } from '../../components/Button';
 import { displayDate } from '../../utils/date-helpers';
 import Dropdown from './TransactionDropdown';
+import CategoryDropdown from './CategoryDropdown';
 
 type EditTransactionCardProps = {
   transaction: any;
   selected: boolean;
   groups: any[];
+  categories: any[];
   defaultGroup: string;
   currentUser: string;
   billStatementId?: string;
@@ -28,6 +37,7 @@ export default function EditTransactionCard({
   transaction,
   selected,
   groups,
+  categories,
   defaultGroup,
   currentUser,
   billStatementId,
@@ -37,16 +47,20 @@ export default function EditTransactionCard({
   const [allocationType, setAllocationType] = useState<Allocation>(Allocation.MINE);
   const [allocationBase, setAllocationBase] = useState<'fixed' | 'percentage'>('fixed');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categorySelected, setCategorySelected] = useState<any>(null);
 
   const isGroupsPage = useLocation().pathname.includes('groups');
   const ungroupedDebitSelected = transaction.type === 'Debit' && selected;
 
   const formRef = useRef<HTMLDivElement>(null);
-  const submit = useSubmit();
+  const fetcher = useFetcher();
   const navigate = useNavigate();
 
   const currentGroupId = groupSelected || defaultGroup;
   const currentGroup = groups.find((group) => group._id === currentGroupId);
+  const currentCategory = categorySelected || transaction.category;
+  const selectedCategory = categories.find((c) => c._id === currentCategory);
 
   const getAllocations = () => {
     const selects = formRef.current?.querySelectorAll('select[name^="user-"]');
@@ -62,6 +76,17 @@ export default function EditTransactionCard({
     setGroupSelected(e.target.value);
   }
 
+  function handleCategoryClick(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowCategoryDropdown(!showCategoryDropdown);
+  }
+
+  function handleCategorySelect(categoryId: string) {
+    setCategorySelected(categoryId);
+    setShowCategoryDropdown(false);
+  }
+
   function handleSubmit(e: any) {
     e.preventDefault();
 
@@ -69,12 +94,13 @@ export default function EditTransactionCard({
 
     const transactionId = formData.get('transaction');
     const groupId = formData.get('group');
-    const allocationType = formData.get('allocation');
     const note = formData.get('note');
+    const category = formData.get('category') as string;
 
     const transactionData = {
       transactionId: transactionId as string,
       group: groupId,
+      ...(category && { category }),
       allocation: {
         method: 'percentage',
         members: [],
@@ -82,6 +108,7 @@ export default function EditTransactionCard({
       note,
     } as {
       group: string;
+      category?: string;
       allocation: {
         method: 'percentage' | 'fixed';
         members: { user: string; portion: number; amount: number }[];
@@ -166,13 +193,14 @@ export default function EditTransactionCard({
     }
 
     formData.append('data', JSON.stringify(transactionData));
-    submit(formData, {
-      method: 'POST',
+    fetcher.submit(formData, {
+      method: 'PUT',
       action: `/bill-statements/${billStatementId}/transactions`,
     });
   }
 
-  function handleClick() {
+  function handleClick(e: any) {
+    e.stopPropagation();
     onTransactionSelected(transaction._id);
   }
 
@@ -184,19 +212,12 @@ export default function EditTransactionCard({
   return (
     <Form
       key={transaction._id}
-      className={`group relative h-fit w-full cursor-pointer border-b border-border py-6 ${
+      className={`group relative h-fit w-full cursor-pointer border-t border-border py-6 ${
         (transaction.type === 'Credit' || transaction?.group) && !isGroupsPage ? 'bg-mist/40' : ''
       }`}
       onClick={handleClick}
       onSubmit={handleSubmit}
     >
-      {transaction.group && !isGroupsPage && (
-        <div className='absolute right-6 top-3 italic'>
-          <span>In group: </span>
-          <span>{groups.find((group) => group._id === transaction.group)?.name}</span>
-        </div>
-      )}
-
       {ungroupedDebitSelected && !isGroupsPage && (
         <div className='pointer-events-none absolute -inset-x-8 inset-y-0 h-full rounded border border-dashed border-accent' />
       )}
@@ -252,151 +273,202 @@ export default function EditTransactionCard({
       {transaction.type === 'Credit' && <div className='w-full' />}
 
       {!transaction.group && transaction.type === 'Debit' && (
-        <div className='mt-3 space-y-3'>
-          <div className='flex items-center gap-2 rounded-lg bg-slate-50 p-2'>
-            <div className='flex-1 text-sm'>
-              <span className='text-xs'>1.</span> Select group:
-            </div>
-            {groups.length > 0 ? (
-              <select
-                name='group'
-                required
-                className='h-10 w-1/3 cursor-pointer rounded-md border border-border bg-white/80 px-4 py-2 text-sm shadow-sm backdrop-blur-sm transition-all hover:border-gray-400'
-                value={currentGroupId}
-                onChange={handleGroupSelected}
-              >
-                <option value={''}>Choose...</option>
-                {groups.map((group: any) => (
-                  <option key={group._id} value={group._id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <Button
-                variant='text'
-                className='!h-6 !px-2 !text-sm !text-primary hover:!text-primary/80'
-                onClick={() => navigate('/groups')}
-              >
-                + Create
-              </Button>
-            )}
-          </div>
+        <>
+          <div className='mt-6 flex space-x-16'>
+            <div className='w-1/2'>
+              <div className='mb-4 flex items-center gap-8'>
+                <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                  <TagIcon className='h-4 w-4' />
+                  Category
+                </label>
 
-          {!!currentGroup?.members?.length && (
-            <div className='flex items-center gap-2 rounded-lg bg-slate-50 p-2'>
-              <div className='flex-1 text-sm'>
-                <span className='text-xs'>2. </span>Split:
-              </div>
-
-              <div className='flex w-1/3 gap-1'>
-                <button
-                  type='button'
-                  onClick={() => setAllocationType(Allocation.MINE)}
-                  className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                    allocationType === Allocation.MINE
-                      ? 'bg-accent text-white'
-                      : 'bg-white hover:bg-border'
-                  }`}
-                >
-                  Me
-                </button>
-
-                {currentGroup.members.length > 1 && (
-                  <>
-                    <button
-                      type='button'
-                      onClick={() => setAllocationType(Allocation.EQUALLY)}
-                      className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                        allocationType === Allocation.EQUALLY
-                          ? 'bg-accent text-white'
-                          : 'bg-white hover:bg-border'
-                      }`}
-                    >
-                      Equal
-                    </button>
-
-                    <div className='flex items-center gap-1'>
-                      <button
-                        type='button'
-                        onClick={() => setAllocationType(Allocation.PEER)}
-                        className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                          allocationType === Allocation.PEER
-                            ? 'bg-accent text-white'
-                            : 'bg-white hover:bg-border'
-                        }`}
-                      >
-                        For member
-                      </button>
+                <div className='relative flex-1'>
+                  {selectedCategory ? (
+                    <div className='flex items-center gap-2'>
+                      <span className='rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-muted'>
+                        {selectedCategory.name}
+                      </span>
+                      <input type='hidden' name='category' value={currentCategory} />
+                      <Button variant='text' onClick={handleCategoryClick} className='text-sm'>
+                        Edit
+                      </Button>
                     </div>
-
+                  ) : (
                     <button
                       type='button'
-                      onClick={() => {
-                        onTransactionSelected(transaction._id);
-                        setAllocationType(Allocation.CUSTOM);
-                      }}
-                      className={`rounded-full px-3 py-1 text-sm transition-colors ${
-                        allocationType === Allocation.CUSTOM
-                          ? 'bg-accent text-white'
-                          : 'bg-white hover:bg-border'
-                      }`}
+                      onClick={handleCategoryClick}
+                      className='text-sm text-primary transition-colors hover:text-primary/80'
                     >
-                      Custom
+                      Choose
                     </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          {allocationType === Allocation.PEER && (
-            <div className='mt-2 flex items-center justify-between gap-1 rounded-lg border border-border bg-white p-3'>
-              <p className='mb-2 text-sm font-medium text-muted'>Paid for</p>
-              <select
-                required
-                name='peer-id'
-                className='h-10 w-1/3 cursor-pointer rounded-md border border-border bg-white/80 px-4 py-2 text-sm shadow-sm backdrop-blur-sm transition-all hover:border-gray-400'
-              >
-                {currentGroup.members
-                  .filter((user: any) => user._id !== currentUser)
-                  .map((user: any) => (
-                    <option key={user._id} value={user._id}>
-                      {user.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          )}
+                  )}
 
-          {allocationType === Allocation.CUSTOM && (
-            <div className='rounded-lg border border-border bg-white p-3'>
-              <div className='mb-2 text-sm font-medium text-muted'>Custom amounts</div>
-              <CustomAllocationForm
-                formRef={formRef}
-                allocationBase={allocationBase}
-                amount={Number(transaction.amount) / 100}
-                groupMembers={currentGroup.members}
-                onAllocationBaseChange={(e) => setAllocationBase(e)}
+                  {showCategoryDropdown && (
+                    <CategoryDropdown
+                      transactionId={transaction._id}
+                      currentCategory={selectedCategory?._id}
+                      categories={categories}
+                      onCategorySelect={handleCategorySelect}
+                      onClose={() => setShowCategoryDropdown(false)}
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className='mb-4 flex items-center gap-8'>
+                <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                  <UserGroupIcon className='h-4 w-4' />
+                  Group
+                </label>
+                <div className='flex-1'>
+                  {groups.length > 0 ? (
+                    <select
+                      name='group'
+                      required
+                      className='w-full cursor-pointer rounded-md border border-border bg-white px-3 py-2 text-sm transition-all hover:border-gray-400'
+                      value={currentGroupId}
+                      onChange={handleGroupSelected}
+                    >
+                      <option value={''}>Choose group...</option>
+                      {groups.map((group: any) => (
+                        <option key={group._id} value={group._id}>
+                          {group.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Button
+                      variant='text'
+                      className='!h-8 !px-3 !text-sm !text-primary hover:!text-primary/80'
+                      onClick={() => navigate('/groups')}
+                    >
+                      Create group
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {!!currentGroup?.members?.length && (
+                <>
+                  <div className='mb-4 flex items-center gap-8'>
+                    <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                      <CurrencyDollarIcon className='h-4 w-4' />
+                      Split
+                    </label>
+                    <div className='flex-1'>
+                      <div className='flex flex-wrap gap-2'>
+                        <button
+                          type='button'
+                          onClick={() => setAllocationType(Allocation.MINE)}
+                          className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                            allocationType === Allocation.MINE
+                              ? 'bg-accent text-white'
+                              : 'bg-border/20 text-muted hover:bg-border/40'
+                          }`}
+                        >
+                          Me
+                        </button>
+
+                        {currentGroup.members.length > 1 && (
+                          <>
+                            <button
+                              type='button'
+                              onClick={() => setAllocationType(Allocation.EQUALLY)}
+                              className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                                allocationType === Allocation.EQUALLY
+                                  ? 'bg-accent text-white'
+                                  : 'bg-border/20 text-muted hover:bg-border/40'
+                              }`}
+                            >
+                              Equal
+                            </button>
+
+                            <button
+                              type='button'
+                              onClick={() => setAllocationType(Allocation.PEER)}
+                              className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                                allocationType === Allocation.PEER
+                                  ? 'bg-accent text-white'
+                                  : 'bg-border/20 text-muted hover:bg-border/40'
+                              }`}
+                            >
+                              For member
+                            </button>
+
+                            <button
+                              type='button'
+                              onClick={() => {
+                                onTransactionSelected(transaction._id);
+                                setAllocationType(Allocation.CUSTOM);
+                              }}
+                              className={`rounded-full px-3 py-1 text-sm transition-colors ${
+                                allocationType === Allocation.CUSTOM
+                                  ? 'bg-accent text-white'
+                                  : 'bg-border/20 text-muted hover:bg-border/40'
+                              }`}
+                            >
+                              Custom
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {allocationType === Allocation.PEER && (
+                    <div className='flex items-center gap-8'>
+                      <label className='flex min-w-[80px] items-center gap-2 text-sm text-muted'>
+                        <UserIcon className='h-4 w-4 text-muted' />
+                        Paid for
+                      </label>
+                      <div className='flex-1'>
+                        <select
+                          required
+                          name='peer-id'
+                          className='w-full cursor-pointer rounded-md border border-border bg-white px-3 py-2 text-sm transition-all hover:border-gray-400'
+                        >
+                          {currentGroup.members
+                            .filter((user: any) => user._id !== currentUser)
+                            .map((user: any) => (
+                              <option key={user._id} value={user._id}>
+                                {user.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {allocationType === Allocation.CUSTOM && (
+                    <CustomAllocationForm
+                      formRef={formRef}
+                      allocationBase={allocationBase}
+                      amount={Number(transaction.amount) / 100}
+                      groupMembers={currentGroup.members}
+                      onAllocationBaseChange={(e) => setAllocationBase(e)}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className='w-1/2'>
+              <label className='flex min-w-[80px] items-center gap-2 pb-1 text-sm text-muted'>
+                <PencilSquareIcon className='h-4 w-4 text-muted' />
+                Note
+              </label>
+
+              <textarea
+                name='note'
+                className='w-full rounded-md border border-border/40 px-3 py-2 text-sm placeholder:text-muted/70 focus:border-primary focus:outline-none'
+                placeholder='Optional note about this expense...'
+                rows={2}
               />
             </div>
-          )}
+          </div>
 
-          {!!currentGroup?.members?.length && (
-            <div className='flex flex-col gap-2 rounded-lg bg-slate-50 p-2'>
-              <div className='flex-1 text-sm'>
-                <span className='text-xs'>3. </span>Note:
-              </div>
-              <div className='flex-1'>
-                <textarea
-                  name='note'
-                  className='w-full border px-4 py-2 placeholder:text-sm placeholder:text-muted'
-                  placeholder='Optional note…'
-                />
-              </div>
-            </div>
-          )}
-
-          <div className='flex items-center justify-end gap-2'>
+          {/* Action Buttons */}
+          <div className='flex items-center justify-end gap-2 pt-2'>
             <Button
               variant='outline'
               type='button'
@@ -413,7 +485,7 @@ export default function EditTransactionCard({
               Save
             </Button>
           </div>
-        </div>
+        </>
       )}
     </Form>
   );

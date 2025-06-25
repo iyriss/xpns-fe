@@ -1,7 +1,7 @@
 import { json } from '@vercel/remix';
 import { LoaderFunction } from '@vercel/remix';
 import { useLoaderData, useNavigate } from '@remix-run/react';
-import { CalendarDaysIcon, CalendarIcon, ClockIcon, DocumentIcon } from '@heroicons/react/24/solid';
+import { CalendarIcon, ClockIcon, DocumentCurrencyDollarIcon } from '@heroicons/react/24/solid';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
@@ -34,7 +34,7 @@ export default function () {
                     <td className='w-1/4 px-2 py-5 text-left'>
                       <div className='flex-1'>
                         <div className='mb-3 flex items-center space-x-3'>
-                          <DocumentIcon className='h-5 w-5 text-primary' />
+                          <DocumentCurrencyDollarIcon className='h-5 w-5 text-primary' />
                           <div>
                             <h3 className='text-lg font-medium transition-colors'>
                               {billStatement.title}
