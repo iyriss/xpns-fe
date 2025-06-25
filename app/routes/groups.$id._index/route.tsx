@@ -115,7 +115,7 @@ export default function () {
         </div>
       </div>
 
-      {group.members.length > 1 && (
+      {group.members.length > 1 && groupTransactions.length > 0 && (
         <div className='mb-8 rounded-xl border border-border/40 bg-white p-6 shadow-sm'>
           <h2 className='mb-4 text-lg font-semibold'>Settlements</h2>
           <Settlements
