@@ -33,7 +33,7 @@ export default function ViewTransactionCard({
     <div
       key={transaction._id}
       className={`group relative h-fit w-full border-b border-border py-6 ${
-        isGrouped && !isGroupsPage ? 'bg-mist/40' : ''
+        isGrouped && !isGroupsPage ? 'bg-gray-50/40' : ''
       }`}
     >
       {isGrouped && !isGroupsPage && (

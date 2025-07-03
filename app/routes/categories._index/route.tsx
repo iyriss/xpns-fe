@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react';
 import { LoaderFunction } from '@vercel/remix';
 import { Button } from '../../components/Button';
 import { toast } from 'sonner';
+import { PlusIcon } from '@heroicons/react/24/solid';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const res = await fetch(`${process.env.API_URL}/api/categories`, {
@@ -23,6 +24,26 @@ const typeEmojis: { [key: string]: string } = {
   pet: '🐶',
   home: '🏠',
   other: '🧩',
+};
+
+const typeColors: { [key: string]: string } = {
+  essentials: 'bg-red-50 text-red-600 border-red-200',
+  lifestyle: 'bg-purple-50 text-primary border-purple-200',
+  wellness: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+  financial: 'bg-blue-50 text-blue-600 border-blue-200',
+  pet: 'bg-orange-50 text-orange-600 border-orange-200',
+  home: 'bg-indigo-50 text-indigo-600 border-indigo-200',
+  other: 'bg-gray-50 text-gray-600 border-gray-200',
+};
+
+const typeNames: { [key: string]: string } = {
+  essentials: 'Essentials',
+  lifestyle: 'Lifestyle',
+  wellness: 'Wellness',
+  financial: 'Financial',
+  pet: 'Pet Care',
+  home: 'Home & Garden',
+  other: 'Other',
 };
 
 export default function () {
@@ -78,84 +99,83 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto mb-10 h-fit w-full max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
-      <h1 className='my-4 text-2xl font-semibold'>Categories</h1>
+    <div className='mx-auto max-w-6xl px-6 py-12'>
+      <div className='mb-12'>
+        <h1 className='text-3xl font-light text-gray-900'>Categories</h1>
+        <p className='mt-2 text-gray-500'>Organize your expenses with custom categories</p>
+      </div>
 
-      <table className='w-full'>
-        <tbody>
-          {Object.entries(groupedCategories).map(([type, categories], idx) => (
-            <tr key={idx} className='cursor-pointer border-b border-border/40 hover:bg-border/20'>
-              <td className='w-full px-2 py-5'>
-                <div className='flex-1'>
-                  <div className='mb-3 flex items-center space-x-3'>
-                    <div className='h-5 w-5 text-lg text-primary'>{typeEmojis[type] || '📁'}</div>
-                    <div className='flex-1'>
-                      <div className='flex items-center justify-between'>
-                        <h3 className='text-lg font-medium transition-colors'>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </h3>
+      <div className='space-y-8'>
+        {Object.entries(groupedCategories).map(([type, categories], idx) => (
+          <div key={idx} className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+            <div className='mb-6 flex items-center justify-between'>
+              <div className='flex items-center space-x-4'>
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-2xl border ${typeColors[type]}`}
+                >
+                  <span className='text-2xl'>{typeEmojis[type] || '📁'}</span>
+                </div>
+                <div>
+                  <h2 className='text-xl font-medium text-gray-900'>{typeNames[type]}</h2>
+                  <p className='text-sm text-gray-500'>
+                    {(categories as string[]).length} categories
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleAddCategory(type)}
+                className='flex items-center space-x-2 rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100'
+              >
+                <PlusIcon className='h-4 w-4' />
+                <span>Add Category</span>
+              </button>
+            </div>
 
-                        {/* <div className='flex items-center gap-1'>
-                          <span className='text-sm text-primary'>+</span>
-                          <Button
-                            variant='text'
-                            className='px-0 text-sm'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddCategory(type);
-                            }}
-                          >
-                            Add category
-                          </Button>
-                        </div> */}
-                      </div>
-                      <div className='mt-2 flex items-center space-x-4 text-sm text-muted'>
-                        <div className='flex items-center space-x-2'>
-                          <span>{(categories as string[]).join(' • ')}</span>
-                        </div>
-                      </div>
-
-                      {addingCategory === type && (
-                        <div className='mt-4 flex items-center gap-2'>
-                          <input
-                            type='text'
-                            value={newCategoryName}
-                            onChange={(e) => setNewCategoryName(e.target.value)}
-                            placeholder='Enter category name...'
-                            className='flex-1 rounded-md border border-border/40 px-3 py-2 text-sm'
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleSubmit(type);
-                              } else if (e.key === 'Escape') {
-                                handleCancel();
-                              }
-                            }}
-                            autoFocus
-                          />
-                          <Button
-                            variant='text'
-                            className='text-sm'
-                            onClick={() => handleSubmit(type)}
-                          >
-                            Add
-                          </Button>
-                          <Button
-                            variant='text'
-                            className='text-sm text-muted'
-                            onClick={handleCancel}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+            <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
+              {(categories as string[]).map((category, categoryIdx) => (
+                <div
+                  key={categoryIdx}
+                  className='group flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 transition-all hover:border-gray-200 hover:bg-white hover:shadow-sm'
+                >
+                  <span className='font-medium text-gray-900'>{category}</span>
+                  <div className='opacity-0 transition-opacity group-hover:opacity-100'>
+                    <div className='h-2 w-2 rounded-full bg-gray-300'></div>
                   </div>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              ))}
+            </div>
+
+            {addingCategory === type && (
+              <div className='mt-6 rounded-xl border border-gray-200 bg-gray-50 p-6'>
+                <h3 className='mb-4 text-lg font-medium text-gray-900'>Add new category</h3>
+                <div className='flex items-center gap-3'>
+                  <input
+                    type='text'
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder='Enter category name...'
+                    className='flex-1 rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSubmit(type);
+                      } else if (e.key === 'Escape') {
+                        handleCancel();
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <Button className='!py-2' onClick={() => handleSubmit(type)}>
+                    Add
+                  </Button>
+                  <Button variant='outline' className='!py-2' onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

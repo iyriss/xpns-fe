@@ -213,7 +213,9 @@ export default function EditTransactionCard({
     <Form
       key={transaction._id}
       className={`group relative h-fit w-full cursor-pointer border-t border-border py-6 ${
-        (transaction.type === 'Credit' || transaction?.group) && !isGroupsPage ? 'bg-mist/40' : ''
+        (transaction.type === 'Credit' || transaction?.group) && !isGroupsPage
+          ? 'bg-gray-50/40'
+          : ''
       }`}
       onClick={handleClick}
       onSubmit={handleSubmit}
@@ -467,7 +469,6 @@ export default function EditTransactionCard({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className='flex items-center justify-end gap-2 pt-2'>
             <Button
               variant='outline'

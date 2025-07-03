@@ -1,53 +1,87 @@
 import {
-  DocumentCheckIcon,
   DocumentCurrencyDollarIcon,
   PlusIcon,
   TagIcon,
+  ArrowRightIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/solid';
 import { useNavigate } from '@remix-run/react';
+import { Button } from '../components/Button';
 
 export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='mx-auto mt-10 h-fit max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl md:flex md:flex-col md:justify-between'>
-      <div className='mb-5 flex flex-col items-center gap-5 md:flex-row'>
-        <div className='mb-auto text-center text-4xl font-bold !leading-tight md:w-1/3 md:text-left md:text-5xl'>
-          Manage your monthly expenses.
+    <div className='mx-auto max-w-6xl px-6 py-12'>
+      <div className='mb-12'>
+        <h1 className='text-3xl font-light text-gray-900'>Dashboard</h1>
+      </div>
+
+      {/* <div className='mb-12 grid grid-cols-1 gap-8 sm:grid-cols-3'>
+        <div className='text-center'>
+          <div className='mb-2 text-4xl font-light text-primary'>12</div>
+          <div className='text-sm text-gray-500'>Pending Bills</div>
         </div>
-        <div
-          onClick={() => navigate('/upload')}
-          className='flex h-60 w-60 cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-primary p-4 text-center text-2xl text-muted shadow hover:border-solid hover:text-primary hover:opacity-95 md:ml-auto'
-        >
-          <PlusIcon className='mb-5 h-8 w-8 text-primary' />
-          <span className='text-sm'>Upload bill statement</span>
+        <div className='text-center'>
+          <div className='mb-2 text-4xl font-light text-emerald-600'>$2,450</div>
+          <div className='text-sm text-gray-500'>This Month</div>
+        </div>
+        <div className='text-center'>
+          <div className='mb-2 text-4xl font-light text-blue-600'>3</div>
+          <div className='text-sm text-gray-500'>Active Groups</div>
+        </div>
+      </div> */}
+
+      <div className='mb-12'>
+        <div className='rounded-2xl border border-gray-100 bg-white p-12 shadow-sm'>
+          <div className='flex items-center justify-between'>
+            <div className='max-w-md'>
+              <h2 className='mb-4 text-2xl font-light text-gray-900'>Get started</h2>
+              <p className='mb-8 text-gray-600'>
+                Upload a bill statement to begin tracking expenses.
+              </p>
+              <Button onClick={() => navigate('/upload')}>
+                <PlusIcon className='mr-2 h-4 w-4' />
+                Upload Statement
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className='mt-auto flex flex-col justify-between gap-6 md:flex-row'>
-        <div
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+        <button
           onClick={() => navigate('/bill-statements')}
-          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#0a54cd] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+          className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
         >
-          <DocumentCurrencyDollarIcon className='mr-2 h-6 w-6' />
-          Uncaptured expenses
-        </div>
+          <div className='flex items-center'>
+            <DocumentCurrencyDollarIcon className='mr-4 h-6 w-6 text-purple-500' />
+            <span className='font-medium text-gray-900'>View Bills</span>
+          </div>
+          <ArrowRightIcon className='h-4 w-4 text-purple-400 transition-transform group-hover:translate-x-1' />
+        </button>
 
-        <div
+        <button
           onClick={() => navigate('/categories')}
-          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#058a80] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+          className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
         >
-          <TagIcon className='mr-2 h-6 w-6' />
-          Categories
-        </div>
+          <div className='flex items-center'>
+            <TagIcon className='mr-4 h-6 w-6 text-emerald-500' />
+            <span className='font-medium text-gray-900'>Categories</span>
+          </div>
+          <ArrowRightIcon className='h-4 w-4 text-emerald-400 transition-transform group-hover:translate-x-1' />
+        </button>
 
-        <div
+        <button
           onClick={() => navigate('/groups')}
-          className='flex h-60 cursor-pointer items-center justify-center rounded-3xl bg-[#d38822] p-8 text-center text-2xl text-white shadow hover:opacity-90 md:w-1/2'
+          className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
         >
-          <DocumentCheckIcon className='mr-2 h-6 w-6' />
-          Groups and settlements
-        </div>
+          <div className='flex items-center'>
+            <UserGroupIcon className='mr-4 h-6 w-6 text-blue-500' />
+            <span className='font-medium text-gray-900'>Groups</span>
+          </div>
+          <ArrowRightIcon className='h-4 w-4 text-blue-400 transition-transform group-hover:translate-x-1' />
+        </button>
       </div>
     </div>
   );

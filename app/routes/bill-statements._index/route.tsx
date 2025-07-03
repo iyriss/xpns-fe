@@ -6,6 +6,7 @@ import {
   ClockIcon,
   DocumentCurrencyDollarIcon,
   FolderOpenIcon,
+  PlusIcon,
 } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
 
@@ -24,64 +25,68 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='mx-auto mb-10 h-fit w-full max-w-7xl rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
-      <h1 className='my-4 text-2xl font-semibold'>Uncaptured bill statements</h1>
-      {billStatements?.length ? (
-        <>
-          <table className='w-full'>
-            <tbody>
-              {billStatements.map((billStatement: any, index: number) => {
-                return (
-                  <tr
-                    key={billStatement._id}
-                    className='cursor-pointer border-b border-border/40 text-center hover:bg-border/20'
-                    onClick={() => navigate(`/bill-statements/${billStatement._id}/transactions`)}
-                  >
-                    <td className='w-1/4 px-2 py-5 text-left'>
-                      <div className='flex-1'>
-                        <div className='mb-3 flex items-center space-x-3'>
-                          <DocumentCurrencyDollarIcon className='h-5 w-5 text-primary' />
-                          <div>
-                            <h3 className='text-lg font-medium transition-colors'>
-                              {billStatement.title}
-                            </h3>
-                            <div className='flex items-center space-x-4 text-sm text-muted'>
-                              <div className='flex items-center space-x-2'>
-                                <CalendarIcon className='h-4 w-4 text-muted' />
-                                <span>Created {displayDate(billStatement.createdAt)}</span>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <ClockIcon className='h-4 w-4 text-muted' />
-                                <span>{getTimeAgo(billStatement.createdAt)}</span>
-                              </div>
-                            </div>
+    <div className='mx-auto max-w-6xl px-6 py-12'>
+      <div className='mb-12'>
+        <h1 className='text-3xl font-light text-gray-900'>Bill Statements</h1>
+        <p className='mt-2 text-gray-500'>Manage your uploaded statements</p>
+      </div>
+
+      <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+        {billStatements?.length ? (
+          <div className='space-y-4'>
+            {billStatements.map((billStatement: any, index: number) => {
+              return (
+                <div
+                  key={billStatement._id}
+                  className='group cursor-pointer rounded-xl border border-gray-100 p-6 transition-all hover:border-gray-200 hover:shadow-md'
+                  onClick={() => navigate(`/bill-statements/${billStatement._id}/transactions`)}
+                >
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center space-x-4'>
+                      <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50'>
+                        <DocumentCurrencyDollarIcon className='h-6 w-6 text-purple-500' />
+                      </div>
+                      <div>
+                        <h3 className='text-lg font-medium text-gray-900 transition-colors group-hover:text-primary'>
+                          {billStatement.title}
+                        </h3>
+                        <div className='mt-1 flex items-center space-x-6 text-sm text-gray-500'>
+                          <div className='flex items-center space-x-2'>
+                            <CalendarIcon className='h-4 w-4' />
+                            <span>Created {displayDate(billStatement.createdAt)}</span>
+                          </div>
+                          <div className='flex items-center space-x-2'>
+                            <ClockIcon className='h-4 w-4' />
+                            <span>{getTimeAgo(billStatement.createdAt)}</span>
                           </div>
                         </div>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </>
-      ) : (
-        <div className='py-12 text-center'>
-          <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
-            <FolderOpenIcon className='h-8 w-8 text-muted/60' />
+                    </div>
+                    <div className='text-sm text-gray-400 group-hover:text-purple-400'>→</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <h3 className='text-lg font-medium'>No bill statements to show.</h3>
-          <p className='text-sm text-muted'>
-            Bill statements will appear here once they are added.
-          </p>
-          <div className='mt-4 flex items-center justify-center'>
-            <span className='text-primary'>+</span>
-            <Button variant='text' onClick={() => navigate('/upload')} className='pl-2'>
-              Upload my first bill statement
-            </Button>
+        ) : (
+          <div className='py-16 text-center'>
+            <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100'>
+              <FolderOpenIcon className='h-10 w-10 text-gray-400' />
+            </div>
+            <h3 className='mb-2 text-xl font-light text-gray-900'>No bill statements</h3>
+            <p className='mb-8 text-gray-500'>
+              Bill statements will appear here once they are uploaded.
+            </p>
+            <button
+              onClick={() => navigate('/upload')}
+              className='hover:bg-primary-active inline-flex items-center bg-primary px-6 py-3 font-medium text-white transition-colors'
+            >
+              <PlusIcon className='mr-2 h-4 w-4' />
+              Upload Statement
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

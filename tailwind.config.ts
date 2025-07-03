@@ -9,7 +9,8 @@ export default {
       },
       colors: {
         primary: {
-          DEFAULT: '#5607df',
+          DEFAULT: '#9333ea', // purple-600
+          active: '#7e22ce', // purple-700
         },
         accent: {
           DEFAULT: '#38917D',
@@ -29,9 +30,7 @@ export default {
         lead: {
           DEFAULT: '#1f1f1f',
         },
-        'mist': { // gray-50
-          DEFAULT: '#fcfcfc',
-        },
+
       },
     },
   },

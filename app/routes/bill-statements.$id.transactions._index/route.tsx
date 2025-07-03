@@ -140,20 +140,22 @@ export default function () {
   );
 
   return (
-    <div className='mx-auto max-w-7xl pb-10'>
-      <div className='h-fit w-full rounded-3xl border border-border/40 bg-white/80 p-8 shadow-xl backdrop-blur-xl'>
-        <div className='text-sm font-semibold text-accent'>Bill statement</div>
-        <h1 className='text-2xl font-semibold'>{billStatement?.title}</h1>
-        <div className='mb-5 mt-1 text-muted'>
+    <div className='mx-auto max-w-6xl px-6 py-12'>
+      <div className='mb-12'>
+        <div className='mb-2 text-sm font-medium text-gray-900'>Bill statement</div>
+        <h1 className='text-3xl font-light text-gray-900'>{billStatement?.title}</h1>
+        <div className='mt-2 text-gray-500'>
           <span>{displayLongDate(dates.nearest)}</span> -{' '}
           <span>{displayLongDate(dates.furthest)}</span>
         </div>
+      </div>
 
-        <div className='mb-8 overflow-hidden border-b border-accent pb-8'>
-          <div className='flex items-start justify-between gap-8'>
-            <div className='flex-1'>
-              <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>
-                <UserGroupIcon className='h-4 w-4 text-muted' />
+      <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+        <div className='mb-8 border-b border-gray-200 pb-8'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <div>
+              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+                <UserGroupIcon className='h-4 w-4 text-gray-500' />
                 Default group
               </label>
 
@@ -161,7 +163,7 @@ export default function () {
                 <select
                   name='group'
                   required
-                  className='h-10 w-full cursor-pointer rounded-md border border-border bg-white/80 px-4 py-2 text-sm shadow-sm backdrop-blur-sm transition-all hover:border-gray-400'
+                  className='w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-colors hover:border-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
                   onChange={handleDefaultGroup}
                   value={defaultGroup}
                 >
@@ -175,13 +177,9 @@ export default function () {
                   ))}
                 </select>
               ) : (
-                <div className='flex items-center gap-1 text-sm text-muted'>
+                <div className='flex items-center gap-1 text-sm text-gray-500'>
                   No groups yet.
-                  <Button
-                    variant='text'
-                    className='!px-0 !text-sm'
-                    onClick={() => navigate('/groups')}
-                  >
+                  <Button variant='text' className='!px-0' onClick={() => navigate('/groups')}>
                     Create one
                   </Button>
                   .
@@ -189,17 +187,17 @@ export default function () {
               )}
             </div>
 
-            <div className='flex-1'>
-              <label className='mb-1 block flex items-center gap-2 text-sm font-medium'>
-                <ArrowsRightLeftIcon className='h-4 w-4 text-muted' />
+            <div>
+              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+                <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
                 Transactions display
               </label>
-              <div className='flex w-full items-center overflow-hidden rounded-md border border-border bg-white/80 shadow-sm backdrop-blur-sm'>
+              <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
                 <label
-                  className={`flex h-10 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
                     defaultTransactionDisplay === TransactionDisplay.EDIT
-                      ? 'bg-accent text-white shadow-md'
-                      : 'hover:bg-mist text-gray-600 hover:text-gray-800'
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                   }`}
                 >
                   <input
@@ -213,10 +211,10 @@ export default function () {
                   <span className='font-medium'>Edit</span>
                 </label>
                 <label
-                  className={`flex h-10 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
                     defaultTransactionDisplay === TransactionDisplay.VIEW
-                      ? 'bg-accent text-white shadow-md'
-                      : 'hover:bg-mist text-gray-600 hover:text-gray-800'
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                   }`}
                 >
                   <input
@@ -234,69 +232,81 @@ export default function () {
           </div>
         </div>
 
-        <div className='space-y-4'>
+        <div className='space-y-8'>
           {defaultTransactionDisplay === TransactionDisplay.EDIT ? (
             <>
               {unallocatedTransactions.length > 0 && (
-                <div className='mb-8'>
-                  <h2 className='mb-4 text-lg font-semibold'>Unallocated transactions</h2>
-                  {unallocatedTransactions.map((transaction: any) => (
-                    <EditTransactionCard
-                      key={transaction._id}
-                      transaction={transaction}
-                      selected={transactionIdSelected === transaction._id}
-                      groups={groups}
-                      categories={categories}
-                      defaultGroup={defaultGroup}
-                      currentUser={currentUser}
-                      billStatementId={billStatement._id}
-                      onTransactionSelected={handleSelected}
-                    />
-                  ))}
+                <div>
+                  <h2 className='mb-6 text-xl font-light text-gray-900'>
+                    Unallocated transactions
+                  </h2>
+                  <div className='space-y-4'>
+                    {unallocatedTransactions.map((transaction: any) => (
+                      <EditTransactionCard
+                        key={transaction._id}
+                        transaction={transaction}
+                        selected={transactionIdSelected === transaction._id}
+                        groups={groups}
+                        categories={categories}
+                        defaultGroup={defaultGroup}
+                        currentUser={currentUser}
+                        billStatementId={billStatement._id}
+                        onTransactionSelected={handleSelected}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 
               {allocatedTransactions.length > 0 && (
                 <div>
-                  <h2 className='mb-4 text-lg font-semibold'>Allocated transactions</h2>
-                  {allocatedTransactions.map((transaction: any) => (
-                    <ViewTransactionCard
-                      key={transaction._id}
-                      transaction={transaction}
-                      groups={groups}
-                      onTransactionSelected={handleSelected}
-                    />
-                  ))}
+                  <h2 className='mb-6 text-xl font-light text-gray-900'>Allocated transactions</h2>
+                  <div className='space-y-4'>
+                    {allocatedTransactions.map((transaction: any) => (
+                      <ViewTransactionCard
+                        key={transaction._id}
+                        transaction={transaction}
+                        groups={groups}
+                        onTransactionSelected={handleSelected}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </>
           ) : (
             <>
               {unallocatedTransactions.length > 0 && (
-                <div className='mb-8'>
-                  <h2 className='mb-4 text-lg font-semibold'>Unallocated transactions</h2>
-                  {unallocatedTransactions.map((transaction: any) => (
-                    <ViewTransactionCard
-                      key={transaction._id}
-                      transaction={transaction}
-                      groups={groups}
-                      onTransactionSelected={handleSelected}
-                    />
-                  ))}
+                <div>
+                  <h2 className='mb-6 text-xl font-light text-gray-900'>
+                    Unallocated transactions
+                  </h2>
+                  <div className='space-y-4'>
+                    {unallocatedTransactions.map((transaction: any) => (
+                      <ViewTransactionCard
+                        key={transaction._id}
+                        transaction={transaction}
+                        groups={groups}
+                        onTransactionSelected={handleSelected}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 
               {allocatedTransactions.length > 0 && (
                 <div>
-                  <h2 className='mb-4 text-lg font-semibold'>Allocated transactions</h2>
-                  {allocatedTransactions.map((transaction: any) => (
-                    <ViewTransactionCard
-                      key={transaction._id}
-                      transaction={transaction}
-                      groups={groups}
-                      onTransactionSelected={handleSelected}
-                    />
-                  ))}
+                  <h2 className='mb-6 text-xl font-light text-gray-900'>Allocated transactions</h2>
+                  <div className='space-y-4'>
+                    {allocatedTransactions.map((transaction: any) => (
+                      <ViewTransactionCard
+                        key={transaction._id}
+                        transaction={transaction}
+                        groups={groups}
+                        onTransactionSelected={handleSelected}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </>
