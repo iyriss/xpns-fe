@@ -122,13 +122,14 @@ export default function () {
                   </p>
                 </div>
               </div>
-              <button
+              <Button
                 onClick={() => handleAddCategory(type)}
-                className='flex items-center space-x-2 rounded-lg bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100'
+                variant='text'
+                className='space-x-2 !px-0 text-sm'
               >
                 <PlusIcon className='h-4 w-4' />
                 <span>Add Category</span>
-              </button>
+              </Button>
             </div>
 
             <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3'>
