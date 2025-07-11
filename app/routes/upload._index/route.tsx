@@ -23,7 +23,7 @@ export const action: ActionFunction = async ({ request }) => {
           z.object({
             date: z.string().datetime(),
             description: z.string(),
-            subdescription: z.string(),
+            subdescription: z.string().optional(),
             type: z.enum(['Debit', 'Credit']),
             amount: z.number(),
           }),

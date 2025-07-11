@@ -8,7 +8,12 @@ import { LoaderFunction } from '@vercel/remix';
 import ViewTransactionCard from './ViewTransactionCard';
 import { Button } from '../../components/Button';
 import EditTransactionCard from './EditTransactionCard';
-import { ArrowsRightLeftIcon, UserGroupIcon } from '@heroicons/react/24/solid';
+import {
+  ArrowsRightLeftIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/solid';
 
 type ActionData = {
   success: boolean;
@@ -93,9 +98,30 @@ enum TransactionDisplay {
   VIEW = 'view',
 }
 
+const collapseTsxButton = (title: string, collapsed: boolean, onClick: () => void) => (
+  <div className='flex items-center justify-between'>
+    <h2 className='mb-2 text-xl font-medium text-gray-900'>{title} transactions</h2>
+    <Button variant='text' className='flex items-center gap-1 text-sm' onClick={onClick}>
+      {collapsed ? (
+        <>
+          <ChevronDownIcon className='h-4 w-4' />
+          Expand
+        </>
+      ) : (
+        <>
+          <ChevronUpIcon className='h-4 w-4' />
+          Collapse
+        </>
+      )}
+    </Button>
+  </div>
+);
+
 export default function () {
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
   const [defaultGroup, setDefaultGroup] = useState('');
+  const [unallocatedTsxCollapsed, setUnallocatedTsxCollapsed] = useState(false);
+  const [allocatedTsxCollapsed, setAllocatedTsxCollapsed] = useState(false);
   const [defaultTransactionDisplay, setDefaultTransactionDisplay] = useState(
     TransactionDisplay.EDIT,
   );
@@ -150,97 +176,99 @@ export default function () {
         </div>
       </div>
 
-      <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        <div className='mb-8 border-b border-gray-200 pb-8'>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <div>
-              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-                <UserGroupIcon className='h-4 w-4 text-gray-500' />
-                Default group
-              </label>
+      <div className='mb-5 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div>
+            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+              <UserGroupIcon className='h-4 w-4 text-gray-500' />
+              Default group
+            </label>
 
-              {groups.length > 0 ? (
-                <select
-                  name='group'
-                  required
-                  className='w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-colors hover:border-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
-                  onChange={handleDefaultGroup}
-                  value={defaultGroup}
-                >
-                  <option value={''} className='text-gray-500'>
-                    Select a group
+            {groups.length > 0 ? (
+              <select
+                name='group'
+                required
+                className='w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-colors hover:border-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
+                onChange={handleDefaultGroup}
+                value={defaultGroup}
+              >
+                <option value={''} className='text-gray-500'>
+                  Select a group
+                </option>
+                {groups.map((group: any) => (
+                  <option key={group._id} value={group._id}>
+                    {group.name}
                   </option>
-                  {groups.map((group: any) => (
-                    <option key={group._id} value={group._id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className='flex items-center gap-1 text-sm text-gray-500'>
-                  No groups yet.
-                  <Button variant='text' className='!px-0' onClick={() => navigate('/groups')}>
-                    Create one
-                  </Button>
-                  .
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-                <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
-                Transactions display
-              </label>
-              <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
-                <label
-                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                    defaultTransactionDisplay === TransactionDisplay.EDIT
-                      ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='transactionDisplay'
-                    value='edit'
-                    checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
-                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.EDIT)}
-                    className='sr-only'
-                  />
-                  <span className='font-medium'>Edit</span>
-                </label>
-                <label
-                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                    defaultTransactionDisplay === TransactionDisplay.VIEW
-                      ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='transactionDisplay'
-                    value='view'
-                    checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
-                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
-                    className='sr-only'
-                  />
-                  <span className='font-medium'>View</span>
-                </label>
+                ))}
+              </select>
+            ) : (
+              <div className='flex items-center gap-1 text-sm text-gray-500'>
+                No groups yet.
+                <Button variant='text' className='!px-0' onClick={() => navigate('/groups')}>
+                  Create one
+                </Button>
+                .
               </div>
+            )}
+          </div>
+
+          <div>
+            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+              <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
+              Transactions display
+            </label>
+            <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
+              <label
+                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  defaultTransactionDisplay === TransactionDisplay.EDIT
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                }`}
+              >
+                <input
+                  type='radio'
+                  name='transactionDisplay'
+                  value='edit'
+                  checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
+                  onChange={() => setDefaultTransactionDisplay(TransactionDisplay.EDIT)}
+                  className='sr-only'
+                />
+                <span className='font-medium'>Edit</span>
+              </label>
+              <label
+                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  defaultTransactionDisplay === TransactionDisplay.VIEW
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                }`}
+              >
+                <input
+                  type='radio'
+                  name='transactionDisplay'
+                  value='view'
+                  checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
+                  onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
+                  className='sr-only'
+                />
+                <span className='font-medium'>View</span>
+              </label>
             </div>
           </div>
         </div>
+      </div>
 
+      <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
         <div className='space-y-8'>
           {defaultTransactionDisplay === TransactionDisplay.EDIT ? (
             <>
               {unallocatedTransactions.length > 0 && (
-                <div>
-                  <h2 className='mb-6 text-xl font-light text-gray-900'>
-                    Unallocated transactions
-                  </h2>
-                  <div className='space-y-4'>
+                <>
+                  {collapseTsxButton('Unallocated', unallocatedTsxCollapsed, () =>
+                    setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
+                  )}
+                  <div
+                    className={`space-y-4 transition-all ${unallocatedTsxCollapsed ? 'hidden' : ''}`}
+                  >
                     {unallocatedTransactions.map((transaction: any) => (
                       <EditTransactionCard
                         key={transaction._id}
@@ -255,13 +283,17 @@ export default function () {
                       />
                     ))}
                   </div>
-                </div>
+                </>
               )}
 
               {allocatedTransactions.length > 0 && (
-                <div>
-                  <h2 className='mb-6 text-xl font-light text-gray-900'>Allocated transactions</h2>
-                  <div className='space-y-4'>
+                <>
+                  {collapseTsxButton('Allocated', allocatedTsxCollapsed, () =>
+                    setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                  )}
+                  <div
+                    className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}
+                  >
                     {allocatedTransactions.map((transaction: any) => (
                       <ViewTransactionCard
                         key={transaction._id}
@@ -271,17 +303,19 @@ export default function () {
                       />
                     ))}
                   </div>
-                </div>
+                </>
               )}
             </>
           ) : (
             <>
               {unallocatedTransactions.length > 0 && (
-                <div>
-                  <h2 className='mb-6 text-xl font-light text-gray-900'>
-                    Unallocated transactions
-                  </h2>
-                  <div className='space-y-4'>
+                <>
+                  {collapseTsxButton('Unallocated', unallocatedTsxCollapsed, () =>
+                    setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
+                  )}
+                  <div
+                    className={`space-y-4 transition-all ${unallocatedTsxCollapsed ? 'hidden' : ''}`}
+                  >
                     {unallocatedTransactions.map((transaction: any) => (
                       <ViewTransactionCard
                         key={transaction._id}
@@ -291,13 +325,17 @@ export default function () {
                       />
                     ))}
                   </div>
-                </div>
+                </>
               )}
 
               {allocatedTransactions.length > 0 && (
-                <div>
-                  <h2 className='mb-6 text-xl font-light text-gray-900'>Allocated transactions</h2>
-                  <div className='space-y-4'>
+                <>
+                  {collapseTsxButton('Allocated', allocatedTsxCollapsed, () =>
+                    setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                  )}
+                  <div
+                    className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}
+                  >
                     {allocatedTransactions.map((transaction: any) => (
                       <ViewTransactionCard
                         key={transaction._id}
@@ -307,7 +345,7 @@ export default function () {
                       />
                     ))}
                   </div>
-                </div>
+                </>
               )}
             </>
           )}

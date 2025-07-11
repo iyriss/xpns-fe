@@ -68,9 +68,9 @@ export default function ViewTransactionCard({
             </div>
             <div className='flex-1'>
               <div className='font-medium'>
-                {transaction.subdescription.trim() || transaction.description}
+                {transaction.subdescription?.trim() || transaction.description}
               </div>
-              {transaction.subdescription.trim() && (
+              {transaction.subdescription?.trim() && (
                 <div className='mt-1 text-sm text-muted'>{transaction.description}</div>
               )}
             </div>

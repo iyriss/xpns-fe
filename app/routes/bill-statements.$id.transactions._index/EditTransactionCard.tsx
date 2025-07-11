@@ -253,9 +253,9 @@ export default function EditTransactionCard({
               <div>{displayDate(transaction.date)?.split(' ')[0]}</div>
             </div>
             <div>
-              <div>{transaction.subdescription.trim() || transaction.description}</div>
+              <div>{transaction.subdescription?.trim() || transaction.description}</div>
 
-              {!transaction.subdescription.trim() ? null : (
+              {!transaction.subdescription?.trim() ? null : (
                 <div className='text-sm text-muted'>{transaction.description}</div>
               )}
             </div>
@@ -267,7 +267,7 @@ export default function EditTransactionCard({
               <span className='mr-4 text-sm font-medium text-muted'>
                 {transaction.type === 'Credit' ? 'Deposit' : 'Paid'}
               </span>
-              ${(Number(transaction.amount) / 100).toFixed(2)}
+              ${(transaction.amount / 100).toFixed(2)}
             </div>
           </div>
         </div>
@@ -445,7 +445,7 @@ export default function EditTransactionCard({
                     <CustomAllocationForm
                       formRef={formRef}
                       allocationBase={allocationBase}
-                      amount={Number(transaction.amount) / 100}
+                      amount={transaction.amount / 100}
                       groupMembers={currentGroup.members}
                       onAllocationBaseChange={(e) => setAllocationBase(e)}
                     />

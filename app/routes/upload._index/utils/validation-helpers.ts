@@ -6,6 +6,9 @@ import {
     MAX_TYPE_LENGTH,
 } from './constants';
 
+const dollarsToCents = (dollarAmount: number): number => dollarAmount * 100;
+
+
 export const validateMapping = (mapping: Record<string, string>) => {
     const mappedValues = new Set(Object.values(mapping));
     const mappedValuesArray = Object.values(mapping);
@@ -83,9 +86,7 @@ export const transformAndValidateTransactions = (
         const transaction: any = {
             date: '',
             description: '',
-            subdescription: '',
-            type: 'Debit', // default
-            amount: 0,
+            type: 'Debit',
         };
 
         let hasRequiredFields = { date: false, description: false, amount: false };
@@ -157,10 +158,10 @@ export const transformAndValidateTransactions = (
                         errors.push(
                             `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
                         );
-                    } else if (numAmount > MAX_AMOUNT) {
+                    } else if (Math.abs(numAmount) > MAX_AMOUNT) {
                         warnings.push(`Row ${rowIndex + 1}, ${columnName}: amount seems unusually large`);
                     } else {
-                        transaction.amount = numAmount;
+                        transaction.amount = dollarsToCents(Math.abs(numAmount));
                         hasRequiredFields.amount = true;
                     }
                     break;
@@ -172,8 +173,8 @@ export const transformAndValidateTransactions = (
                         errors.push(
                             `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
                         );
-                    } else if (numDebit > 0) {
-                        transaction.amount = numDebit;
+                    } else {
+                        transaction.amount = dollarsToCents(Math.abs(numDebit));
                         transaction.type = 'Debit';
                         hasRequiredFields.amount = true;
                     }
@@ -186,8 +187,8 @@ export const transformAndValidateTransactions = (
                         errors.push(
                             `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
                         );
-                    } else if (numCredit > 0) {
-                        transaction.amount = numCredit;
+                    } else {
+                        transaction.amount = dollarsToCents(Math.abs(numCredit));
                         transaction.type = 'Credit';
                         hasRequiredFields.amount = true;
                     }
