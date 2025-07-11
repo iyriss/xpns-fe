@@ -1,10 +1,81 @@
 import { useFetcher, useNavigate } from '@remix-run/react';
+import { ActionFunction } from '@remix-run/node';
+import { z } from 'zod';
 import { useUploadActions } from './hooks/useUploadActions';
 import { StepIndicator } from './components/steps/StepIndicator';
 import { StepRenderer } from './components/steps/StepRenderer';
 import { SuccessView } from './components/SuccessView';
 import { NavigationButtons } from './components/NavigationButtons';
 import { UPLOAD_STEPS } from './utils/constants';
+import { transformAndValidateTransactions } from './utils/validation-helpers';
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const cookieHeader = request.headers.get('Cookie');
+
+  const TransactionsSchema = z.object({
+    billStatement: z.string(),
+    transactions: z
+      .string()
+      .transform((str) => JSON.parse(str))
+      .pipe(
+        z.array(
+          z.object({
+            date: z.string().datetime(),
+            description: z.string(),
+            subdescription: z.string(),
+            type: z.enum(['Debit', 'Credit']),
+            amount: z.number(),
+          }),
+        ),
+      ),
+  });
+
+  const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
+
+  if (!parsed.billStatement) {
+    return { success: false, error: 'Title is required.' };
+  }
+
+  const billStatementRes = await fetch(`${process.env.API_URL}/api/bill-statements`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
+    body: JSON.stringify({ title: parsed.billStatement }),
+  });
+
+  const { data } = await billStatementRes.json();
+  if (!data) {
+    return { success: false };
+  }
+
+  const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
+    return {
+      ...transactionRow,
+      billStatement: data._id,
+      user: data.user,
+    };
+  });
+
+  const transactionsRes = await fetch(`${process.env.API_URL}/api/transactions`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
+    body: JSON.stringify(transactionWithBillStatement),
+  });
+
+  if (transactionsRes.status !== 200) {
+    // If transactions upload fails, delete the bill statement
+    await fetch(`${process.env.API_URL}/api/bill-statements/${data._id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
+    });
+    return { success: false, error: 'Failed to upload transactions' };
+  }
+
+  return { success: true };
+};
 
 export default function UploadRoute() {
   const {
@@ -51,6 +122,15 @@ export default function UploadRoute() {
             <StepIndicator currentStep={currentStep} steps={UPLOAD_STEPS} />
 
             <fetcher.Form action='/upload' method='POST' encType='multipart/form-data'>
+              <input type='hidden' name='billStatement' value={billStatement} />
+              <input
+                type='hidden'
+                name='transactions'
+                value={JSON.stringify(transformAndValidateTransactions(rows, mapping).transactions)}
+              />
+              <input type='hidden' name='mapping' value={JSON.stringify(mapping)} />
+              <input type='hidden' name='headers' value={JSON.stringify(headers)} />
+
               <StepRenderer
                 currentStep={currentStep}
                 firstFive={firstFive}

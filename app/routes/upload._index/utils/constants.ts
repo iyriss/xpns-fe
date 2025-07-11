@@ -12,5 +12,5 @@ export const CSV_SAMPLE_ROWS = 10;
 export const MAX_AMOUNT = 1000000000; // $1 billion limit
 export const MAX_YEAR_DIFF = 50;
 export const MAX_DESCRIPTION_LENGTH = 500;
-export const MIN_DESCRIPTION_LENGTH = 2;
+export const MIN_DESCRIPTION_LENGTH = 1;
 export const MAX_TYPE_LENGTH = 100; 

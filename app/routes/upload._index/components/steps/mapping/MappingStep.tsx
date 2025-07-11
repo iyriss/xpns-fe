@@ -46,6 +46,7 @@ export const MappingStep = ({
           {dataHasHeaders && (
             <thead className='bg-gray-50'>
               <tr>
+                <th className='w-8 px-2 py-3 text-left text-xs font-medium text-gray-400'>#</th>
                 {headers.map((header, index) => (
                   <th key={index} className='px-4 py-3 text-left text-sm font-medium text-gray-700'>
                     {header}
@@ -56,6 +57,7 @@ export const MappingStep = ({
           )}
           <tbody>
             <tr className='border-t'>
+              <td className='w-8 px-2 py-3 text-xs text-gray-400'>-</td>
               {headers.map((header) => (
                 <td key={header} className='px-4 py-3'>
                   <ColumnTypeSelector
@@ -67,6 +69,7 @@ export const MappingStep = ({
             </tr>
             {previewRows.map((row, rowIndex) => (
               <tr key={rowIndex} className='border-t border-gray-100'>
+                <td className='w-12 px-2 py-2 text-xs text-gray-400'>{rowIndex + 1}</td>
                 {Object.values(row).map((value, index) => (
                   <td key={index} className='px-4 py-2 text-sm text-gray-600'>
                     {formatNumberWithCommas(value).slice(0, 20)}

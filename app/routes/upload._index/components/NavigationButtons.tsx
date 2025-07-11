@@ -1,11 +1,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../../components/Button';
 import { UploadStep } from '../types';
-import {
-  validateMapping,
-  validateDataTypes,
-  validateDataConsistency,
-} from '../utils/validation-helpers';
+import { validateMapping, transformAndValidateTransactions } from '../utils/validation-helpers';
 
 interface NavigationButtonsProps {
   currentStep: UploadStep;
@@ -26,10 +22,8 @@ export const NavigationButtons = ({
     return null;
   }
 
-  const isMappingValid =
-    validateMapping(mapping).isValid &&
-    validateDataTypes(mapping, rows).length === 0 &&
-    validateDataConsistency(mapping, rows).errors.length === 0;
+  const { errors } = transformAndValidateTransactions(rows, mapping);
+  const isMappingValid = validateMapping(mapping).isValid && errors.length === 0;
 
   return (
     <div className='mt-10 flex justify-between'>

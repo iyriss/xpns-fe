@@ -16,8 +16,8 @@ export const PreviewStep = ({
     <PreviewTable firstFive={firstFive} headers={headers} />
 
     <p className='mt-6 text-sm text-gray-500'>
-      Let us know if the highlighted row on your CSV snippet contains column headers or one of your
-      transactions data?
+      Let us know if the first highlighted row on your CSV snippet contains column headers or data
+      from your transactions?
     </p>
     <div className='mt-4 flex items-center gap-8'>
       <label className='flex cursor-pointer items-center gap-2'>

@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import {
-  validateDataConsistency,
-  validateDataTypes,
   validateMapping,
+  transformAndValidateTransactions,
 } from '../../../utils/validation-helpers';
+import { Button } from '../../../../../components/Button';
+import { XMarkIcon } from '@heroicons/react/24/solid';
 
 export const SubmitStep = ({
   billStatement,
@@ -19,11 +21,12 @@ export const SubmitStep = ({
   onBack: () => void;
   validationMessage?: string | null;
 }) => {
+  const [isValidationMessageDismissed, setIsValidationMessageDismissed] = useState(false);
   const validation = validateMapping(mapping);
-  const dataTypeErrors = validateDataTypes(mapping, rows);
-  const consistencyErrors = validateDataConsistency(mapping, rows);
-  const isFullyValid =
-    validation.isValid && dataTypeErrors.length === 0 && consistencyErrors.errors.length === 0;
+  const { transactions, errors, warnings } = transformAndValidateTransactions(rows, mapping);
+  const isFullyValid = validation.isValid && errors.length === 0;
+
+  const handleDismissValidation = () => setIsValidationMessageDismissed(true);
 
   return (
     <div className='text-center'>
@@ -51,7 +54,7 @@ export const SubmitStep = ({
         </div>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Transactions:</span>
-          <span className='text-sm font-medium text-gray-900'>{rows.length} records</span>
+          <span className='text-sm font-medium text-gray-900'>{transactions.length} records</span>
         </div>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Mapped Columns:</span>
@@ -67,33 +70,41 @@ export const SubmitStep = ({
             {isFullyValid ? '✓ Valid' : '✗ Invalid'}
           </span>
         </div>
-        {dataTypeErrors.length > 0 && (
+        {errors.length > 0 && (
           <div className='flex justify-between'>
-            <span className='text-sm text-gray-600'>Data Type Issues:</span>
-            <span className='text-sm font-medium text-red-600'>{dataTypeErrors.length}</span>
+            <span className='text-sm text-gray-600'>Validation Errors:</span>
+            <span className='text-sm font-medium text-red-600'>{errors.length}</span>
           </div>
         )}
-        {consistencyErrors.errors.length > 0 && (
-          <div className='flex justify-between'>
-            <span className='text-sm text-gray-600'>Consistency Issues:</span>
-            <span className='text-sm font-medium text-red-600'>
-              {consistencyErrors.errors.length}
-            </span>
-          </div>
-        )}
-        {consistencyErrors.warnings.length > 0 && (
+        {warnings.length > 0 && (
           <div className='flex justify-between'>
             <span className='text-sm text-gray-600'>Warnings:</span>
-            <span className='text-sm font-medium text-yellow-600'>
-              {consistencyErrors.warnings.length}
-            </span>
+            <span className='text-sm font-medium text-yellow-600'>{warnings.length}</span>
           </div>
         )}
       </div>
 
-      {validationMessage && (
-        <div className='mx-auto mt-4 max-w-md rounded-lg border border-red-200 bg-red-50 p-4'>
-          <p className='text-sm text-red-700'>{validationMessage}</p>
+      {!billStatement && (
+        <div className='mx-auto mt-4 max-w-md'>
+          <p className='text-left text-sm font-semibold'>
+            <span className='mr-1 text-red-700'>*</span>Statement Title is required.
+          </p>
+        </div>
+      )}
+
+      {validationMessage && !isValidationMessageDismissed && (
+        <div className='mx-auto mt-4 max-w-md'>
+          <div className='flex items-start justify-between'>
+            <p className='text-sm text-red-700'>{validationMessage}</p>
+            <button
+              type='button'
+              onClick={handleDismissValidation}
+              className='ml-2 flex-shrink-0 rounded p-1 text-red-400 hover:bg-red-100 hover:text-red-600'
+              title='Dismiss warning'
+            >
+              <XMarkIcon className='h-4 w-4' />
+            </button>
+          </div>
         </div>
       )}
 
@@ -101,7 +112,7 @@ export const SubmitStep = ({
         <Button variant='outline' onClick={onBack}>
           Back to mapping
         </Button>
-        <Button type='submit' disabled={!isFullyValid || !billStatement || !rows.length}>
+        <Button type='submit' disabled={!isFullyValid || !billStatement || !transactions.length}>
           Upload Statement
         </Button>
       </div>
