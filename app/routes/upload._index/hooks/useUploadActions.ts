@@ -1,0 +1,73 @@
+import { useCallback } from 'react';
+import { CSVService } from '../services/csvService';
+import { UploadStep } from '../types';
+import { useUploadState } from './useUploadState';
+
+export const useUploadActions = () => {
+    const { updateState, resetState, ...state } = useUploadState();
+
+    const handleUpload = useCallback(async (files: FileList | null) => {
+        const file = files?.[0];
+        if (!file) return;
+
+        updateState({ csvFile: file, currentStep: UploadStep.PREVIEW });
+
+        try {
+            const preview = await CSVService.parsePreview(file);
+            updateState({ firstFive: preview });
+        } catch (error) {
+            console.error('Error parsing CSV preview:', error);
+        }
+    }, [updateState]);
+
+    const handleHeaderSelection = useCallback(async (hasHeaders: boolean) => {
+        if (!state.csvFile) return;
+
+        updateState({ dataHasHeaders: hasHeaders });
+
+        try {
+            const { headers, rows, mapping } = await CSVService.parseFull(state.csvFile, hasHeaders);
+            updateState({
+                headers,
+                rows,
+                mapping,
+                currentStep: UploadStep.MAPPING
+            });
+        } catch (error) {
+            console.error('Error parsing CSV:', error);
+        }
+    }, [state.csvFile, updateState]);
+
+    const handleMappingChange = useCallback((col: string, value: string) => {
+        updateState({
+            mapping: { ...state.mapping, [col]: value }
+        });
+    }, [state.mapping, updateState]);
+
+    const handleMappingConfirm = useCallback(() => {
+        updateState({ currentStep: UploadStep.SUBMIT });
+    }, [updateState]);
+
+    const handleBackToMapping = useCallback(() => {
+        updateState({ currentStep: UploadStep.MAPPING });
+    }, [updateState]);
+
+    const handleStatementTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        updateState({ billStatement: e.target.value });
+    }, [updateState]);
+
+    const handleReset = useCallback(() => {
+        resetState();
+    }, [resetState]);
+
+    return {
+        ...state,
+        handleUpload,
+        handleHeaderSelection,
+        handleMappingChange,
+        handleMappingConfirm,
+        handleBackToMapping,
+        handleStatementTitleChange,
+        handleReset,
+    };
+}; 
