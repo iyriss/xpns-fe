@@ -8,7 +8,6 @@ import {
   FolderOpenIcon,
   PlusIcon,
 } from '@heroicons/react/24/solid';
-import { Button } from '../../components/Button';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const res = await fetch(`${process.env.API_URL}/api/bank-statements`, {

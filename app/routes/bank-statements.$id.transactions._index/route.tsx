@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
-import { ActionFunction, json } from '@vercel/remix';
-import { useLoaderData, useNavigate, useActionData } from '@remix-run/react';
+import { ActionFunction, json, redirect } from '@vercel/remix';
+import { useLoaderData, useNavigate, useActionData, useFetcher } from '@remix-run/react';
 import { toast } from 'sonner';
 import { LoaderFunction } from '@vercel/remix';
 
@@ -14,6 +14,8 @@ import {
   ChevronUpIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/solid';
+
+import { MoreButton } from './MoreButton';
 
 type ActionData = {
   success: boolean;
@@ -128,6 +130,20 @@ export default function () {
 
   const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
   const actionData = useActionData<ActionData>();
+  const deleteFetcher = useFetcher();
+
+  if (!bankStatement) {
+    return (
+      <div className='flex min-h-screen items-center justify-center'>
+        <div className='text-center'>
+          <h1 className='mb-2 text-xl font-medium text-gray-900'>Bank statement not found</h1>
+          <p className='text-gray-500'>
+            The bank statement may have been deleted or doesn't exist.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const allocatedTransactions = transactions.filter((t: any) => t.group);
   const unallocatedTransactions = transactions.filter((t: any) => !t.group);
@@ -144,12 +160,29 @@ export default function () {
     }
   }, [actionData]);
 
+  if (deleteFetcher.data && deleteFetcher.state === 'idle') {
+    const data = deleteFetcher.data as { success: boolean; error?: string };
+    if (data.success) {
+      return redirect('/bank-statements');
+    }
+  }
+
   function handleSelected(transaction: string) {
     setTransactionIdSelected(transaction);
   }
 
   function handleDefaultGroup(e: any) {
     setDefaultGroup(e.target.value);
+  }
+
+  function handleDeleteBankStatement() {
+    deleteFetcher.submit(
+      {},
+      {
+        method: 'DELETE',
+        action: `/bank-statements/${bankStatement._id}`,
+      },
+    );
   }
 
   const dates = transactions.reduce(
@@ -170,9 +203,15 @@ export default function () {
       <div className='mb-12'>
         <div className='mb-2 text-sm font-medium text-gray-900'>Bank statement</div>
         <h1 className='text-3xl font-light text-gray-900'>{bankStatement?.title}</h1>
-        <div className='mt-2 text-gray-500'>
-          <span>{displayLongDate(dates.nearest)}</span> -{' '}
-          <span>{displayLongDate(dates.furthest)}</span>
+        <div className='relative flex items-center justify-between'>
+          <div className='mt-2 text-gray-500'>
+            <span>{displayLongDate(dates.nearest)}</span> -{' '}
+            <span>{displayLongDate(dates.furthest)}</span>
+          </div>
+          <MoreButton
+            isIdleState={deleteFetcher.state === 'idle'}
+            onDelete={handleDeleteBankStatement}
+          />
         </div>
       </div>
 
