@@ -40,10 +40,7 @@ export const MoreButton = ({ isIdleState, onDelete }: MoreButtonProps) => {
           ref={dropdownRef}
           className='absolute right-2 top-3 z-10 flex min-w-[120px] flex-col rounded border border-border bg-white py-2 shadow-sm'
         >
-          <button
-            // onClick={handleUngroup}
-            className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
-          >
+          <button className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'>
             <ArchiveBoxArrowDownIcon className='mr-2 h-4 w-4' />
             Archive
           </button>
@@ -64,7 +61,10 @@ export const MoreButton = ({ isIdleState, onDelete }: MoreButtonProps) => {
             setIsDeleteModalOpen(false);
           }
         }}
-        onDelete={onDelete}
+        onDelete={() => {
+          onDelete();
+          setIsDeleteModalOpen(false);
+        }}
         isLoading={!isIdleState}
       />
     </>

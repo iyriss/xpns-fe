@@ -14,17 +14,28 @@ export const action: ActionFunction = async ({ request, params }) => {
         },
       });
 
-      if (res.ok) {
+      const data = await res.json();
+
+      if (data.success) {
         // Redirect immediately on success to prevent rendering with deleted data
         return redirect('/bank-statements');
       } else {
-        throw new Error('Failed to delete bank statement');
+        let error = data.error || 'Failed to delete bank statement';
+        if (
+          error === 'Bank statement cannot be deleted because it contains grouped transactions.'
+        ) {
+          error =
+            'Bank statement cannot be deleted because it contains grouped transactions. Please ungroup the transactions first.';
+        }
+
+        throw new Error(error);
       }
     } catch (error) {
       return json(
         {
           success: false,
-          error: 'Error occurred while deleting bank statement',
+          error:
+            error instanceof Error ? error.message : 'Error occurred while deleting bank statement',
         },
         { status: 400 },
       );

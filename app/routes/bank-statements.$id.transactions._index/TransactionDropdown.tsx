@@ -1,3 +1,4 @@
+import { TrashIcon, UserMinusIcon } from '@heroicons/react/24/solid';
 import { useFetcher } from '@remix-run/react';
 import { useEffect, useRef } from 'react';
 
@@ -47,20 +48,22 @@ export default function Dropdown({
   return (
     <div
       ref={dropdownRef}
-      className='absolute right-2 top-3 z-10 flex flex-col rounded border border-border bg-white py-2 shadow-sm'
+      className='absolute right-2 top-3 z-10 flex min-w-[120px] flex-col rounded border border-border bg-white py-2 shadow-sm'
     >
       {isGrouped && (
         <button
           onClick={handleUngroup}
-          className='cursor-pointer px-3 py-2 text-left hover:bg-border hover:text-primary'
+          className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
         >
+          <UserMinusIcon className='mr-2 h-4 w-4' />
           Ungroup
         </button>
       )}
       <button
         onClick={handleDelete}
-        className='cursor-pointer px-3 py-2 text-left hover:bg-border hover:text-primary'
+        className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
       >
+        <TrashIcon className='mr-2 h-4 w-4' />
         Delete
       </button>
     </div>

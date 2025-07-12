@@ -100,9 +100,29 @@ enum TransactionDisplay {
   VIEW = 'view',
 }
 
-const collapseTsxButton = (title: string, collapsed: boolean, onClick: () => void) => (
+const collapseTsxButton = (
+  title: string,
+  collapsed: boolean,
+  count: number,
+  onClick: () => void,
+  onUngroupAll?: () => void,
+) => (
   <div className='flex items-center justify-between'>
-    <h2 className='mb-2 text-xl font-medium text-gray-900'>{title} transactions</h2>
+    <div className='mb-2 flex items-center gap-2 text-xl font-medium text-gray-900'>
+      {title}{' '}
+      <div className='flex items-center gap-1 text-sm text-gray-500'>
+        ({count} transaction{count > 1 ? 's' : ''}
+        {title === 'Grouped' && (
+          <div className='flex items-center gap-1'>
+            -{' '}
+            <Button variant='text' className='text-sm' onClick={onUngroupAll}>
+              Ungroup all
+            </Button>
+          </div>
+        )}
+        )
+      </div>
+    </div>
     <Button variant='text' className='flex items-center gap-1 text-sm' onClick={onClick}>
       {collapsed ? (
         <>
@@ -131,6 +151,7 @@ export default function () {
   const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
   const actionData = useActionData<ActionData>();
   const deleteFetcher = useFetcher();
+  const ungroupAllFetcher = useFetcher();
 
   if (!bankStatement) {
     return (
@@ -160,10 +181,27 @@ export default function () {
     }
   }, [actionData]);
 
+  useEffect(() => {
+    if (ungroupAllFetcher.data && ungroupAllFetcher.state === 'idle') {
+      const data = ungroupAllFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        toast.success('Transactions ungrouped successfully!');
+      }
+
+      if (data.error) {
+        toast.error(data.error);
+      }
+    }
+  }, [ungroupAllFetcher.data, ungroupAllFetcher.state]);
+
   if (deleteFetcher.data && deleteFetcher.state === 'idle') {
     const data = deleteFetcher.data as { success: boolean; error?: string };
     if (data.success) {
       return redirect('/bank-statements');
+    }
+
+    if (data.error) {
+      toast.error(data.error);
     }
   }
 
@@ -181,6 +219,16 @@ export default function () {
       {
         method: 'DELETE',
         action: `/bank-statements/${bankStatement._id}`,
+      },
+    );
+  }
+
+  function handleUngroupAll() {
+    ungroupAllFetcher.submit(
+      {},
+      {
+        method: 'PUT',
+        action: `/bank-statements/${bankStatement._id}/ungroup`,
       },
     );
   }
@@ -302,8 +350,11 @@ export default function () {
             <>
               {unallocatedTransactions.length > 0 && (
                 <>
-                  {collapseTsxButton('Unallocated', unallocatedTsxCollapsed, () =>
-                    setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
+                  {collapseTsxButton(
+                    'Ungrouped',
+                    unallocatedTsxCollapsed,
+                    unallocatedTransactions.length,
+                    () => setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
                   )}
                   <div
                     className={`space-y-4 transition-all ${unallocatedTsxCollapsed ? 'hidden' : ''}`}
@@ -327,8 +378,12 @@ export default function () {
 
               {allocatedTransactions.length > 0 && (
                 <>
-                  {collapseTsxButton('Allocated', allocatedTsxCollapsed, () =>
-                    setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                  {collapseTsxButton(
+                    'Grouped',
+                    allocatedTsxCollapsed,
+                    allocatedTransactions.length,
+                    () => setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                    handleUngroupAll,
                   )}
                   <div
                     className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}
@@ -349,8 +404,11 @@ export default function () {
             <>
               {unallocatedTransactions.length > 0 && (
                 <>
-                  {collapseTsxButton('Unallocated', unallocatedTsxCollapsed, () =>
-                    setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
+                  {collapseTsxButton(
+                    'Ungrouped',
+                    unallocatedTsxCollapsed,
+                    unallocatedTransactions.length,
+                    () => setUnallocatedTsxCollapsed(!unallocatedTsxCollapsed),
                   )}
                   <div
                     className={`space-y-4 transition-all ${unallocatedTsxCollapsed ? 'hidden' : ''}`}
@@ -369,8 +427,12 @@ export default function () {
 
               {allocatedTransactions.length > 0 && (
                 <>
-                  {collapseTsxButton('Allocated', allocatedTsxCollapsed, () =>
-                    setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                  {collapseTsxButton(
+                    'Grouped',
+                    allocatedTsxCollapsed,
+                    allocatedTransactions.length,
+                    () => setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
+                    handleUngroupAll,
                   )}
                   <div
                     className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}

@@ -17,7 +17,7 @@ export const DeleteBankStatementModal = ({
   return (
     <Modal title='Delete bank statement' isOpen={isOpen} onClose={onClose}>
       <ModalBody>
-        <p className='text-sm text-gray-500'>
+        <p className='text-sm'>
           Are you sure you want to delete this bank statement and its associated transactions? This
           action cannot be undone.
         </p>
