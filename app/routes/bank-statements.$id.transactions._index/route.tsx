@@ -32,7 +32,8 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
     },
   );
   const { data } = await res.json();
-  const userId = data.transactions[0].user;
+
+  const userId = data.transactions?.[0]?.user || null;
 
   const categoriesRes = await fetch(`${process.env.API_URL}/api/categories`, {
     credentials: 'include',
@@ -149,9 +150,49 @@ export default function () {
   );
 
   const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
-  const actionData = useActionData<ActionData>();
   const deleteFetcher = useFetcher();
   const ungroupAllFetcher = useFetcher();
+  const archiveFetcher = useFetcher();
+
+  const allocatedTransactions = transactions.filter((t: any) => t.group);
+  const unallocatedTransactions = transactions.filter((t: any) => !t.group);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (deleteFetcher.data && deleteFetcher.state === 'idle') {
+      const data = deleteFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        toast.success('Bank statement deleted successfully!');
+        setTimeout(() => navigate('/bank-statements'), 200);
+      } else if (data.error) {
+        toast.error(data.error);
+      }
+    }
+  }, [deleteFetcher.data, deleteFetcher.state, navigate]);
+
+  useEffect(() => {
+    if (archiveFetcher.data && archiveFetcher.state === 'idle') {
+      const data = archiveFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        toast.success(
+          `Bank statement ${bankStatement.archived ? 'archived' : 'unarchived'} successfully!`,
+        );
+      } else if (data.error) {
+        toast.error(data.error);
+      }
+    }
+  }, [archiveFetcher.data, archiveFetcher.state, navigate]);
+
+  useEffect(() => {
+    if (ungroupAllFetcher.data && ungroupAllFetcher.state === 'idle') {
+      const data = ungroupAllFetcher.data as { success: boolean; error?: string };
+      if (data.success) {
+        toast.success('All transactions ungrouped successfully!');
+      } else if (data.error) {
+        toast.error(data.error);
+      }
+    }
+  }, [ungroupAllFetcher.data, ungroupAllFetcher.state]);
 
   if (!bankStatement) {
     return (
@@ -164,45 +205,6 @@ export default function () {
         </div>
       </div>
     );
-  }
-
-  const allocatedTransactions = transactions.filter((t: any) => t.group);
-  const unallocatedTransactions = transactions.filter((t: any) => !t.group);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (actionData) {
-      if (actionData?.success) {
-        toast.success('Transaction saved successfully!');
-        setTransactionIdSelected('');
-      } else {
-        toast.error('Failed to save transaction. Please try again.');
-      }
-    }
-  }, [actionData]);
-
-  useEffect(() => {
-    if (ungroupAllFetcher.data && ungroupAllFetcher.state === 'idle') {
-      const data = ungroupAllFetcher.data as { success: boolean; error?: string };
-      if (data.success) {
-        toast.success('Transactions ungrouped successfully!');
-      }
-
-      if (data.error) {
-        toast.error(data.error);
-      }
-    }
-  }, [ungroupAllFetcher.data, ungroupAllFetcher.state]);
-
-  if (deleteFetcher.data && deleteFetcher.state === 'idle') {
-    const data = deleteFetcher.data as { success: boolean; error?: string };
-    if (data.success) {
-      return redirect('/bank-statements');
-    }
-
-    if (data.error) {
-      toast.error(data.error);
-    }
   }
 
   function handleSelected(transaction: string) {
@@ -233,6 +235,16 @@ export default function () {
     );
   }
 
+  function handleArchiveBankStatement() {
+    archiveFetcher.submit(
+      { archived: !bankStatement.archived },
+      {
+        method: 'PUT',
+        action: `/bank-statements/${bankStatement._id}`,
+      },
+    );
+  }
+
   const dates = transactions.reduce(
     (acc: any, transaction: any) => {
       if (acc.nearest < transaction?.date) {
@@ -249,7 +261,14 @@ export default function () {
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
       <div className='mb-12'>
-        <div className='mb-2 text-sm font-medium text-gray-900'>Bank statement</div>
+        <div className='mb-2 text-sm font-medium text-gray-900'>
+          Bank statement
+          {bankStatement.archived && (
+            <span className='ml-2 rounded-full bg-accent/30 px-2 py-1 text-xs font-medium text-gray-600'>
+              Archived
+            </span>
+          )}
+        </div>
         <h1 className='text-3xl font-light text-gray-900'>{bankStatement?.title}</h1>
         <div className='relative flex items-center justify-between'>
           <div className='mt-2 text-gray-500'>
@@ -258,6 +277,8 @@ export default function () {
           </div>
           <MoreButton
             isIdleState={deleteFetcher.state === 'idle'}
+            isArchived={bankStatement.archived}
+            onArchive={handleArchiveBankStatement}
             onDelete={handleDeleteBankStatement}
           />
         </div>

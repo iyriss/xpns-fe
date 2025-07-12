@@ -1,6 +1,7 @@
 import {
   ArchiveBoxArrowDownIcon,
-  EllipsisHorizontalIcon,
+  ArchiveBoxIcon,
+  EllipsisVerticalIcon,
   TrashIcon,
 } from '@heroicons/react/24/solid';
 import { DeleteBankStatementModal } from './DeleteBankStatementModal';
@@ -9,10 +10,12 @@ import { useState } from 'react';
 
 type MoreButtonProps = {
   isIdleState: boolean;
+  isArchived: boolean;
+  onArchive: () => void;
   onDelete: () => void;
 };
 
-export const MoreButton = ({ isIdleState, onDelete }: MoreButtonProps) => {
+export const MoreButton = ({ isIdleState, isArchived, onArchive, onDelete }: MoreButtonProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -30,7 +33,7 @@ export const MoreButton = ({ isIdleState, onDelete }: MoreButtonProps) => {
 
   return (
     <>
-      <EllipsisHorizontalIcon
+      <EllipsisVerticalIcon
         className='h-6 w-6 cursor-pointer text-gray-500 hover:text-primary'
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       />
@@ -40,9 +43,19 @@ export const MoreButton = ({ isIdleState, onDelete }: MoreButtonProps) => {
           ref={dropdownRef}
           className='absolute right-2 top-3 z-10 flex min-w-[120px] flex-col rounded border border-border bg-white py-2 shadow-sm'
         >
-          <button className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'>
-            <ArchiveBoxArrowDownIcon className='mr-2 h-4 w-4' />
-            Archive
+          <button
+            className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
+            onClick={() => {
+              onArchive();
+              setIsDropdownOpen(false);
+            }}
+          >
+            {isArchived ? (
+              <ArchiveBoxIcon className='mr-2 h-4 w-4' />
+            ) : (
+              <ArchiveBoxArrowDownIcon className='mr-2 h-4 w-4' />
+            )}
+            {isArchived ? 'Unarchive' : 'Archive'}
           </button>
           <button
             onClick={() => setIsDeleteModalOpen(true)}

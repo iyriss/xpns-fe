@@ -55,12 +55,21 @@ export default function EditTransactionCard({
 
   const formRef = useRef<HTMLDivElement>(null);
   const fetcher = useFetcher();
+  const fetcherData = fetcher.data as { success: boolean; error: string };
   const navigate = useNavigate();
 
   const currentGroupId = groupSelected || defaultGroup;
   const currentGroup = groups.find((group) => group._id === currentGroupId);
   const currentCategory = categorySelected || transaction.category;
   const selectedCategory = categories.find((c) => c._id === currentCategory);
+
+  useEffect(() => {
+    if (fetcherData?.success) {
+      toast.success('Transaction saved successfully!');
+    } else if (fetcherData?.error) {
+      toast.error('Failed to save transaction. Please try again.');
+    }
+  }, [fetcherData]);
 
   const getAllocations = () => {
     const selects = formRef.current?.querySelectorAll('select[name^="user-"]');

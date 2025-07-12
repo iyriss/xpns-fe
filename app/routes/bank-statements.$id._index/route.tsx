@@ -1,4 +1,4 @@
-import { ActionFunction, json, redirect } from '@vercel/remix';
+import { ActionFunction, json } from '@vercel/remix';
 
 export const action: ActionFunction = async ({ request, params }) => {
   const bankStatementId = params.id;
@@ -17,8 +17,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       const data = await res.json();
 
       if (data.success) {
-        // Redirect immediately on success to prevent rendering with deleted data
-        return redirect('/bank-statements');
+        return json({ success: true, message: 'Bank statement deleted successfully!' });
       } else {
         let error = data.error || 'Failed to delete bank statement';
         if (
@@ -28,7 +27,7 @@ export const action: ActionFunction = async ({ request, params }) => {
             'Bank statement cannot be deleted because it contains grouped transactions. Please ungroup the transactions first.';
         }
 
-        throw new Error(error);
+        return json({ success: false, error }, { status: 400 });
       }
     } catch (error) {
       return json(
@@ -36,6 +35,36 @@ export const action: ActionFunction = async ({ request, params }) => {
           success: false,
           error:
             error instanceof Error ? error.message : 'Error occurred while deleting bank statement',
+        },
+        { status: 400 },
+      );
+    }
+  } else if (request.method === 'PUT') {
+    const formData = await request.formData();
+    try {
+      const res = await fetch(`${process.env.API_URL}/api/bank-statements/${bankStatementId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: request.headers.get('Cookie') || '',
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        return json({ success: true, message: 'Bank statement updated successfully!' });
+      } else {
+        throw new Error(data.error || 'Failed to update bank statement');
+      }
+    } catch (error) {
+      return json(
+        {
+          success: false,
+          error:
+            error instanceof Error ? error.message : 'Error occurred while updating bank statement',
         },
         { status: 400 },
       );
