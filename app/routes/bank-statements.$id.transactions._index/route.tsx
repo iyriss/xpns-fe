@@ -21,9 +21,9 @@ type ActionData = {
 };
 
 export const loader: LoaderFunction = async ({ params, request, context }) => {
-  const billStatementId = params.id;
+  const bankStatementId = params.id;
   const res = await fetch(
-    `${process.env.API_URL}/api/bill-statements/${billStatementId}/transactions`,
+    `${process.env.API_URL}/api/bank-statements/${bankStatementId}/transactions`,
     {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
@@ -38,10 +38,10 @@ export const loader: LoaderFunction = async ({ params, request, context }) => {
   });
   const { data: categoriesData } = await categoriesRes.json();
 
-  const { billStatement, transactions, groups } = data;
+  const { bankStatement, transactions, groups } = data;
 
   return json({
-    billStatement,
+    bankStatement,
     transactions,
     groups,
     categories: categoriesData,
@@ -126,7 +126,7 @@ export default function () {
     TransactionDisplay.EDIT,
   );
 
-  const { billStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
+  const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
   const actionData = useActionData<ActionData>();
 
   const allocatedTransactions = transactions.filter((t: any) => t.group);
@@ -168,8 +168,8 @@ export default function () {
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
       <div className='mb-12'>
-        <div className='mb-2 text-sm font-medium text-gray-900'>Bill statement</div>
-        <h1 className='text-3xl font-light text-gray-900'>{billStatement?.title}</h1>
+        <div className='mb-2 text-sm font-medium text-gray-900'>Bank statement</div>
+        <h1 className='text-3xl font-light text-gray-900'>{bankStatement?.title}</h1>
         <div className='mt-2 text-gray-500'>
           <span>{displayLongDate(dates.nearest)}</span> -{' '}
           <span>{displayLongDate(dates.furthest)}</span>
@@ -278,7 +278,7 @@ export default function () {
                         categories={categories}
                         defaultGroup={defaultGroup}
                         currentUser={currentUser}
-                        billStatementId={billStatement._id}
+                        bankStatementId={bankStatement._id}
                         onTransactionSelected={handleSelected}
                       />
                     ))}

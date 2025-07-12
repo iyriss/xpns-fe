@@ -10,7 +10,7 @@ import { LoaderFunction, json } from '@vercel/remix';
 import { useLoaderData } from '@remix-run/react';
 import { displayDate } from '../../utils/date-helpers';
 import Settlements from './Settlements';
-import Dropdown from '../bill-statements.$id.transactions._index/TransactionDropdown';
+import Dropdown from '../bank-statements.$id.transactions._index/TransactionDropdown';
 
 export const loader: LoaderFunction = async ({ request, context, params }) => {
   const res = await fetch(`${process.env.API_URL}/api/groups/${params.id}`, {

@@ -13,7 +13,7 @@ interface StepRendererProps {
   dataHasHeaders: boolean | null;
   rows: any[];
   mapping: Record<string, string>;
-  billStatement: string;
+  bankStatement: string;
   onFileUpload: (files: FileList | null) => void;
   onHeaderSelection: (hasHeaders: boolean) => void;
   onMappingChange: (col: string, value: string) => void;
@@ -28,7 +28,7 @@ export const StepRenderer = ({
   dataHasHeaders,
   rows,
   mapping,
-  billStatement,
+  bankStatement,
   onFileUpload,
   onHeaderSelection,
   onMappingChange,
@@ -62,7 +62,7 @@ export const StepRenderer = ({
       case UploadStep.SUBMIT:
         return (
           <SubmitStep
-            billStatement={billStatement}
+            bankStatement={bankStatement}
             rows={rows}
             mapping={mapping}
             headers={headers}

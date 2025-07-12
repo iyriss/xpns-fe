@@ -38,11 +38,11 @@ export default function () {
             <div className='max-w-md'>
               <h2 className='mb-4 text-2xl font-light text-gray-900'>Get started</h2>
               <p className='mb-8 text-gray-600'>
-                Upload a bill statement to begin tracking expenses.
+                Upload a bank statement to begin tracking expenses.
               </p>
               <Button onClick={() => navigate('/upload')}>
                 <PlusIcon className='mr-2 h-4 w-4' />
-                Upload Statement
+                Upload bank statement
               </Button>
             </div>
           </div>
@@ -51,12 +51,12 @@ export default function () {
 
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         <button
-          onClick={() => navigate('/bill-statements')}
+          onClick={() => navigate('/bank-statements')}
           className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
         >
           <div className='flex items-center'>
             <DocumentCurrencyDollarIcon className='mr-4 h-6 w-6 text-purple-500' />
-            <span className='font-medium text-gray-900'>View Bills</span>
+            <span className='font-medium text-gray-900'>Bank statements</span>
           </div>
           <ArrowRightIcon className='h-4 w-4 text-purple-400 transition-transform group-hover:translate-x-1' />
         </button>

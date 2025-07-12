@@ -9,7 +9,7 @@ export interface UploadState {
     dataHasHeaders: boolean | null;
     csvFile: File | null;
     currentStep: UploadStep;
-    billStatement: string;
+    bankStatement: string;
 }
 
 export const useUploadState = () => {
@@ -21,7 +21,7 @@ export const useUploadState = () => {
         dataHasHeaders: null,
         csvFile: null,
         currentStep: UploadStep.UPLOAD,
-        billStatement: '',
+        bankStatement: '',
     });
 
     const updateState = useCallback((updates: Partial<UploadState>) => {
@@ -37,7 +37,7 @@ export const useUploadState = () => {
             dataHasHeaders: null,
             csvFile: null,
             currentStep: UploadStep.UPLOAD,
-            billStatement: '',
+            bankStatement: '',
         });
     }, []);
 

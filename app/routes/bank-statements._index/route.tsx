@@ -11,35 +11,37 @@ import {
 import { Button } from '../../components/Button';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  const res = await fetch(`${process.env.API_URL}/api/bill-statements`, {
+  const res = await fetch(`${process.env.API_URL}/api/bank-statements`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('Cookie') || '' },
   });
 
   const jsonRes = await res.json();
-  return json({ billStatements: jsonRes.data });
+  return json({ bankStatements: jsonRes.data });
 };
 
 export default function () {
-  const { billStatements } = useLoaderData() as any;
+  const { bankStatements } = useLoaderData() as any;
   const navigate = useNavigate();
 
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
       <div className='mb-12'>
-        <h1 className='text-3xl font-light text-gray-900'>Bill Statements</h1>
-        <p className='mt-2 text-gray-500'>Manage your uploaded statements</p>
+        <h1 className='text-3xl font-light text-gray-900'>Bank Statements</h1>
+        <p className='mt-2 text-gray-500'>
+          No more manual data entry. Manage your transactions directly from your bank statements.
+        </p>
       </div>
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        {billStatements?.length ? (
+        {bankStatements?.length ? (
           <div className='space-y-4'>
-            {billStatements.map((billStatement: any, index: number) => {
+            {bankStatements.map((bankStatement: any, index: number) => {
               return (
                 <div
-                  key={billStatement._id}
+                  key={bankStatement._id}
                   className='group cursor-pointer rounded-xl border border-gray-100 p-6 transition-all hover:border-gray-200 hover:shadow-md'
-                  onClick={() => navigate(`/bill-statements/${billStatement._id}/transactions`)}
+                  onClick={() => navigate(`/bank-statements/${bankStatement._id}/transactions`)}
                 >
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center space-x-4'>
@@ -48,16 +50,16 @@ export default function () {
                       </div>
                       <div>
                         <h3 className='text-lg font-medium text-gray-900 transition-colors group-hover:text-primary'>
-                          {billStatement.title}
+                          {bankStatement.title}
                         </h3>
                         <div className='mt-1 flex items-center space-x-6 text-sm text-gray-500'>
                           <div className='flex items-center space-x-2'>
                             <CalendarIcon className='h-4 w-4' />
-                            <span>Created {displayDate(billStatement.createdAt)}</span>
+                            <span>Created {displayDate(bankStatement.createdAt)}</span>
                           </div>
                           <div className='flex items-center space-x-2'>
                             <ClockIcon className='h-4 w-4' />
-                            <span>{getTimeAgo(billStatement.createdAt)}</span>
+                            <span>{getTimeAgo(bankStatement.createdAt)}</span>
                           </div>
                         </div>
                       </div>
@@ -73,16 +75,16 @@ export default function () {
             <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100'>
               <FolderOpenIcon className='h-10 w-10 text-gray-400' />
             </div>
-            <h3 className='mb-2 text-xl font-light text-gray-900'>No bill statements</h3>
+            <h3 className='mb-2 text-xl font-light text-gray-900'>No bank statements</h3>
             <p className='mb-8 text-gray-500'>
-              Bill statements will appear here once they are uploaded.
+              Bank statements will appear here once they are uploaded.
             </p>
             <button
               onClick={() => navigate('/upload')}
               className='hover:bg-primary-active inline-flex items-center bg-primary px-6 py-3 font-medium text-white transition-colors'
             >
-              <PlusIcon className='mr-2 h-4 w-4' />
-              Upload Statement
+              <PlusIcon className='mr-1 h-4 w-4' />
+              Upload
             </button>
           </div>
         )}

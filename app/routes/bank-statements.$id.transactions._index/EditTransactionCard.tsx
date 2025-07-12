@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   CurrencyDollarIcon,
   EllipsisVerticalIcon,
@@ -22,7 +22,7 @@ type EditTransactionCardProps = {
   categories: any[];
   defaultGroup: string;
   currentUser: string;
-  billStatementId?: string;
+  bankStatementId?: string;
   onTransactionSelected: (id: string) => void;
 };
 
@@ -40,7 +40,7 @@ export default function EditTransactionCard({
   categories,
   defaultGroup,
   currentUser,
-  billStatementId,
+  bankStatementId,
   onTransactionSelected,
 }: EditTransactionCardProps) {
   const [groupSelected, setGroupSelected] = useState('');
@@ -195,7 +195,7 @@ export default function EditTransactionCard({
     formData.append('data', JSON.stringify(transactionData));
     fetcher.submit(formData, {
       method: 'PUT',
-      action: `/bill-statements/${billStatementId}/transactions`,
+      action: `/bank-statements/${bankStatementId}/transactions`,
     });
   }
 

@@ -4,7 +4,7 @@ export const UPLOAD_STEPS: Step[] = [
     { key: UploadStep.UPLOAD, label: 'Upload', description: 'Select CSV file' },
     { key: UploadStep.PREVIEW, label: 'Preview', description: 'Review data' },
     { key: UploadStep.MAPPING, label: 'Map', description: 'Map columns' },
-    { key: UploadStep.SUBMIT, label: 'Submit', description: 'Upload statement' },
+    { key: UploadStep.SUBMIT, label: 'Submit', description: 'Upload bank statement' },
 ];
 
 export const CSV_PREVIEW_ROWS = 5;

@@ -53,7 +53,7 @@ export const useUploadActions = () => {
     }, [updateState]);
 
     const handleStatementTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        updateState({ billStatement: e.target.value });
+        updateState({ bankStatement: e.target.value });
     }, [updateState]);
 
     const handleReset = useCallback(() => {

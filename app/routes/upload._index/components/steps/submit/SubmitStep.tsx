@@ -7,14 +7,14 @@ import { Button } from '../../../../../components/Button';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
 export const SubmitStep = ({
-  billStatement,
+  bankStatement,
   rows,
   mapping,
   headers,
   onBack,
   validationMessage,
 }: {
-  billStatement: string;
+  bankStatement: string;
   rows: any[];
   mapping: Record<string, string>;
   headers: string[];
@@ -50,7 +50,7 @@ export const SubmitStep = ({
       <div className='mx-auto max-w-md space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-6'>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Statement Title:</span>
-          <span className='text-sm font-medium text-gray-900'>{billStatement || 'No title'}</span>
+          <span className='text-sm font-medium text-gray-900'>{bankStatement || 'No title'}</span>
         </div>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Transactions:</span>
@@ -84,7 +84,7 @@ export const SubmitStep = ({
         )}
       </div>
 
-      {!billStatement && (
+      {!bankStatement && (
         <div className='mx-auto mt-4 max-w-md'>
           <p className='text-left text-sm font-semibold'>
             <span className='mr-1 text-red-700'>*</span>Statement Title is required.
@@ -112,8 +112,8 @@ export const SubmitStep = ({
         <Button variant='outline' onClick={onBack}>
           Back to mapping
         </Button>
-        <Button type='submit' disabled={!isFullyValid || !billStatement || !transactions.length}>
-          Upload Statement
+        <Button type='submit' disabled={!isFullyValid || !bankStatement || !transactions.length}>
+          Upload bank statement
         </Button>
       </div>
     </div>

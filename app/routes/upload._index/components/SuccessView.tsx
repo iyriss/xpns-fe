@@ -17,7 +17,7 @@ export const SuccessView = ({
     <h2 className='mb-4 text-xl font-light text-gray-900'>Transactions uploaded successfully</h2>
     <div className='mx-auto flex max-w-xs flex-col gap-3'>
       <Button type='button' onClick={onUploadMore}>
-        <PlusIcon className='mr-2 h-4 w-4' />
+        <PlusIcon className='mr-1 h-4 w-4' />
         Upload more
       </Button>
       <Button type='button' onClick={onViewStatements} variant='outline'>

@@ -14,7 +14,7 @@ export const action: ActionFunction = async ({ request }) => {
   const cookieHeader = request.headers.get('Cookie');
 
   const TransactionsSchema = z.object({
-    billStatement: z.string(),
+    bankStatement: z.string(),
     transactions: z
       .string()
       .transform((str) => JSON.parse(str))
@@ -33,26 +33,26 @@ export const action: ActionFunction = async ({ request }) => {
 
   const parsed = TransactionsSchema.parse(Object.fromEntries(formData));
 
-  if (!parsed.billStatement) {
+  if (!parsed.bankStatement) {
     return { success: false, error: 'Title is required.' };
   }
 
-  const billStatementRes = await fetch(`${process.env.API_URL}/api/bill-statements`, {
+  const bankStatementRes = await fetch(`${process.env.API_URL}/api/bank-statements`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
-    body: JSON.stringify({ title: parsed.billStatement }),
+    body: JSON.stringify({ title: parsed.bankStatement }),
   });
 
-  const { data } = await billStatementRes.json();
+  const { data } = await bankStatementRes.json();
   if (!data) {
     return { success: false };
   }
 
-  const transactionWithBillStatement = parsed.transactions.map((transactionRow: any) => {
+  const transactionWithBankStatement = parsed.transactions.map((transactionRow: any) => {
     return {
       ...transactionRow,
-      billStatement: data._id,
+      bankStatement: data._id,
       user: data.user,
     };
   });
@@ -61,12 +61,12 @@ export const action: ActionFunction = async ({ request }) => {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
-    body: JSON.stringify(transactionWithBillStatement),
+    body: JSON.stringify(transactionWithBankStatement),
   });
 
   if (transactionsRes.status !== 200) {
-    // If transactions upload fails, delete the bill statement
-    await fetch(`${process.env.API_URL}/api/bill-statements/${data._id}`, {
+    // If transactions upload fails, delete the bank statement
+    await fetch(`${process.env.API_URL}/api/bank-statements/${data._id}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
@@ -85,7 +85,7 @@ export default function UploadRoute() {
     dataHasHeaders,
     rows,
     mapping,
-    billStatement,
+    bankStatement,
     handleUpload,
     handleHeaderSelection,
     handleMappingChange,
@@ -100,14 +100,14 @@ export default function UploadRoute() {
   const data = fetcher.data as any;
 
   const handleUploadMore = () => window.location.reload();
-  const handleViewStatements = () => navigate('/bill-statements');
+  const handleViewStatements = () => navigate('/bank-statements');
   const handleBackToDashboard = () => navigate('/');
 
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
       <div className='mb-12'>
-        <h1 className='text-3xl font-light text-gray-900'>Upload Statement</h1>
-        <p className='mt-2 text-gray-500'>Add a new bill statement to track expenses</p>
+        <h1 className='text-3xl font-light text-gray-900'>Upload bank statement</h1>
+        <p className='mt-2 text-gray-500'>Add a new bank statement to track expenses</p>
       </div>
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
@@ -122,7 +122,7 @@ export default function UploadRoute() {
             <StepIndicator currentStep={currentStep} steps={UPLOAD_STEPS} />
 
             <fetcher.Form action='/upload' method='POST' encType='multipart/form-data'>
-              <input type='hidden' name='billStatement' value={billStatement} />
+              <input type='hidden' name='bankStatement' value={bankStatement} />
               <input
                 type='hidden'
                 name='transactions'
@@ -138,7 +138,7 @@ export default function UploadRoute() {
                 dataHasHeaders={dataHasHeaders}
                 rows={rows}
                 mapping={mapping}
-                billStatement={billStatement}
+                bankStatement={bankStatement}
                 onFileUpload={handleUpload}
                 onHeaderSelection={handleHeaderSelection}
                 onMappingChange={handleMappingChange}
