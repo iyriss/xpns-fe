@@ -9,11 +9,11 @@ type NavLayoutProps = {
 export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
   const navigate = useNavigate();
   return (
-    <div className='h-full w-full'>
-      <div className='h-full bg-gray-50'>
-        <div className='flex justify-between p-5'>
+    <div className='w-full'>
+      <div className='h-full min-h-screen bg-gray-50'>
+        <div className='fixed left-0 right-0 top-0 z-10 flex h-[80px] justify-between bg-gray-50 p-5 shadow-sm'>
           <div
-            className={`mb-5 cursor-pointer text-4xl font-extrabold ${
+            className={`cursor-pointer text-4xl font-extrabold ${
               userName ? 'cursor-pointer' : 'cursor-default'
             }`}
             onClick={() => (userName ? navigate('/') : null)}
@@ -30,7 +30,7 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
           )}
         </div>
 
-        <div className='mx-5'>{children}</div>
+        <div className='relative top-[80px] mx-5'>{children}</div>
       </div>
     </div>
   );
