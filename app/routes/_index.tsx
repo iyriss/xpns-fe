@@ -40,7 +40,7 @@ export default function () {
               <p className='mb-8 text-gray-600'>
                 Upload a bank statement to begin tracking expenses.
               </p>
-              <Button onClick={() => navigate('/upload')}>
+              <Button onClick={() => navigate('/upload')} className='!px-6 !py-3'>
                 <PlusIcon className='mr-2 h-4 w-4' />
                 Upload bank statement
               </Button>

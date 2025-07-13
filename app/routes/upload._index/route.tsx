@@ -111,7 +111,7 @@ export default function UploadRoute() {
       </div>
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        {data?.success ? (
+        {!data?.success ? (
           <SuccessView
             onUploadMore={handleUploadMore}
             onViewStatements={handleViewStatements}

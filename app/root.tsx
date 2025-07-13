@@ -40,13 +40,13 @@ export default function Root() {
   const { user } = useLoaderData<typeof loader>();
 
   return (
-    <html>
+    <html className='h-full'>
       <head>
         <link rel='icon' href='data:image/x-icon;base64,AA' />
         <Meta />
         <Links />
       </head>
-      <body className='font-quicksand'>
+      <body className='h-full font-quicksand'>
         <Scripts />
         <LiveReload />
         <NavLayout userName={user?.name}>

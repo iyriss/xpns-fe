@@ -109,7 +109,10 @@ const collapseTsxButton = (
   onUngroupAll?: () => void,
 ) => (
   <div className='flex items-center justify-between'>
-    <div className='mb-2 flex items-center gap-2 text-xl font-medium text-gray-900'>
+    <div className='flex items-center gap-2 text-xl font-medium text-gray-900'>
+      <span
+        className={`h-2 w-2 rounded-full ${title === 'Grouped' ? 'bg-accent' : 'bg-yellow-600'}`}
+      />
       {title}{' '}
       <div className='flex items-center gap-1 text-sm text-gray-500'>
         ({count} transaction{count > 1 ? 's' : ''}
@@ -128,12 +131,12 @@ const collapseTsxButton = (
       {collapsed ? (
         <>
           <ChevronDownIcon className='h-4 w-4' />
-          Expand
+          Show
         </>
       ) : (
         <>
           <ChevronUpIcon className='h-4 w-4' />
-          Collapse
+          Hide
         </>
       )}
     </Button>
@@ -269,6 +272,7 @@ export default function () {
             </span>
           )}
         </div>
+
         <h1 className='text-3xl font-light text-gray-900'>{bankStatement?.title}</h1>
         <div className='relative flex items-center justify-between'>
           <div className='mt-2 text-gray-500'>
@@ -366,11 +370,11 @@ export default function () {
       </div>
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        <div className='space-y-8'>
+        <div className='space-y-5'>
           {defaultTransactionDisplay === TransactionDisplay.EDIT ? (
             <>
               {unallocatedTransactions.length > 0 && (
-                <>
+                <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
                   {collapseTsxButton(
                     'Ungrouped',
                     unallocatedTsxCollapsed,
@@ -394,11 +398,10 @@ export default function () {
                       />
                     ))}
                   </div>
-                </>
+                </div>
               )}
-
               {allocatedTransactions.length > 0 && (
-                <>
+                <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
                   {collapseTsxButton(
                     'Grouped',
                     allocatedTsxCollapsed,
@@ -418,13 +421,13 @@ export default function () {
                       />
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </>
           ) : (
             <>
               {unallocatedTransactions.length > 0 && (
-                <>
+                <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
                   {collapseTsxButton(
                     'Ungrouped',
                     unallocatedTsxCollapsed,
@@ -443,11 +446,11 @@ export default function () {
                       />
                     ))}
                   </div>
-                </>
+                </div>
               )}
 
               {allocatedTransactions.length > 0 && (
-                <>
+                <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
                   {collapseTsxButton(
                     'Grouped',
                     allocatedTsxCollapsed,
@@ -467,7 +470,7 @@ export default function () {
                       />
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </>
           )}

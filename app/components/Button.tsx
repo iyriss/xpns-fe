@@ -16,7 +16,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'px-6 py-3 font-medium disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors disabled:cursor-not-allowed disabled:bg-gray-500/40';
+    'px-5 py-2 font-medium disabled:cursor-not-allowed flex items-center justify-center cursor-pointer transition-colors disabled:cursor-not-allowed disabled:bg-gray-500/40';
 
   const variantStyles = {
     primary: 'text-white bg-primary enabled:hover:bg-primary-active',

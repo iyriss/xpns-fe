@@ -16,14 +16,14 @@ export const SuccessView = ({
     <div className='mb-6 text-2xl'>✅</div>
     <h2 className='mb-4 text-xl font-light text-gray-900'>Transactions uploaded successfully</h2>
     <div className='mx-auto flex max-w-xs flex-col gap-3'>
-      <Button type='button' onClick={onUploadMore}>
+      <Button onClick={onUploadMore}>
         <PlusIcon className='mr-1 h-4 w-4' />
         Upload more
       </Button>
-      <Button type='button' onClick={onViewStatements} variant='outline'>
-        View statements
+      <Button onClick={onViewStatements} variant='outline'>
+        View bank statements
       </Button>
-      <Button type='button' onClick={onBackToDashboard} variant='outline'>
+      <Button onClick={onBackToDashboard} variant='outline'>
         Back to dashboard
       </Button>
     </div>

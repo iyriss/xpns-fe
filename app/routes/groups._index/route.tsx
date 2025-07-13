@@ -6,6 +6,7 @@ import { Button } from '../../components/Button';
 import {
   ChevronDownIcon,
   FolderOpenIcon,
+  PlusIcon,
   UserGroupIcon,
   UserPlusIcon,
   XMarkIcon,
@@ -109,7 +110,8 @@ export default function () {
             <p className='mt-2 text-gray-500'>Create and manage expense groups</p>
           </div>
           {!creatingGroup && (
-            <Button type='button' onClick={() => setCreatingGroup(true)}>
+            <Button type='button' onClick={() => setCreatingGroup(true)} className='!text-sm'>
+              <PlusIcon className='mr-1 h-4 w-4' />
               Create group
             </Button>
           )}
