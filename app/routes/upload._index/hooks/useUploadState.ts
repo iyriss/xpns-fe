@@ -6,6 +6,7 @@ export interface UploadState {
     rows: any[];
     mapping: Record<string, string>;
     firstFive: any[];
+    template: string;
     dataHasHeaders: boolean | null;
     csvFile: File | null;
     currentStep: UploadStep;
@@ -18,6 +19,7 @@ export const useUploadState = () => {
         rows: [],
         mapping: {},
         firstFive: [],
+        template: '',
         dataHasHeaders: null,
         csvFile: null,
         currentStep: UploadStep.UPLOAD,
@@ -34,6 +36,7 @@ export const useUploadState = () => {
             rows: [],
             mapping: {},
             firstFive: [],
+            template: '',
             dataHasHeaders: null,
             csvFile: null,
             currentStep: UploadStep.UPLOAD,

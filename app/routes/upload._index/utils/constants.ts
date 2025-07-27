@@ -7,6 +7,12 @@ export const UPLOAD_STEPS: Step[] = [
     { key: UploadStep.SUBMIT, label: 'Submit', description: 'Upload bank statement' },
 ];
 
+export const STEPS_MAPPING_TEMPLATE: Step[] = [
+    { key: UploadStep.UPLOAD, label: 'Upload', description: 'Select CSV file' },
+    { key: UploadStep.MAPPING_TEMPLATE, label: 'Review', description: 'Confirm mapping' },
+    { key: UploadStep.SUBMIT, label: 'Submit', description: 'Upload bank statement' },
+];
+
 export const CSV_PREVIEW_ROWS = 5;
 export const CSV_SAMPLE_ROWS = 10;
 export const MAX_AMOUNT = 1000000000; // $1 billion limit

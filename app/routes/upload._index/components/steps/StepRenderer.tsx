@@ -1,15 +1,19 @@
-import { UploadStep } from '../../types';
+import { UploadStep, MappingTemplate } from '../../types';
 import { FileUpload } from './upload/FileUpload';
 import { PreviewStep } from './preview/PreviewStep';
 import { MappingStep } from './mapping/MappingStep';
 import { SubmitStep } from './submit/SubmitStep';
 import { StatementTitleInput } from '../StatementTitleInput';
 import { getValidationMessage } from '../../utils/validation-helpers';
+import { MappingTemplateSelect } from '../MappingTemplateSelect';
+import { MappingTemplateStep } from './mapping-template/MappingTemplateStep';
 
 interface StepRendererProps {
   currentStep: UploadStep;
   firstFive: any[];
+  template: string;
   headers: string[];
+  mappingTemplates: MappingTemplate[];
   dataHasHeaders: boolean | null;
   rows: any[];
   mapping: Record<string, string>;
@@ -19,12 +23,15 @@ interface StepRendererProps {
   onMappingChange: (col: string, value: string) => void;
   onBack: () => void;
   onStatementTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onMappingTemplateChange: (template: MappingTemplate | null) => void;
 }
 
 export const StepRenderer = ({
   currentStep,
   firstFive,
+  template,
   headers,
+  mappingTemplates,
   dataHasHeaders,
   rows,
   mapping,
@@ -34,11 +41,22 @@ export const StepRenderer = ({
   onMappingChange,
   onBack,
   onStatementTitleChange,
+  onMappingTemplateChange,
 }: StepRendererProps) => {
+  const templateName = mappingTemplates.find(({ _id }) => _id === template)?.name || '';
+
   const renderStepContent = () => {
     switch (currentStep) {
       case UploadStep.UPLOAD:
-        return <FileUpload onFileUpload={onFileUpload} />;
+        return (
+          <>
+            <MappingTemplateSelect
+              mappingTemplates={mappingTemplates}
+              onMappingTemplateChange={onMappingTemplateChange}
+            />
+            <FileUpload onFileUpload={onFileUpload} />
+          </>
+        );
       case UploadStep.PREVIEW:
         return (
           <PreviewStep
@@ -57,6 +75,15 @@ export const StepRenderer = ({
             mapping={mapping}
             onMappingChange={onMappingChange}
             validationMessage={getValidationMessage(mapping, rows)}
+          />
+        );
+      case UploadStep.MAPPING_TEMPLATE:
+        return (
+          <MappingTemplateStep
+            headers={headers}
+            rows={rows}
+            templateName={templateName}
+            onBackToMapping={onBack}
           />
         );
       case UploadStep.SUBMIT:

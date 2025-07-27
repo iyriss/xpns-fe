@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { CSVService } from '../services/csvService';
-import { UploadStep } from '../types';
+import { UploadStep, MappingTemplate } from '../types';
 import { useUploadState } from './useUploadState';
 
 export const useUploadActions = () => {
@@ -13,12 +13,18 @@ export const useUploadActions = () => {
         updateState({ csvFile: file, currentStep: UploadStep.PREVIEW });
 
         try {
-            const preview = await CSVService.parsePreview(file);
-            updateState({ firstFive: preview });
+            const template = state.template && Object.keys(state?.mapping).length > 0 && state?.headers?.length > 0;
+            if (template) {
+                const preview = await CSVService.parseTemplate(file, state.dataHasHeaders || false);
+                updateState({ rows: preview.rows, currentStep: UploadStep.MAPPING_TEMPLATE });
+            } else {
+                const preview = await CSVService.parsePreview(file);
+                updateState({ firstFive: preview });
+            }
         } catch (error) {
             console.error('Error parsing CSV preview:', error);
         }
-    }, [updateState]);
+    }, [updateState, state.dataHasHeaders, state.mapping, state.headers, state.template]);
 
     const handleHeaderSelection = useCallback(async (hasHeaders: boolean) => {
         if (!state.csvFile) return;
@@ -49,11 +55,25 @@ export const useUploadActions = () => {
     }, [updateState]);
 
     const handleBackToMapping = useCallback(() => {
-        updateState({ currentStep: UploadStep.MAPPING });
+        updateState({ currentStep: UploadStep.MAPPING, template: "" });
     }, [updateState]);
 
     const handleStatementTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         updateState({ bankStatement: e.target.value });
+    }, [updateState]);
+
+    const handleMappingTemplateChange = useCallback((template: MappingTemplate | null) => {
+        if (!template) {
+            updateState({ template: '', headers: [], mapping: {}, dataHasHeaders: false });
+            return;
+        }
+
+        updateState({
+            template: template._id,
+            headers: template.headers,
+            mapping: template.mapping,
+            dataHasHeaders: template.hasHeaders,
+        });
     }, [updateState]);
 
     const handleReset = useCallback(() => {
@@ -68,6 +88,7 @@ export const useUploadActions = () => {
         handleMappingConfirm,
         handleBackToMapping,
         handleStatementTitleChange,
+        handleMappingTemplateChange,
         handleReset,
     };
 }; 

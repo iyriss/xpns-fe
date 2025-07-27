@@ -1,3 +1,5 @@
+import { UploadStep } from '../../types';
+
 export const StepIndicator = ({
   currentStep,
   steps,
@@ -12,12 +14,12 @@ export const StepIndicator = ({
         const isCompleted =
           steps.findIndex((s) => s.key === currentStep) >
           steps.findIndex((s) => s.key === step.key);
-        const isUpcoming =
-          steps.findIndex((s) => s.key === currentStep) <
-          steps.findIndex((s) => s.key === step.key);
 
         return (
-          <div key={step.key} className='flex flex-1 items-center'>
+          <div
+            key={step.key}
+            className={`flex items-center ${index < steps.length - 1 ? 'flex-1' : ''}`}
+          >
             <div className='flex flex-col items-center'>
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-all duration-200 ${

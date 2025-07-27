@@ -56,6 +56,18 @@ export class CSVService {
         });
     }
 
+    static parseTemplate(file: File, hasHeaders: boolean): Promise<any> {
+        return new Promise((resolve) => {
+            Papa.parse(file, {
+                header: hasHeaders,
+                complete: (results: CSVParseResult) => {
+                    const filteredData = this.filterEmptyRows(results.data);
+                    resolve({ rows: filteredData });
+                },
+            });
+        });
+    }
+
     private static filterEmptyRows(data: any[]): any[] {
         return data.filter((row) => {
             if (Array.isArray(row)) {

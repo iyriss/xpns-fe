@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
+import { ArrowRightIcon, ArrowUturnLeftIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../../components/Button';
 import { UploadStep } from '../types';
 import { validateMapping, transformAndValidateTransactions } from '../utils/validation-helpers';
@@ -28,10 +28,10 @@ export const NavigationButtons = ({
   return (
     <div className='mt-10 flex justify-between'>
       <Button type='button' onClick={onReset} variant='text'>
-        <ArrowLeftIcon className='mr-2 h-4 w-4' />
-        Back
+        <ArrowUturnLeftIcon className='mr-2 h-4 w-4' />
+        Restart
       </Button>
-      {currentStep === UploadStep.MAPPING && (
+      {(currentStep === UploadStep.MAPPING || currentStep === UploadStep.MAPPING_TEMPLATE) && (
         <button
           className='flex items-center bg-primary px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-500/40'
           onClick={onMappingConfirm}

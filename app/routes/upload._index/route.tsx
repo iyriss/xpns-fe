@@ -1,13 +1,26 @@
-import { useFetcher, useNavigate } from '@remix-run/react';
-import { ActionFunction } from '@remix-run/node';
+import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
+import { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { z } from 'zod';
 import { useUploadActions } from './hooks/useUploadActions';
 import { StepIndicator } from './components/steps/StepIndicator';
 import { StepRenderer } from './components/steps/StepRenderer';
 import { SuccessView } from './components/SuccessView';
 import { NavigationButtons } from './components/NavigationButtons';
-import { UPLOAD_STEPS } from './utils/constants';
+import { STEPS_MAPPING_TEMPLATE, UPLOAD_STEPS } from './utils/constants';
 import { transformAndValidateTransactions } from './utils/validation-helpers';
+import { MappingTemplate } from './types';
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const cookieHeader = request.headers.get('Cookie');
+  const mappingTemplates = await fetch(`${process.env.API_URL}/api/mapping-templates`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json', Cookie: cookieHeader || '' },
+  });
+
+  const { data } = await mappingTemplates.json();
+  return { mappingTemplates: data || [] };
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -81,6 +94,7 @@ export default function UploadRoute() {
   const {
     currentStep,
     firstFive,
+    template,
     headers,
     dataHasHeaders,
     rows,
@@ -93,11 +107,13 @@ export default function UploadRoute() {
     handleBackToMapping,
     handleStatementTitleChange,
     handleReset,
+    handleMappingTemplateChange,
   } = useUploadActions();
 
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const data = fetcher.data as any;
+  const { mappingTemplates } = useLoaderData() as { mappingTemplates: MappingTemplate[] };
 
   const handleUploadMore = () => window.location.reload();
   const handleViewStatements = () => navigate('/bank-statements');
@@ -111,7 +127,7 @@ export default function UploadRoute() {
       </div>
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        {!data?.success ? (
+        {data?.success ? (
           <SuccessView
             onUploadMore={handleUploadMore}
             onViewStatements={handleViewStatements}
@@ -119,7 +135,10 @@ export default function UploadRoute() {
           />
         ) : (
           <>
-            <StepIndicator currentStep={currentStep} steps={UPLOAD_STEPS} />
+            <StepIndicator
+              currentStep={currentStep}
+              steps={template ? STEPS_MAPPING_TEMPLATE : UPLOAD_STEPS}
+            />
 
             <fetcher.Form action='/upload' method='POST' encType='multipart/form-data'>
               <input type='hidden' name='bankStatement' value={bankStatement} />
@@ -138,10 +157,13 @@ export default function UploadRoute() {
                 dataHasHeaders={dataHasHeaders}
                 rows={rows}
                 mapping={mapping}
+                template={template}
+                mappingTemplates={mappingTemplates}
                 bankStatement={bankStatement}
+                onMappingChange={handleMappingChange}
                 onFileUpload={handleUpload}
                 onHeaderSelection={handleHeaderSelection}
-                onMappingChange={handleMappingChange}
+                onMappingTemplateChange={handleMappingTemplateChange}
                 onBack={handleBackToMapping}
                 onStatementTitleChange={handleStatementTitleChange}
               />
