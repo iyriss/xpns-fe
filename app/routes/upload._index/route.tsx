@@ -94,6 +94,7 @@ export default function UploadRoute() {
   const {
     currentStep,
     firstFive,
+    csvFile,
     template,
     headers,
     dataHasHeaders,
@@ -101,6 +102,7 @@ export default function UploadRoute() {
     mapping,
     bankStatement,
     handleUpload,
+    handlePreview,
     handleHeaderSelection,
     handleMappingChange,
     handleMappingConfirm,
@@ -160,6 +162,7 @@ export default function UploadRoute() {
                 template={template}
                 mappingTemplates={mappingTemplates}
                 bankStatement={bankStatement}
+                csvFile={csvFile}
                 onMappingChange={handleMappingChange}
                 onFileUpload={handleUpload}
                 onHeaderSelection={handleHeaderSelection}
@@ -172,7 +175,9 @@ export default function UploadRoute() {
                 currentStep={currentStep}
                 mapping={mapping}
                 rows={rows}
+                uploadValid={!!bankStatement && !!csvFile}
                 onReset={handleReset}
+                onPreview={handlePreview}
                 onMappingConfirm={handleMappingConfirm}
               />
             </fetcher.Form>

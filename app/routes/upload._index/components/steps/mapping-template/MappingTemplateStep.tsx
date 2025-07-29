@@ -36,13 +36,12 @@ export const MappingTemplateStep = ({
         <Button variant='text' className='text-sm' onClick={onBackToMapping}>
           Change
         </Button>
+        {validationMessage && (
+          <div className='mt-1'>
+            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
+          </div>
+        )}
       </div>
-
-      {validationMessage && (
-        <div className='mt-1'>
-          <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
-        </div>
-      )}
 
       <div className='mt-5 rounded-lg border'>
         <table className='w-full'>

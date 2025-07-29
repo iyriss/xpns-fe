@@ -20,13 +20,14 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary: 'text-white bg-primary enabled:hover:bg-primary-active',
-    outline: 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+    outline: 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-primary',
     text: 'border-none !p-0 bg-none text-primary hover:text-primary-active hover:underline',
     destructive: 'border border-red-200 text-red-700 hover:bg-red-50',
   };
 
   return (
     <button
+      type={props?.type || 'button'}
       {...props}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
       disabled={disabled || loading}

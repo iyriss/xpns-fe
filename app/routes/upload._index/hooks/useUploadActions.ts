@@ -8,23 +8,39 @@ export const useUploadActions = () => {
 
     const handleUpload = useCallback(async (files: FileList | null) => {
         const file = files?.[0];
-        if (!file) return;
+        if (!file) {
+            updateState({
+                csvFile: null,
+                currentStep: UploadStep.UPLOAD,
+                firstFive: [],
+                headers: [],
+                rows: [],
+                mapping: {}
+            });
+            return;
+        }
 
-        updateState({ csvFile: file, currentStep: UploadStep.PREVIEW });
+        updateState({ csvFile: file });
+
+    }, [updateState]);
+
+    const handlePreview = useCallback(async () => {
+        if (!state.csvFile) return;
 
         try {
             const template = state.template && Object.keys(state?.mapping).length > 0 && state?.headers?.length > 0;
             if (template) {
-                const preview = await CSVService.parseTemplate(file, state.dataHasHeaders || false);
+                const preview = await CSVService.parseTemplate(state.csvFile, state.dataHasHeaders || false);
                 updateState({ rows: preview.rows, currentStep: UploadStep.MAPPING_TEMPLATE });
             } else {
-                const preview = await CSVService.parsePreview(file);
-                updateState({ firstFive: preview });
+
+                const preview = await CSVService.parsePreview(state.csvFile);
+                updateState({ firstFive: preview, currentStep: UploadStep.PREVIEW });
             }
         } catch (error) {
             console.error('Error parsing CSV preview:', error);
         }
-    }, [updateState, state.dataHasHeaders, state.mapping, state.headers, state.template]);
+    }, [updateState, state.csvFile, state.dataHasHeaders, state.mapping, state.headers, state.template]);
 
     const handleHeaderSelection = useCallback(async (hasHeaders: boolean) => {
         if (!state.csvFile) return;
@@ -83,6 +99,7 @@ export const useUploadActions = () => {
     return {
         ...state,
         handleUpload,
+        handlePreview,
         handleHeaderSelection,
         handleMappingChange,
         handleMappingConfirm,

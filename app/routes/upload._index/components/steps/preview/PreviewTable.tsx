@@ -6,7 +6,7 @@ export const PreviewTable = ({ firstFive, headers }: { firstFive: any[]; headers
       {firstFive.map((row, rowIndex) => (
         <tr
           key={`${row}-${rowIndex}`}
-          className={`border-t border-gray-100/50 ${rowIndex === 0 ? 'bg-accent' : ''}`}
+          className={`border-t ${rowIndex === 0 ? 'border border-accent bg-yellow-600' : 'border-gray-100/50'}`}
         >
           <th
             className={`w-8 px-2 py-3 text-xs font-normal text-gray-400 ${

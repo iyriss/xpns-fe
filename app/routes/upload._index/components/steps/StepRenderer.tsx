@@ -18,6 +18,7 @@ interface StepRendererProps {
   rows: any[];
   mapping: Record<string, string>;
   bankStatement: string;
+  csvFile: File | null;
   onFileUpload: (files: FileList | null) => void;
   onHeaderSelection: (hasHeaders: boolean) => void;
   onMappingChange: (col: string, value: string) => void;
@@ -36,6 +37,7 @@ export const StepRenderer = ({
   rows,
   mapping,
   bankStatement,
+  csvFile,
   onFileUpload,
   onHeaderSelection,
   onMappingChange,
@@ -50,11 +52,12 @@ export const StepRenderer = ({
       case UploadStep.UPLOAD:
         return (
           <>
+            <StatementTitleInput onChange={onStatementTitleChange} />
             <MappingTemplateSelect
               mappingTemplates={mappingTemplates}
               onMappingTemplateChange={onMappingTemplateChange}
             />
-            <FileUpload onFileUpload={onFileUpload} />
+            <FileUpload onFileUpload={onFileUpload} csvFile={csvFile} />
           </>
         );
       case UploadStep.PREVIEW:
@@ -98,14 +101,9 @@ export const StepRenderer = ({
           />
         );
       default:
-        return <FileUpload onFileUpload={onFileUpload} />;
+        return <FileUpload onFileUpload={onFileUpload} csvFile={csvFile} />;
     }
   };
 
-  return (
-    <div className='space-y-5'>
-      <StatementTitleInput onChange={onStatementTitleChange} />
-      {renderStepContent()}
-    </div>
-  );
+  return <div className='space-y-5'>{renderStepContent()}</div>;
 };

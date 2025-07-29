@@ -31,13 +31,12 @@ export const MappingStep = ({
           <span className='font-semibold'>Debit & Credit</span> are properly mapped to the correct
           column.
         </p>
+        {validationMessage && (
+          <div className='mt-1'>
+            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
+          </div>
+        )}
       </div>
-
-      {validationMessage && (
-        <div className='mt-1'>
-          <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
-        </div>
-      )}
 
       <div className='mt-5 rounded-lg border'>
         <table className='w-full'>

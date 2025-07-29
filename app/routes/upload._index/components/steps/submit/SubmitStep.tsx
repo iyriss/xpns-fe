@@ -31,26 +31,33 @@ export const SubmitStep = ({
   return (
     <div className='text-center'>
       <div className='mb-6'>
-        <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100'>
-          <svg
-            className='h-8 w-8 text-green-600'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
-          </svg>
-        </div>
-        <h3 className='mt-4 text-lg font-medium text-gray-900'>Ready to upload</h3>
-        <p className='mt-2 text-sm text-gray-500'>
-          Review your statement details before submitting
-        </p>
+        {errors.length === 0 && (
+          <>
+            <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100'>
+              <svg
+                className='h-8 w-8 text-green-600'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M5 13l4 4L19 7'
+                />
+              </svg>
+            </div>
+            <h3 className='mt-4 text-lg font-medium text-gray-900'>Ready to upload</h3>
+          </>
+        )}
+        <p className='mt-2'>Review your statement details before submitting</p>
       </div>
 
       <div className='mx-auto max-w-md space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-6'>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Statement Title:</span>
-          <span className='text-sm font-medium text-gray-900'>{bankStatement || 'No title'}</span>
+          <span className='text-sm font-medium text-gray-900'>{bankStatement}</span>
         </div>
         <div className='flex justify-between'>
           <span className='text-sm text-gray-600'>Transactions:</span>
@@ -84,14 +91,6 @@ export const SubmitStep = ({
         )}
       </div>
 
-      {!bankStatement && (
-        <div className='mx-auto mt-4 max-w-md'>
-          <p className='text-left text-sm font-semibold'>
-            <span className='mr-1 text-red-700'>*</span>Statement Title is required.
-          </p>
-        </div>
-      )}
-
       {validationMessage && !isValidationMessageDismissed && (
         <div className='mx-auto mt-4 max-w-md'>
           <div className='flex items-start justify-between'>
@@ -112,7 +111,7 @@ export const SubmitStep = ({
         <Button variant='outline' onClick={onBack}>
           Back to mapping
         </Button>
-        <Button type='submit' disabled={!isFullyValid || !bankStatement || !transactions.length}>
+        <Button type='submit' disabled={!isFullyValid || !transactions.length}>
           Upload bank statement
         </Button>
       </div>
