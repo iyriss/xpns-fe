@@ -98,13 +98,16 @@ export const StepRenderer = ({
           />
         );
       default:
-        return <UploadStep
+        return (
+          <UploadStep
             csvFile={csvFile}
             onStatementTitleChange={onStatementTitleChange}
             mappingTemplates={mappingTemplates}
             onMappingTemplateChange={onMappingTemplateChange}
             onFileUpload={onFileUpload}
-          />;
+          />
+        );
+    }
   };
 
   return <div className='space-y-5'>{renderStepContent()}</div>;
