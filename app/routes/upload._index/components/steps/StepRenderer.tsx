@@ -1,15 +1,13 @@
-import { UploadStep, MappingTemplate } from '../../types';
-import { FileUpload } from './upload/FileUpload';
+import { UploadStep as UploadStepType, MappingTemplate } from '../../types';
 import { PreviewStep } from './preview/PreviewStep';
 import { MappingStep } from './mapping/MappingStep';
 import { SubmitStep } from './submit/SubmitStep';
-import { StatementTitleInput } from '../StatementTitleInput';
 import { getValidationMessage } from '../../utils/validation-helpers';
-import { MappingTemplateSelect } from '../MappingTemplateSelect';
 import { MappingTemplateStep } from './mapping-template/MappingTemplateStep';
+import { UploadStep } from './upload/UploadStep';
 
 interface StepRendererProps {
-  currentStep: UploadStep;
+  currentStep: UploadStepType;
   firstFive: any[];
   template: string;
   headers: string[];
@@ -49,18 +47,17 @@ export const StepRenderer = ({
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case UploadStep.UPLOAD:
+      case UploadStepType.UPLOAD:
         return (
-          <>
-            <StatementTitleInput onChange={onStatementTitleChange} />
-            <MappingTemplateSelect
-              mappingTemplates={mappingTemplates}
-              onMappingTemplateChange={onMappingTemplateChange}
-            />
-            <FileUpload onFileUpload={onFileUpload} csvFile={csvFile} />
-          </>
+          <UploadStep
+            csvFile={csvFile}
+            onStatementTitleChange={onStatementTitleChange}
+            mappingTemplates={mappingTemplates}
+            onMappingTemplateChange={onMappingTemplateChange}
+            onFileUpload={onFileUpload}
+          />
         );
-      case UploadStep.PREVIEW:
+      case UploadStepType.PREVIEW:
         return (
           <PreviewStep
             firstFive={firstFive}
@@ -69,7 +66,7 @@ export const StepRenderer = ({
             onHeaderSelection={onHeaderSelection}
           />
         );
-      case UploadStep.MAPPING:
+      case UploadStepType.MAPPING:
         return (
           <MappingStep
             headers={headers}
@@ -80,7 +77,7 @@ export const StepRenderer = ({
             validationMessage={getValidationMessage(mapping, rows)}
           />
         );
-      case UploadStep.MAPPING_TEMPLATE:
+      case UploadStepType.MAPPING_TEMPLATE:
         return (
           <MappingTemplateStep
             headers={headers}
@@ -89,7 +86,7 @@ export const StepRenderer = ({
             onBackToMapping={onBack}
           />
         );
-      case UploadStep.SUBMIT:
+      case UploadStepType.SUBMIT:
         return (
           <SubmitStep
             bankStatement={bankStatement}
@@ -101,8 +98,13 @@ export const StepRenderer = ({
           />
         );
       default:
-        return <FileUpload onFileUpload={onFileUpload} csvFile={csvFile} />;
-    }
+        return <UploadStep
+            csvFile={csvFile}
+            onStatementTitleChange={onStatementTitleChange}
+            mappingTemplates={mappingTemplates}
+            onMappingTemplateChange={onMappingTemplateChange}
+            onFileUpload={onFileUpload}
+          />;
   };
 
   return <div className='space-y-5'>{renderStepContent()}</div>;
