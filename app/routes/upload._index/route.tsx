@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
 import { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { z } from 'zod';
@@ -113,13 +115,45 @@ export default function UploadRoute() {
   } = useUploadActions();
 
   const fetcher = useFetcher();
+  const mappingTemplateFetcher = useFetcher<{ success?: boolean; error?: string }>();
   const navigate = useNavigate();
   const data = fetcher.data as any;
   const { mappingTemplates } = useLoaderData() as { mappingTemplates: MappingTemplate[] };
 
+  useEffect(() => {
+    if (mappingTemplateFetcher.data?.success) {
+      toast.success('Mapping template created successfully');
+    } else if (mappingTemplateFetcher.data?.error) {
+      toast.error(mappingTemplateFetcher.data.error);
+    }
+  }, [mappingTemplateFetcher.data?.success]);
+
   const handleUploadMore = () => window.location.reload();
   const handleViewStatements = () => navigate('/bank-statements');
   const handleBackToDashboard = () => navigate('/');
+
+  const handleSaveMapping = () => {
+    const mappingTitleInput = document.querySelector(
+      'input[name="mappingTitle"]',
+    ) as HTMLInputElement;
+
+    const mappingTitle = mappingTitleInput?.value;
+    if (mappingTitle?.trim()) {
+      const data = {
+        name: mappingTitle.trim(),
+        mapping,
+        headers,
+        hasHeaderRow: dataHasHeaders || false,
+      };
+
+      mappingTemplateFetcher.submit(data, {
+        method: 'POST',
+        action: '/mapping-templates',
+        encType: 'application/json',
+      });
+    }
+    handleMappingConfirm();
+  };
 
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
@@ -178,7 +212,7 @@ export default function UploadRoute() {
                 uploadValid={!!bankStatement && !!csvFile}
                 onReset={handleReset}
                 onPreview={handlePreview}
-                onMappingConfirm={handleMappingConfirm}
+                onMappingConfirm={handleSaveMapping}
               />
             </fetcher.Form>
           </>

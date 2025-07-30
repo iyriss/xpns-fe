@@ -42,13 +42,13 @@ export const useUploadActions = () => {
         }
     }, [updateState, state.csvFile, state.dataHasHeaders, state.mapping, state.headers, state.template]);
 
-    const handleHeaderSelection = useCallback(async (hasHeaders: boolean) => {
+    const handleHeaderSelection = useCallback(async (hasHeaderRow: boolean) => {
         if (!state.csvFile) return;
 
-        updateState({ dataHasHeaders: hasHeaders });
+        updateState({ dataHasHeaders: hasHeaderRow });
 
         try {
-            const { headers, rows, mapping } = await CSVService.parseFull(state.csvFile, hasHeaders);
+            const { headers, rows, mapping } = await CSVService.parseFull(state.csvFile, hasHeaderRow);
             updateState({
                 headers,
                 rows,
@@ -88,7 +88,7 @@ export const useUploadActions = () => {
             template: template._id,
             headers: template.headers,
             mapping: template.mapping,
-            dataHasHeaders: template.hasHeaders,
+            dataHasHeaders: template.hasHeaderRow,
         });
     }, [updateState]);
 

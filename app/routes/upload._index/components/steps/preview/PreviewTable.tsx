@@ -1,12 +1,12 @@
 import { formatNumberWithCommas } from '../../../../../utils/numbers-helpers';
 
 export const PreviewTable = ({ firstFive, headers }: { firstFive: any[]; headers: string[] }) => (
-  <table className='w-full table-fixed border-collapse shadow-sm'>
+  <table className='w-full table-fixed border-collapse bg-[#f4f4f4] shadow-sm'>
     <thead>
       {firstFive.map((row, rowIndex) => (
         <tr
           key={`${row}-${rowIndex}`}
-          className={`border-t ${rowIndex === 0 ? 'border border-accent bg-yellow-600' : 'border-gray-100/50'}`}
+          className={`border-t ${rowIndex === 0 ? 'border border-accent bg-[#38927e]' : 'border-gray-100/50'}`}
         >
           <th
             className={`w-8 px-2 py-3 text-xs font-normal text-gray-400 ${

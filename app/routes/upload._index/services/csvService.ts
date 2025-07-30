@@ -56,10 +56,10 @@ export class CSVService {
         });
     }
 
-    static parseTemplate(file: File, hasHeaders: boolean): Promise<any> {
+    static parseTemplate(file: File, hasHeaderRow: boolean): Promise<any> {
         return new Promise((resolve) => {
             Papa.parse(file, {
-                header: hasHeaders,
+                header: hasHeaderRow,
                 complete: (results: CSVParseResult) => {
                     const filteredData = this.filterEmptyRows(results.data);
                     resolve({ rows: filteredData });

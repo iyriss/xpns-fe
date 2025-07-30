@@ -15,7 +15,7 @@ export const PreviewStep = ({
     <h3 className='text-lg font-medium text-gray-900'>Review your data</h3>
 
     <div className='mb-5 mt-2'>
-      <p className='text-sm'>
+      <p>
         Does the first highlighted row on your CSV snippet contains column headers or data from one
         of your transactions?
       </p>
@@ -40,7 +40,7 @@ export const PreviewStep = ({
               {dataHasHeaders === true && <div className='h-2 w-2 rounded-full bg-white'></div>}
             </div>
           </div>
-          <span className='text-sm'>Headers</span>
+          <span>Headers</span>
         </label>
 
         <label className='flex cursor-pointer items-center gap-2'>
@@ -63,7 +63,7 @@ export const PreviewStep = ({
               {dataHasHeaders === false && <div className='h-2 w-2 rounded-full bg-white'></div>}
             </div>
           </div>
-          <span className='text-sm'>Transaction data</span>
+          <span>Transaction data</span>
         </label>
       </div>
     </div>

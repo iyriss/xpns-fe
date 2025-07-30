@@ -14,7 +14,9 @@ export const FileUpload = ({
 
   return (
     <div className='relative'>
-      <p className='mb-2 text-sm font-medium text-gray-700'>Bank statement</p>
+      <p className='mb-2 text-sm font-medium text-gray-700'>
+        Bank statement <span className='text-red-500'>*</span>
+      </p>
 
       <div className='flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:bg-gray-100'>
         <input

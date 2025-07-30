@@ -17,7 +17,9 @@ const formatFileSize = (bytes: number) => {
 export const FileDisplay = ({ file, onReplace }: FileDisplayProps) => {
   return (
     <div>
-      <p className='mb-2 text-sm font-medium text-gray-700'>Bank statement</p>
+      <p className='mb-2 text-sm font-medium text-gray-700'>
+        Bank statement <span className='text-red-500'>*</span>
+      </p>
 
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>

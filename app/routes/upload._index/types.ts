@@ -17,7 +17,7 @@ export interface MappingTemplate {
     name: string;
     headers: string[];
     mapping: Record<string, string>;
-    hasHeaders: boolean;
+    hasHeaderRow: boolean;
 }
 
 export interface CSVParseResult {

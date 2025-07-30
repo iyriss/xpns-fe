@@ -12,7 +12,7 @@ export const StatementTitleInput = ({
       id='bankStatement'
       className='w-full rounded-lg border border-gray-200 px-4 py-3 font-medium placeholder:text-muted/50 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
       required
-      placeholder='e.g. Aug 2024 Checking account'
+      placeholder='Mar 2025 checking acct'
       onChange={onChange}
     />
   </div>

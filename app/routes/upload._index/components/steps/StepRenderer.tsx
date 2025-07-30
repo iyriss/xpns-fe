@@ -18,7 +18,7 @@ interface StepRendererProps {
   bankStatement: string;
   csvFile: File | null;
   onFileUpload: (files: FileList | null) => void;
-  onHeaderSelection: (hasHeaders: boolean) => void;
+  onHeaderSelection: (hasHeaderRow: boolean) => void;
   onMappingChange: (col: string, value: string) => void;
   onBack: () => void;
   onStatementTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -84,6 +84,7 @@ export const StepRenderer = ({
             rows={rows}
             templateName={templateName}
             onBackToMapping={onBack}
+            validationMessage={getValidationMessage(mapping, rows)}
           />
         );
       case UploadStepType.SUBMIT:

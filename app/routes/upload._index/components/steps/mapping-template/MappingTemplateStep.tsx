@@ -27,6 +27,11 @@ export const MappingTemplateStep = ({
           Ensure column headers match the mapping template you selected. If you need to change the
           column types, you can do so by changing the mapping template.
         </p>
+        {validationMessage && (
+          <div className='mt-1'>
+            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
+          </div>
+        )}
       </div>
       <div className='mt-2 flex items-center gap-2'>
         <span className='text-sm text-gray-500'>Current mapping template:</span>
@@ -36,11 +41,6 @@ export const MappingTemplateStep = ({
         <Button variant='text' className='text-sm' onClick={onBackToMapping}>
           Change
         </Button>
-        {validationMessage && (
-          <div className='mt-1'>
-            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
-          </div>
-        )}
       </div>
 
       <div className='mt-5 rounded-lg border'>
