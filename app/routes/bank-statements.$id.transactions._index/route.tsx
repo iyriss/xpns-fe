@@ -117,7 +117,7 @@ const collapseTsxButton = (
       {title}{' '}
       <div className='flex items-center gap-1 text-sm text-gray-500'>
         ({count} transaction{count > 1 ? 's' : ''}
-        {title === 'Grouped' && (
+        {title === 'Grouped' && !!onUngroupAll && (
           <div className='flex items-center gap-1'>
             -{' '}
             <Button variant='text' className='text-sm' onClick={onUngroupAll}>
@@ -132,12 +132,12 @@ const collapseTsxButton = (
       {collapsed ? (
         <>
           <ChevronDownIcon className='h-4 w-4' />
-          Show
+          Show all
         </>
       ) : (
         <>
           <ChevronUpIcon className='h-4 w-4' />
-          Hide
+          Hide all
         </>
       )}
     </Button>
@@ -145,15 +145,15 @@ const collapseTsxButton = (
 );
 
 export default function () {
+  const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
   const [transactionIdSelected, setTransactionIdSelected] = useState('');
   const [defaultGroup, setDefaultGroup] = useState('');
   const [unallocatedTsxCollapsed, setUnallocatedTsxCollapsed] = useState(false);
   const [allocatedTsxCollapsed, setAllocatedTsxCollapsed] = useState(false);
   const [defaultTransactionDisplay, setDefaultTransactionDisplay] = useState(
-    TransactionDisplay.EDIT,
+    bankStatement.archived ? TransactionDisplay.VIEW : TransactionDisplay.EDIT,
   );
 
-  const { bankStatement, transactions, groups, categories, currentUser } = useLoaderData() as any;
   const deleteFetcher = useFetcher();
   const ungroupAllFetcher = useFetcher();
   const archiveFetcher = useFetcher();
@@ -240,6 +240,7 @@ export default function () {
   }
 
   function handleArchiveBankStatement() {
+    setDefaultTransactionDisplay(TransactionDisplay.VIEW);
     archiveFetcher.submit(
       { archived: !bankStatement.archived },
       {
@@ -261,6 +262,93 @@ export default function () {
     },
     { nearest: transactions[0]?.date, furthest: transactions[0]?.date },
   );
+
+  const displayDefaultOptions =
+    groups.length === 0 ? (
+      <div className='mb-5 flex items-center gap-2 rounded-lg border border-gray-100 bg-yellow-100 p-4 shadow-sm'>
+        <ExclamationTriangleIcon className='h-5 w-5 text-yellow-600' />
+        <p>Cannot group transactions until you have created a group.</p>
+        <Button variant='text' onClick={() => navigate('/groups')}>
+          Create one.
+        </Button>
+      </div>
+    ) : (
+      <div className='mb-5 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+          <div>
+            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+              <UserGroupIcon className='h-4 w-4 text-gray-500' />
+              Default group
+            </label>
+
+            <select
+              name='group'
+              required
+              className='w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-colors hover:border-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
+              onChange={handleDefaultGroup}
+              value={defaultGroup}
+            >
+              <option value={''} className='text-gray-500'>
+                Select a group
+              </option>
+              {groups.map((group: any) => (
+                <option key={group._id} value={group._id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+              <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
+              Transactions display
+            </label>
+            <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
+              <label
+                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  defaultTransactionDisplay === TransactionDisplay.EDIT
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                } ${bankStatement.archived ? 'pointer-events-none bg-gray-500/40 text-white' : ''}`}
+              >
+                <input
+                  disabled={bankStatement.archived}
+                  type='radio'
+                  name='transactionDisplay'
+                  value='edit'
+                  checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
+                  onChange={() =>
+                    bankStatement.archived
+                      ? null
+                      : setDefaultTransactionDisplay(TransactionDisplay.EDIT)
+                  }
+                  className='sr-only'
+                />
+                <span className='font-medium'>Edit</span>
+              </label>
+              <label
+                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                  defaultTransactionDisplay === TransactionDisplay.VIEW
+                    ? 'bg-primary text-white'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                }`}
+              >
+                <input
+                  type='radio'
+                  name='transactionDisplay'
+                  value='view'
+                  checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
+                  onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
+                  className='sr-only'
+                />
+                <span className='font-medium'>View</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className='mx-auto max-w-6xl px-6 py-12'>
@@ -289,85 +377,13 @@ export default function () {
         </div>
       </div>
 
-      {groups.length === 0 ? (
-        <div className='mb-5 flex items-center gap-2 rounded-lg border border-gray-100 bg-yellow-100 p-4 shadow-sm'>
+      {bankStatement.archived ? (
+        <div className='my-4 flex items-center gap-2 rounded-lg border border-gray-100 bg-yellow-100 p-4 shadow-sm'>
           <ExclamationTriangleIcon className='h-5 w-5 text-yellow-600' />
-          <p>Cannot group transactions until you have created a group.</p>
-          <Button variant='text' onClick={() => navigate('/groups')}>
-            Create one.
-          </Button>
+          <p>Archived bank statements are view-only. Unarchive to edit or delete transactions.</p>
         </div>
       ) : (
-        <div className='mb-5 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-            <div>
-              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-                <UserGroupIcon className='h-4 w-4 text-gray-500' />
-                Default group
-              </label>
-
-              <select
-                name='group'
-                required
-                className='w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-colors hover:border-gray-300 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
-                onChange={handleDefaultGroup}
-                value={defaultGroup}
-              >
-                <option value={''} className='text-gray-500'>
-                  Select a group
-                </option>
-                {groups.map((group: any) => (
-                  <option key={group._id} value={group._id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-                <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
-                Transactions display
-              </label>
-              <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
-                <label
-                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                    defaultTransactionDisplay === TransactionDisplay.EDIT
-                      ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='transactionDisplay'
-                    value='edit'
-                    checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
-                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.EDIT)}
-                    className='sr-only'
-                  />
-                  <span className='font-medium'>Edit</span>
-                </label>
-                <label
-                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                    defaultTransactionDisplay === TransactionDisplay.VIEW
-                      ? 'bg-primary text-white'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='transactionDisplay'
-                    value='view'
-                    checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
-                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
-                    className='sr-only'
-                  />
-                  <span className='font-medium'>View</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
+        displayDefaultOptions
       )}
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
@@ -408,7 +424,7 @@ export default function () {
                     allocatedTsxCollapsed,
                     allocatedTransactions.length,
                     () => setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
-                    handleUngroupAll,
+                    bankStatement.archived ? undefined : handleUngroupAll,
                   )}
                   <div
                     className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}
@@ -418,6 +434,7 @@ export default function () {
                         key={transaction._id}
                         transaction={transaction}
                         groups={groups}
+                        bankStatementArchived={bankStatement.archived}
                         onTransactionSelected={handleSelected}
                       />
                     ))}
@@ -443,6 +460,7 @@ export default function () {
                         key={transaction._id}
                         transaction={transaction}
                         groups={groups}
+                        bankStatementArchived={bankStatement.archived}
                         onTransactionSelected={handleSelected}
                       />
                     ))}
@@ -457,7 +475,7 @@ export default function () {
                     allocatedTsxCollapsed,
                     allocatedTransactions.length,
                     () => setAllocatedTsxCollapsed(!allocatedTsxCollapsed),
-                    handleUngroupAll,
+                    bankStatement.archived ? undefined : handleUngroupAll,
                   )}
                   <div
                     className={`space-y-4 transition-all ${allocatedTsxCollapsed ? 'hidden' : ''}`}
@@ -467,6 +485,7 @@ export default function () {
                         key={transaction._id}
                         transaction={transaction}
                         groups={groups}
+                        bankStatementArchived={bankStatement.archived}
                         onTransactionSelected={handleSelected}
                       />
                     ))}

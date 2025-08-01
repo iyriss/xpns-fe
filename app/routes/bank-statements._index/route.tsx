@@ -10,6 +10,7 @@ import {
   PlusIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ArrowRightIcon,
 } from '@heroicons/react/24/solid';
 import { Button } from '../../components/Button';
 
@@ -36,12 +37,12 @@ const collapseButton = (title: string, collapsed: boolean, count: number, onClic
       {collapsed ? (
         <>
           <ChevronDownIcon className='h-4 w-4' />
-          Show
+          Show all
         </>
       ) : (
         <>
           <ChevronUpIcon className='h-4 w-4' />
-          Hide
+          Hide all
         </>
       )}
     </Button>
@@ -65,13 +66,17 @@ export default function () {
     >
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-4'>
-          <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50'>
-            <DocumentCurrencyDollarIcon className='h-6 w-6 text-purple-500' />
+          <div
+            className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+              bankStatement.archived ? 'bg-gray-100' : 'bg-accent/20'
+            }`}
+          >
+            <DocumentCurrencyDollarIcon
+              className={`h-6 w-6 ${bankStatement.archived ? 'text-gray-400' : 'text-accent'}`}
+            />
           </div>
           <div>
-            <h3 className='text-lg font-medium text-gray-900 transition-colors group-hover:text-primary'>
-              {bankStatement.title}
-            </h3>
+            <h3 className='text-lg font-medium text-gray-900'>{bankStatement.title}</h3>
             <div className='mt-1 flex items-center space-x-6 text-sm text-gray-500'>
               <div className='flex items-center space-x-2'>
                 <CalendarIcon className='h-4 w-4' />
@@ -84,7 +89,9 @@ export default function () {
             </div>
           </div>
         </div>
-        <div className='text-sm text-gray-400 group-hover:text-purple-400'>→</div>
+        <div className='hidden text-sm text-gray-400 group-hover:block group-hover:text-primary'>
+          <ArrowRightIcon className='h-4 w-4' />
+        </div>
       </div>
     </div>
   );

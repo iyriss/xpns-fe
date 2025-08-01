@@ -4,6 +4,7 @@ import { Form, Link, useLoaderData, useSubmit } from '@remix-run/react';
 import { z } from 'zod';
 import { Button } from '../../components/Button';
 import {
+  ArrowRightIcon,
   ChevronDownIcon,
   FolderOpenIcon,
   PlusIcon,
@@ -122,7 +123,7 @@ export default function () {
         {creatingGroup && (
           <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
             <div className='mb-6 flex items-center space-x-4'>
-              <div className='flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-200 bg-purple-50'>
+              <div className='flex h-14 w-14 items-center justify-center rounded-2xl border border-primary'>
                 <UserGroupIcon className='h-7 w-7 text-primary' />
               </div>
               <div>
@@ -183,7 +184,7 @@ export default function () {
                         {selectedMembers.map((member) => (
                           <span
                             key={member._id}
-                            className='inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm text-primary-active'
+                            className='inline-flex items-center rounded-full px-3 py-1 text-sm text-primary-active'
                           >
                             {member.name}
                             {member._id === currentUser._id && (
@@ -286,19 +287,14 @@ export default function () {
 
         {!!groups?.length ? (
           <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-            <div className='mb-6 flex items-center space-x-4'>
-              <div className='flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50'>
-                <UserGroupIcon className='h-7 w-7 text-blue-600' />
-              </div>
-              <div>
-                <h2 className='text-xl font-medium text-gray-900'>Your Groups</h2>
-                <p className='text-sm text-gray-500'>
-                  {groups.length} group{groups.length !== 1 ? 's' : ''} created
-                </p>
+            <div className='flex items-center justify-between'>
+              <h2 className='text-xl font-medium text-gray-900'>Groups you own or joined</h2>
+              <div className='text-sm text-gray-500'>
+                {groups.length} group{groups.length !== 1 ? 's' : ''}
               </div>
             </div>
 
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+            <div className='space-y-4'>
               {groups.map(
                 (
                   {
@@ -309,44 +305,49 @@ export default function () {
                   }: { name: string; _id: string; members: string[]; user: string },
                   idx: number,
                 ) => {
+                  const isOwner = user === currentUser._id;
+                  const memberNames =
+                    members?.map((member: any) => {
+                      const name = member?._id === currentUser._id ? 'You' : (member as any).name;
+                      return name;
+                    }) || [];
+
                   return (
                     <Link
-                      className='group block w-full cursor-pointer rounded-xl border border-gray-100 p-6 transition-all hover:border-gray-200 hover:shadow-md'
-                      key={name}
+                      key={_id}
                       to={`/groups/${_id}`}
+                      className='group block cursor-pointer rounded-xl border border-gray-100 p-6 transition-all hover:border-gray-200 hover:shadow-md'
                     >
-                      <div className='flex items-start justify-between'>
-                        <div className='flex items-start space-x-4'>
-                          <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50'>
-                            <UserGroupIcon className='h-6 w-6 text-blue-500' />
+                      <div className='flex items-start gap-4'>
+                        <div className='min-w-0 flex-1'>
+                          <div className='mb-2 flex items-center'>
+                            <div className='mr-5 min-w-0'>
+                              <h3 className='truncate text-lg font-semibold text-gray-900'>
+                                {name}
+                              </h3>
+                            </div>
+                            <span className='items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium text-gray-700'>
+                              {isOwner ? 'Owner' : 'Member'}
+                            </span>
                           </div>
-                          <div className='flex-1'>
-                            <h3 className='text-lg font-medium text-gray-900 transition-colors group-hover:text-blue-600'>
-                              {name}
-                            </h3>
-                            <div className='mt-1 text-sm text-gray-500'>
+
+                          <div className='mb-3 flex items-center justify-between gap-4 text-sm text-gray-600'>
+                            <span className='flex items-center gap-1'>
+                              <UserGroupIcon className='h-4 w-4 text-gray-400' />
                               {members.length} member{members.length !== 1 ? 's' : ''}
-                              {members?.length && (
-                                <span className='mt-1 block'>
-                                  {members
-                                    .map((member: any) => {
-                                      const name =
-                                        member?._id === currentUser._id
-                                          ? 'You'
-                                          : (member as any).name;
-                                      return name;
-                                    })
-                                    .join(', ')}
-                                </span>
-                              )}
+                            </span>
+                            <div className='hidden text-sm text-gray-400 group-hover:block group-hover:text-primary'>
+                              <ArrowRightIcon className='h-4 w-4' />
                             </div>
                           </div>
+
+                          {memberNames.length > 0 && (
+                            <p className='text-sm text-gray-700'>
+                              <span className='font-medium text-gray-900'>Members:</span>{' '}
+                              <span className='text-gray-600'>{memberNames.join(', ')}</span>
+                            </p>
+                          )}
                         </div>
-                        {user === currentUser._id && (
-                          <div className='flex items-center space-x-1 rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500'>
-                            <span>Owner</span>
-                          </div>
-                        )}
                       </div>
                     </Link>
                   );

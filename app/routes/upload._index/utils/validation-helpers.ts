@@ -273,7 +273,7 @@ export const getValidationMessage = (mapping: Record<string, string>, rows: any[
     // Check for duplicate mappings
     if (validation.hasDuplicates) {
         const duplicateList = validation.duplicateValues.join('. ');
-        allErrors.push(`Duplicate mapping values: ${duplicateList}`);
+        allErrors.push(`Cannot have duplicate mapping values: ${duplicateList}`);
     }
 
     // Add data validation errors

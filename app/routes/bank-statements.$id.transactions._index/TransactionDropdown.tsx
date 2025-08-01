@@ -53,7 +53,7 @@ export default function Dropdown({
       {isGrouped && (
         <button
           onClick={handleUngroup}
-          className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
+          className='flex cursor-pointer items-center px-3 py-2 text-left hover:bg-border hover:text-primary'
         >
           <UserMinusIcon className='mr-2 h-4 w-4' />
           Ungroup
@@ -61,7 +61,7 @@ export default function Dropdown({
       )}
       <button
         onClick={handleDelete}
-        className='flex cursor-pointer items-center px-3 py-2 text-left text-muted hover:bg-border hover:text-primary'
+        className='flex cursor-pointer items-center px-3 py-2 text-left hover:bg-border hover:text-primary'
       >
         <TrashIcon className='mr-2 h-4 w-4' />
         Delete
