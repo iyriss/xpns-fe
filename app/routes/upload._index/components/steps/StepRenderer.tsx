@@ -21,6 +21,7 @@ interface StepRendererProps {
   onHeaderSelection: (hasHeaderRow: boolean) => void;
   onMappingChange: (col: string, value: string) => void;
   onBack: () => void;
+  onReset: () => void;
   onStatementTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onMappingTemplateChange: (template: MappingTemplate | null) => void;
 }
@@ -40,6 +41,7 @@ export const StepRenderer = ({
   onHeaderSelection,
   onMappingChange,
   onBack,
+  onReset,
   onStatementTitleChange,
   onMappingTemplateChange,
 }: StepRendererProps) => {
@@ -95,6 +97,7 @@ export const StepRenderer = ({
             mapping={mapping}
             headers={headers}
             onBack={onBack}
+            onReset={onReset}
             validationMessage={getValidationMessage(mapping, rows)}
           />
         );

@@ -21,21 +21,20 @@ export const MappingStep = ({
 }) => {
   const [showAllRows, setShowAllRows] = useState(false);
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
-  const previewRows = showAllRows ? rows : rows.slice(0, 5);
+  const displayedRows = showAllRows ? rows : rows.slice(0, 5);
 
   return (
     <>
       <div>
         <h3 className='text-lg font-medium text-gray-900'>Confirm mapping</h3>
         <p className='inline-block text-sm'>
-          Ensure <span className='font-semibold'>Date, Description,</span> and either{' '}
-          <span className='font-semibold'>Amount & Type</span> OR both{' '}
-          <span className='font-semibold'>Debit & Credit</span> are properly mapped to the correct
-          column.
+          Ensure the required fields <span className='font-semibold'>Date, Description,</span> and
+          either <span className='font-semibold'>Amount & Type</span> OR both{' '}
+          <span className='font-semibold'>Debit & Credit</span> are mapped to the correct column.
         </p>
         {validationMessage && (
           <div className='mt-1'>
-            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
+            <p className='text-sm' dangerouslySetInnerHTML={{ __html: validationMessage }} />
           </div>
         )}
       </div>
@@ -51,7 +50,7 @@ export const MappingStep = ({
             saveAsTemplate ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className='flex items-center gap-5'>
+          <div className='my-1 flex items-center gap-10'>
             <label htmlFor='mappingTitle' className='block text-sm font-medium text-gray-700'>
               Mapping name<span className='text-red-500'>*</span>
             </label>
@@ -90,7 +89,7 @@ export const MappingStep = ({
                 </td>
               ))}
             </tr>
-            {previewRows.map((row, rowIndex) => (
+            {displayedRows.map((row, rowIndex) => (
               <tr key={rowIndex} className='border-t border-gray-100'>
                 <td className='w-12 px-2 py-2 text-xs text-gray-400'>{rowIndex + 1}</td>
                 {Object.values(row).map((value, index) => (
@@ -105,7 +104,7 @@ export const MappingStep = ({
         </table>
 
         <TableRows
-          rows={previewRows}
+          rows={rows}
           showAllRows={showAllRows}
           onShowAllRows={() => setShowAllRows(!showAllRows)}
         />

@@ -23,7 +23,7 @@ export const FileDisplay = ({ file, onReplace }: FileDisplayProps) => {
 
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
-          <DocumentTextIcon className='h-8 w-8 text-gray-400' />
+          <DocumentTextIcon className='h-8 w-8 text-accent' />
           <div>
             <h3 className='text-sm text-gray-900'>{file.name}</h3>
             <p className='text-xs text-gray-600'>{formatFileSize(file.size)}</p>

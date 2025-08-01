@@ -4,7 +4,7 @@ import {
   transformAndValidateTransactions,
 } from '../../../utils/validation-helpers';
 import { Button } from '../../../../../components/Button';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { ArrowUpTrayIcon, DocumentCheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 export const SubmitStep = ({
   bankStatement,
@@ -12,6 +12,7 @@ export const SubmitStep = ({
   mapping,
   headers,
   onBack,
+  onReset,
   validationMessage,
 }: {
   bankStatement: string;
@@ -19,6 +20,7 @@ export const SubmitStep = ({
   mapping: Record<string, string>;
   headers: string[];
   onBack: () => void;
+  onReset: () => void;
   validationMessage?: string | null;
 }) => {
   const [isValidationMessageDismissed, setIsValidationMessageDismissed] = useState(false);
@@ -33,20 +35,8 @@ export const SubmitStep = ({
       <div className='mb-6'>
         {errors.length === 0 && (
           <>
-            <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100'>
-              <svg
-                className='h-8 w-8 text-green-600'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M5 13l4 4L19 7'
-                />
-              </svg>
+            <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/20'>
+              <DocumentCheckIcon className='h-8 w-8 !text-primary' />
             </div>
             <h3 className='mt-4 text-lg font-medium text-gray-900'>Ready to upload</h3>
           </>
@@ -94,7 +84,7 @@ export const SubmitStep = ({
       {validationMessage && !isValidationMessageDismissed && (
         <div className='mx-auto mt-4 max-w-md'>
           <div className='flex items-start justify-between'>
-            <p className='text-sm text-red-700'>{validationMessage}</p>
+            <p className='text-sm' dangerouslySetInnerHTML={{ __html: validationMessage }} />
             <button
               type='button'
               onClick={handleDismissValidation}
@@ -107,13 +97,19 @@ export const SubmitStep = ({
         </div>
       )}
 
-      <div className='mt-6 flex justify-center gap-3'>
-        <Button variant='outline' onClick={onBack}>
-          Back to mapping
+      <div className='mt-12 flex justify-between gap-5'>
+        <Button variant='text' onClick={onReset}>
+          Cancel
         </Button>
-        <Button type='submit' disabled={!isFullyValid || !transactions.length}>
-          Upload bank statement
-        </Button>
+        <div className='flex gap-3'>
+          <Button variant='outline' onClick={onBack}>
+            Back to mapping
+          </Button>
+          <Button type='submit' disabled={!isFullyValid || !transactions.length}>
+            <ArrowUpTrayIcon className='mr-2 h-4 w-4' />
+            Upload bank statement
+          </Button>
+        </div>
       </div>
     </div>
   );

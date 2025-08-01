@@ -94,10 +94,12 @@ export default function () {
       <div className='mb-12'>
         <div className='flex items-center justify-between'>
           <h1 className='text-3xl font-light text-gray-900'>Bank Statements</h1>
-          <Button className='text-sm' onClick={() => navigate('/upload')}>
-            <PlusIcon className='mr-1 h-4 w-4' />
-            Add
-          </Button>
+          {!!bankStatements?.length && (
+            <Button className='text-sm' onClick={() => navigate('/upload')}>
+              <PlusIcon className='mr-1 h-4 w-4' />
+              Add
+            </Button>
+          )}
         </div>
         <p className='mt-2 text-gray-500'>
           No more manual data entry. Manage your transactions directly from your bank statements.
@@ -140,7 +142,7 @@ export default function () {
           )}
         </div>
       ) : (
-        <div className='py-16 text-center'>
+        <div className='rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm'>
           <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100'>
             <FolderOpenIcon className='h-10 w-10 text-gray-400' />
           </div>
@@ -148,13 +150,10 @@ export default function () {
           <p className='mb-8 text-gray-500'>
             Bank statements will appear here once they are uploaded.
           </p>
-          <button
-            onClick={() => navigate('/upload')}
-            className='hover:bg-primary-active inline-flex items-center bg-primary px-6 py-3 font-medium text-white transition-colors'
-          >
+          <Button onClick={() => navigate('/upload')} className='mx-auto'>
             <PlusIcon className='mr-1 h-4 w-4' />
             Upload
-          </button>
+          </Button>
         </div>
       )}
     </div>

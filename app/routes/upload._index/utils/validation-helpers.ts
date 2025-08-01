@@ -6,7 +6,7 @@ import {
     MAX_TYPE_LENGTH,
 } from './constants';
 
-const dollarsToCents = (dollarAmount: number): number => dollarAmount * 100;
+const dollarsToCents = (dollarAmount: number): number => Math.round(dollarAmount * 100);
 
 
 export const validateMapping = (mapping: Record<string, string>) => {
@@ -114,14 +114,14 @@ export const transformAndValidateTransactions = (
                 case 'date':
                     const dateValue = new Date(value);
                     if (isNaN(dateValue.getTime())) {
-                        errors.push(`Row ${rowIndex + 1}, ${columnName}: "${value}" is not a valid date`);
+                        errors.push(`Row ${rowIndex + 1} (${columnName}) "${value}" is not a valid date`);
                     } else {
                         // Check for reasonable date ranges
                         const now = new Date();
                         const yearDiff = Math.abs(now.getFullYear() - dateValue.getFullYear());
                         if (yearDiff > MAX_YEAR_DIFF) {
                             warnings.push(
-                                `Row ${rowIndex + 1}, ${columnName}: date seems too far in the past/future`,
+                                `Row ${rowIndex + 1} (${columnName}) date seems too far in the past/future`,
                             );
                         }
                         transaction.date = dateValue.toISOString();
@@ -132,10 +132,10 @@ export const transformAndValidateTransactions = (
                 case 'description':
                     const descValue = String(value).trim();
                     if (descValue.length < MIN_DESCRIPTION_LENGTH) {
-                        errors.push(`Row ${rowIndex + 1}, ${columnName}: description is too short`);
+                        errors.push(`Row ${rowIndex + 1} (${columnName}) description is too short`);
                     } else if (descValue.length > MAX_DESCRIPTION_LENGTH) {
                         errors.push(
-                            `Row ${rowIndex + 1}, ${columnName}: description is too long (max ${MAX_DESCRIPTION_LENGTH} chars)`,
+                            `Row ${rowIndex + 1} (${columnName}) description is too long (max ${MAX_DESCRIPTION_LENGTH} chars)`,
                         );
                     } else {
                         transaction.description = descValue;
@@ -146,21 +146,22 @@ export const transformAndValidateTransactions = (
                 case 'subdescription':
                     const subDescValue = String(value).trim();
                     if (subDescValue.length > MAX_DESCRIPTION_LENGTH) {
-                        warnings.push(`Row ${rowIndex + 1}, ${columnName}: subdescription is too long`);
+                        warnings.push(`Row ${rowIndex + 1} (${columnName}) subdescription is too long`);
                     }
                     transaction.subdescription = subDescValue;
                     break;
 
                 case 'amount':
                     const cleanAmount = String(value).replace(/[$,\s]/g, '');
-                    const numAmount = Number(cleanAmount);
+                    const numAmount = parseFloat(cleanAmount);
                     if (isNaN(numAmount)) {
                         errors.push(
-                            `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
+                            `Row ${rowIndex + 1} (${columnName}) "${value}" cannot be converted to a number`,
                         );
                     } else if (Math.abs(numAmount) > MAX_AMOUNT) {
-                        warnings.push(`Row ${rowIndex + 1}, ${columnName}: amount seems unusually large`);
+                        warnings.push(`Row ${rowIndex + 1} (${columnName}) amount seems unusually large`);
                     } else {
+
                         transaction.amount = dollarsToCents(Math.abs(numAmount));
                         hasRequiredFields.amount = true;
                     }
@@ -171,7 +172,7 @@ export const transformAndValidateTransactions = (
                     const numDebit = Number(cleanDebit);
                     if (isNaN(numDebit)) {
                         errors.push(
-                            `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
+                            `Row ${rowIndex + 1} (${columnName}) "${value}" cannot be converted to a number`,
                         );
                     } else {
                         transaction.amount = dollarsToCents(Math.abs(numDebit));
@@ -185,7 +186,7 @@ export const transformAndValidateTransactions = (
                     const numCredit = Number(cleanCredit);
                     if (isNaN(numCredit)) {
                         errors.push(
-                            `Row ${rowIndex + 1}, ${columnName}: "${value}" cannot be converted to a number`,
+                            `Row ${rowIndex + 1} (${columnName}) "${value}" cannot be converted to a number`,
                         );
                     } else {
                         transaction.amount = dollarsToCents(Math.abs(numCredit));
@@ -197,9 +198,9 @@ export const transformAndValidateTransactions = (
                 case 'type':
                     const typeValue = String(value).trim();
                     if (typeValue.length < MIN_DESCRIPTION_LENGTH) {
-                        errors.push(`Row ${rowIndex + 1}, ${columnName}: transaction type is too short`);
+                        errors.push(`Row ${rowIndex + 1} (${columnName}) transaction type is too short`);
                     } else if (typeValue.length > MAX_TYPE_LENGTH) {
-                        warnings.push(`Row ${rowIndex + 1}, ${columnName}: transaction type is too long`);
+                        warnings.push(`Row ${rowIndex + 1} (${columnName}) transaction type is too long`);
                     } else {
                         if (
                             typeValue.toLowerCase().includes('debit') ||
@@ -255,7 +256,7 @@ export const getValidationMessage = (mapping: Record<string, string>, rows: any[
     if (validation.isValid && errors.length === 0) {
         // If there are only warnings, show them but don't block submission
         if (warnings.length > 0) {
-            return `Warnings: ${warnings.slice(0, 3).join(', ')}${warnings.length > 3 ? `... and ${warnings.length - 3} more` : ''}`;
+            return `<strong>Warnings:</strong> ${warnings.slice(0, 3).join('. ')}${warnings.length > 3 ? `... and ${warnings.length - 3} more` : ''}`;
         }
         return null;
     }
@@ -271,8 +272,8 @@ export const getValidationMessage = (mapping: Record<string, string>, rows: any[
 
     // Check for duplicate mappings
     if (validation.hasDuplicates) {
-        const duplicateList = validation.duplicateValues.join(', ');
-        allErrors.push(`duplicate mappings: ${duplicateList}`);
+        const duplicateList = validation.duplicateValues.join('. ');
+        allErrors.push(`Duplicate mapping values: ${duplicateList}`);
     }
 
     // Add data validation errors
@@ -291,9 +292,9 @@ export const getValidationMessage = (mapping: Record<string, string>, rows: any[
         }
     }
 
-    let message = `Validation errors: ${allErrors.join(', ')}`;
+    let message = `<strong class='text-red-700'>Validation errors:</strong> <span class='text-red-700'>${allErrors.join('. ')}.</span>`;
     if (allWarnings.length > 0) {
-        message += `. Warnings: ${allWarnings.join(', ')}`;
+        message += `<br><strong class='text-gray-500'>Warnings:</strong> <span class='text-gray-500'>${allWarnings.join('. ')}.</span>`;
     }
 
     return message;

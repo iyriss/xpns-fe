@@ -272,7 +272,7 @@ export default function () {
           })}
         </div>
       ) : (
-        <div className='py-12 text-center'>
+        <div className='rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm'>
           <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
             <CalculatorIcon className='h-8 w-8 text-muted/60' />
           </div>

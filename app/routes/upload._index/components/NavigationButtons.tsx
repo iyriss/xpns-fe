@@ -10,6 +10,7 @@ interface NavigationButtonsProps {
   uploadValid: boolean;
   onReset: () => void;
   onPreview: () => void;
+  onGoToMapping: () => void;
   onMappingConfirm: () => void;
 }
 
@@ -20,6 +21,7 @@ export const NavigationButtons = ({
   uploadValid,
   onReset,
   onPreview,
+  onGoToMapping,
   onMappingConfirm,
 }: NavigationButtonsProps) => {
   if (currentStep === UploadStep.SUBMIT) {
@@ -31,16 +33,22 @@ export const NavigationButtons = ({
 
   return (
     <div className='mt-10 flex justify-between'>
-      {currentStep === UploadStep.UPLOAD ? (
-        <Button className='ml-auto' disabled={!uploadValid} onClick={onPreview}>
-          Next
-        </Button>
-      ) : (
-        <Button className='text-sm' onClick={onReset} variant='text'>
-          <ArrowUturnLeftIcon className='mr-2 h-4 w-4' />
-          Restart
+      {currentStep !== UploadStep.UPLOAD && (
+        <Button onClick={onReset} variant='text'>
+          Cancel
         </Button>
       )}
+      {(currentStep === UploadStep.UPLOAD || currentStep === UploadStep.PREVIEW) && (
+        <Button
+          className='ml-auto'
+          disabled={!uploadValid}
+          onClick={currentStep === UploadStep.UPLOAD ? onPreview : onGoToMapping}
+        >
+          Next
+          <ArrowRightIcon className='ml-2 h-4 w-4' />
+        </Button>
+      )}
+
       {(currentStep === UploadStep.MAPPING || currentStep === UploadStep.MAPPING_TEMPLATE) && (
         <button
           className='flex items-center bg-primary px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:bg-gray-500/40'

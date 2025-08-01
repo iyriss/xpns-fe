@@ -12,6 +12,7 @@ import {
   ArrowsRightLeftIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ExclamationTriangleIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/solid';
 
@@ -288,15 +289,23 @@ export default function () {
         </div>
       </div>
 
-      <div className='mb-5 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-          <div>
-            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-              <UserGroupIcon className='h-4 w-4 text-gray-500' />
-              Default group
-            </label>
+      {groups.length === 0 ? (
+        <div className='mb-5 flex items-center gap-2 rounded-lg border border-gray-100 bg-yellow-100 p-4 shadow-sm'>
+          <ExclamationTriangleIcon className='h-5 w-5 text-yellow-600' />
+          <p>Cannot group transactions until you have created a group.</p>
+          <Button variant='text' onClick={() => navigate('/groups')}>
+            Create one.
+          </Button>
+        </div>
+      ) : (
+        <div className='mb-5 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+            <div>
+              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+                <UserGroupIcon className='h-4 w-4 text-gray-500' />
+                Default group
+              </label>
 
-            {groups.length > 0 ? (
               <select
                 name='group'
                 required
@@ -313,61 +322,53 @@ export default function () {
                   </option>
                 ))}
               </select>
-            ) : (
-              <div className='flex items-center gap-1 text-sm text-gray-500'>
-                No groups yet.
-                <Button variant='text' className='!px-0' onClick={() => navigate('/groups')}>
-                  Create one
-                </Button>
-                .
-              </div>
-            )}
-          </div>
+            </div>
 
-          <div>
-            <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
-              <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
-              Transactions display
-            </label>
-            <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
-              <label
-                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                  defaultTransactionDisplay === TransactionDisplay.EDIT
-                    ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                }`}
-              >
-                <input
-                  type='radio'
-                  name='transactionDisplay'
-                  value='edit'
-                  checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
-                  onChange={() => setDefaultTransactionDisplay(TransactionDisplay.EDIT)}
-                  className='sr-only'
-                />
-                <span className='font-medium'>Edit</span>
+            <div>
+              <label className='mb-2 block flex items-center gap-2 text-sm font-medium text-gray-700'>
+                <ArrowsRightLeftIcon className='h-4 w-4 text-gray-500' />
+                Transactions display
               </label>
-              <label
-                className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
-                  defaultTransactionDisplay === TransactionDisplay.VIEW
-                    ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                }`}
-              >
-                <input
-                  type='radio'
-                  name='transactionDisplay'
-                  value='view'
-                  checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
-                  onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
-                  className='sr-only'
-                />
-                <span className='font-medium'>View</span>
-              </label>
+              <div className='flex w-full items-center overflow-hidden rounded-lg border border-gray-200 bg-white'>
+                <label
+                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                    defaultTransactionDisplay === TransactionDisplay.EDIT
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                  }`}
+                >
+                  <input
+                    type='radio'
+                    name='transactionDisplay'
+                    value='edit'
+                    checked={defaultTransactionDisplay === TransactionDisplay.EDIT}
+                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.EDIT)}
+                    className='sr-only'
+                  />
+                  <span className='font-medium'>Edit</span>
+                </label>
+                <label
+                  className={`flex h-12 w-full cursor-pointer items-center justify-center px-4 text-sm transition-all duration-200 ${
+                    defaultTransactionDisplay === TransactionDisplay.VIEW
+                      ? 'bg-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                  }`}
+                >
+                  <input
+                    type='radio'
+                    name='transactionDisplay'
+                    value='view'
+                    checked={defaultTransactionDisplay === TransactionDisplay.VIEW}
+                    onChange={() => setDefaultTransactionDisplay(TransactionDisplay.VIEW)}
+                    className='sr-only'
+                  />
+                  <span className='font-medium'>View</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
         <div className='space-y-5'>

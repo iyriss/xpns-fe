@@ -4,6 +4,7 @@ import {
   TagIcon,
   ArrowRightIcon,
   UserGroupIcon,
+  TableCellsIcon,
 } from '@heroicons/react/24/solid';
 import { useNavigate } from '@remix-run/react';
 import { Button } from '../components/Button';
@@ -49,7 +50,7 @@ export default function () {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-4'>
         <button
           onClick={() => navigate('/bank-statements')}
           className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
@@ -59,6 +60,17 @@ export default function () {
             <span className='font-medium text-gray-900'>Bank statements</span>
           </div>
           <ArrowRightIcon className='h-4 w-4 text-purple-400 transition-transform group-hover:translate-x-1' />
+        </button>
+
+        <button
+          onClick={() => navigate('/mapping-templates')}
+          className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
+        >
+          <div className='flex items-center'>
+            <TableCellsIcon className='mr-4 h-6 w-6 text-amber-600' />
+            <span className='font-medium text-gray-900'>Mapping templates</span>
+          </div>
+          <ArrowRightIcon className='h-4 w-4 text-amber-500 transition-transform group-hover:translate-x-1' />
         </button>
 
         <button

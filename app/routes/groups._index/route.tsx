@@ -109,7 +109,7 @@ export default function () {
             <h1 className='text-3xl font-light text-gray-900'>Groups</h1>
             <p className='mt-2 text-gray-500'>Create and manage expense groups</p>
           </div>
-          {!creatingGroup && (
+          {!!groups?.length && !creatingGroup && (
             <Button type='button' onClick={() => setCreatingGroup(true)} className='!text-sm'>
               <PlusIcon className='mr-1 h-4 w-4' />
               Create group
@@ -157,7 +157,7 @@ export default function () {
                     autoComplete='off'
                     className='w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500'
                     required
-                    placeholder='e.g. Roadtrip to Portland'
+                    placeholder='Roadtrip to Portland'
                   />
                 </div>
                 <div>
@@ -183,7 +183,7 @@ export default function () {
                         {selectedMembers.map((member) => (
                           <span
                             key={member._id}
-                            className='text-primary-active inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm'
+                            className='inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-sm text-primary-active'
                           >
                             {member.name}
                             {member._id === currentUser._id && (
@@ -213,7 +213,7 @@ export default function () {
                             <button
                               type='button'
                               onClick={handleSelectAll}
-                              className='hover:text-primary-active text-sm font-medium text-primary'
+                              className='text-sm font-medium text-primary hover:text-primary-active'
                             >
                               Select All
                             </button>
@@ -364,7 +364,7 @@ export default function () {
               Create your first group to start splitting expenses
             </p>
             <Button onClick={() => setCreatingGroup(true)} className='mx-auto'>
-              Create your first group
+              Create group
             </Button>
           </div>
         )}

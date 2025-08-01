@@ -27,7 +27,7 @@ export const MappingTemplateSelect = ({
 
   return (
     <div className='relative flex items-center gap-8'>
-      <p className='flex items-center text-sm font-medium text-gray-700'>
+      <p className='flex w-[160px] items-center text-sm font-medium text-gray-700'>
         Mapping template <span className='ml-1 text-red-500'>*</span>
         <QuestionMarkCircleIcon
           className='ml-1 inline h-4 w-4 text-gray-500'

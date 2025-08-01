@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useClickOutside } from '../../../../../hooks/useClickOutside';
 
 const COLUMN_OPTIONS = [
   { value: 'date', label: 'Date', description: 'Transaction date' },
@@ -15,7 +16,6 @@ const COLUMN_OPTIONS = [
 export const ColumnTypeSelector = ({
   value,
   onChange,
-  disabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -24,31 +24,15 @@ export const ColumnTypeSelector = ({
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = COLUMN_OPTIONS.find((opt) => opt.value === value);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest('.column-selector')) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen]);
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, () => setIsOpen(false));
 
   return (
-    <div className='column-selector relative'>
+    <div className='relative' ref={ref}>
       <button
         type='button'
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
-        className={`flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition-all ${
-          disabled
-            ? 'cursor-not-allowed bg-gray-50 text-gray-400'
-            : 'cursor-pointer bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500'
-        } `}
+        onClick={() => setIsOpen(!isOpen)}
+        className='flex w-full cursor-pointer items-center justify-between rounded-md border bg-white px-3 py-2 text-sm text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500'
       >
         <span className='font-medium'>{selectedOption?.label || 'Select type'}</span>
         <svg
@@ -61,7 +45,7 @@ export const ColumnTypeSelector = ({
         </svg>
       </button>
 
-      {isOpen && !disabled && (
+      {isOpen && (
         <div className='absolute z-10 mt-1 w-64 rounded-md border border-gray-200 bg-white shadow-lg'>
           <div className='py-1'>
             {COLUMN_OPTIONS.map((option) => (

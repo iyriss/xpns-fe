@@ -53,12 +53,15 @@ export const useUploadActions = () => {
                 headers,
                 rows,
                 mapping,
-                currentStep: UploadStep.MAPPING
             });
         } catch (error) {
             console.error('Error parsing CSV:', error);
         }
     }, [state.csvFile, updateState]);
+
+    const handleGoToMapping = useCallback(() => {
+        updateState({ currentStep: UploadStep.MAPPING });
+    }, [updateState]);
 
     const handleMappingChange = useCallback((col: string, value: string) => {
         updateState({
@@ -106,6 +109,7 @@ export const useUploadActions = () => {
         handleBackToMapping,
         handleStatementTitleChange,
         handleMappingTemplateChange,
+        handleGoToMapping,
         handleReset,
     };
 }; 

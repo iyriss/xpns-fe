@@ -13,14 +13,12 @@ export const PreviewStep = ({
 }) => (
   <div className='mb-6'>
     <h3 className='text-lg font-medium text-gray-900'>Review your data</h3>
+    <PreviewTable firstFive={firstFive} headers={headers} />
 
-    <div className='mb-5 mt-2'>
-      <p>
-        Does the first highlighted row on your CSV snippet contains column headers or data from one
-        of your transactions?
-      </p>
-      <div className='mt-4 flex items-center gap-8'>
-        <label className='flex cursor-pointer items-center gap-2'>
+    <div className='mt-5'>
+      <p>Select the content of the highlighted top row on your CSV snippet.</p>
+      <div className='mt-2 flex items-center gap-8'>
+        <label className='flex flex-1 cursor-pointer items-center gap-2'>
           <div className='relative'>
             <input
               type='radio'
@@ -43,7 +41,7 @@ export const PreviewStep = ({
           <span>Headers</span>
         </label>
 
-        <label className='flex cursor-pointer items-center gap-2'>
+        <label className='flex flex-1 cursor-pointer items-center gap-2'>
           <div className='relative'>
             <input
               type='radio'
@@ -67,6 +65,5 @@ export const PreviewStep = ({
         </label>
       </div>
     </div>
-    <PreviewTable firstFive={firstFive} headers={headers} />
   </div>
 );

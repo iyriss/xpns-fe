@@ -40,9 +40,9 @@ export class CSVService {
                             const columnCount = Array.isArray(firstRow)
                                 ? firstRow.length
                                 : Object.keys(firstRow).length;
-                            headers = Array.from({ length: columnCount }, (_, index) => `Column ${index + 1}`);
+                            headers = Array.from({ length: columnCount }, (_, index) => `Column_${index + 1}`);
                             mapping = Object.fromEntries(
-                                Array.from({ length: columnCount }, (_, index) => [`Column ${index + 1}`, 'other']),
+                                Array.from({ length: columnCount }, (_, index) => [`Column_${index + 1}`, 'other']),
                             );
                         } else {
                             headers = [];

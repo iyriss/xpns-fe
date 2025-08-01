@@ -111,6 +111,7 @@ export default function UploadRoute() {
     handleBackToMapping,
     handleStatementTitleChange,
     handleReset,
+    handleGoToMapping,
     handleMappingTemplateChange,
   } = useUploadActions();
 
@@ -202,6 +203,7 @@ export default function UploadRoute() {
                 onHeaderSelection={handleHeaderSelection}
                 onMappingTemplateChange={handleMappingTemplateChange}
                 onBack={handleBackToMapping}
+                onReset={handleReset}
                 onStatementTitleChange={handleStatementTitleChange}
               />
 
@@ -212,6 +214,7 @@ export default function UploadRoute() {
                 uploadValid={!!bankStatement && !!csvFile}
                 onReset={handleReset}
                 onPreview={handlePreview}
+                onGoToMapping={handleGoToMapping}
                 onMappingConfirm={handleSaveMapping}
               />
             </fetcher.Form>

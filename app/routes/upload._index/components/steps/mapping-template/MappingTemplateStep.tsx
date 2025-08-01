@@ -29,7 +29,7 @@ export const MappingTemplateStep = ({
         </p>
         {validationMessage && (
           <div className='mt-1'>
-            <p className='text-sm font-semibold text-red-700'>{validationMessage}</p>
+            <p className='text-sm' dangerouslySetInnerHTML={{ __html: validationMessage }} />
           </div>
         )}
       </div>
