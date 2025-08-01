@@ -42,6 +42,7 @@ export default function Root() {
   return (
     <html className='h-full'>
       <head>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <link rel='icon' href='data:image/x-icon;base64,AA' />
         <Meta />
         <Links />

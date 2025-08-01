@@ -74,68 +74,68 @@ export const NavLayout: React.FC<NavLayoutProps> = ({ children, userName }) => {
           </Form>
         )}
       </div>
+      {userName && (
+        <div
+          className={`fixed left-0 top-0 z-10 h-screen w-64 rounded-r-[40px] border-r border-gray-200 bg-[#f6f9fe] shadow-sm transition-all duration-300 ease-in-out ${
+            showNav ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className='flex h-full flex-col'>
+            <div className='mt-8 flex-1 px-6 pt-[80px]'>
+              <h3 className='mb-2 text-sm font-medium uppercase tracking-wider text-gray-500'>
+                Navigation
+              </h3>
 
-      <div
-        className={`fixed left-0 top-0 z-10 h-screen w-64 rounded-r-[40px] border-r border-gray-200 bg-[#f6f9fe] shadow-sm transition-all duration-300 ease-in-out ${
-          showNav ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className='flex h-full flex-col'>
-          <div className='mt-8 flex-1 px-6 pt-[80px]'>
-            <h3 className='mb-2 text-sm font-medium uppercase tracking-wider text-gray-500'>
-              Navigation
-            </h3>
-
-            <nav className='space-y-2'>
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  item.path.slice(1)?.length > 0 && location.pathname.startsWith(item.path);
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={`group relative flex w-full items-center justify-between rounded-lg py-2.5 transition-all duration-200 ${
-                      isActive ? 'text-primary-active' : ''
-                    }`}
-                  >
-                    <div
-                      className={`absolute -inset-x-3 top-0 -z-10 h-full w-full rounded-lg opacity-0 transition-opacity duration-200 group-hover:bg-[#edeffb] group-hover:opacity-100 ${
-                        isActive ? 'opacity-100' : ''
+              <nav className='space-y-2'>
+                {navigationItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive =
+                    item.path.slice(1)?.length > 0 && location.pathname.startsWith(item.path);
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className={`group relative flex w-full items-center justify-between rounded-lg py-2.5 transition-all duration-200 ${
+                        isActive ? 'text-primary-active' : ''
                       }`}
-                    />
-                    <div className='flex items-center gap-3'>
-                      <Icon className='h-5 w-5' />
-                      <span>{item.name}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {userName && showNav && (
-            <div className='px-6 pb-10 pt-6'>
-              <Form method='post' className='space-y-5' action='/logout'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-2xl'>
-                    <UserIcon className='h-5 w-5 text-gray-700' />
-                  </div>
-                  <div className='text-gray-700'>{userName}</div>
-                </div>
-                <Button variant='text' type='submit' className='flex items-center gap-2'>
-                  <ArrowRightStartOnRectangleIcon className='h-5 w-5' />
-                  Logout
-                </Button>
-              </Form>
+                    >
+                      <div
+                        className={`absolute -inset-x-3 top-0 -z-10 h-full w-full rounded-lg opacity-0 transition-opacity duration-200 group-hover:bg-[#edeffb] group-hover:opacity-100 ${
+                          isActive ? 'opacity-100' : ''
+                        }`}
+                      />
+                      <div className='flex items-center gap-3'>
+                        <Icon className='h-5 w-5' />
+                        <span>{item.name}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
-          )}
-        </div>
-      </div>
 
+            {userName && showNav && (
+              <div className='px-6 pb-10 pt-6'>
+                <Form method='post' className='space-y-5' action='/logout'>
+                  <div className='flex items-center gap-3'>
+                    <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-2xl'>
+                      <UserIcon className='h-5 w-5 text-gray-700' />
+                    </div>
+                    <div className='text-gray-700'>{userName}</div>
+                  </div>
+                  <Button variant='text' type='submit' className='flex items-center gap-2'>
+                    <ArrowRightStartOnRectangleIcon className='h-5 w-5' />
+                    Logout
+                  </Button>
+                </Form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div
         className={`relative top-[80px] transition-all duration-300 ease-in-out ${
-          showNav ? 'ml-64' : 'ml-0'
+          showNav && userName ? 'ml-64' : 'ml-0'
         }`}
       >
         <div className='mx-5'>{children}</div>
