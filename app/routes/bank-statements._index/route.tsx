@@ -5,7 +5,6 @@ import { useState } from 'react';
 import {
   CalendarIcon,
   ClockIcon,
-  DocumentCurrencyDollarIcon,
   FolderOpenIcon,
   PlusIcon,
   ChevronDownIcon,
@@ -65,27 +64,16 @@ export default function () {
       onClick={() => navigate(`/bank-statements/${bankStatement._id}/transactions`)}
     >
       <div className='flex items-center justify-between'>
-        <div className='flex items-center space-x-4'>
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-              bankStatement.archived ? 'bg-gray-100' : 'bg-accent/20'
-            }`}
-          >
-            <DocumentCurrencyDollarIcon
-              className={`h-6 w-6 ${bankStatement.archived ? 'text-gray-400' : 'text-accent'}`}
-            />
-          </div>
-          <div>
-            <h3 className='text-lg font-medium text-gray-900'>{bankStatement.title}</h3>
-            <div className='mt-1 flex items-center space-x-6 text-sm text-gray-500'>
-              <div className='flex items-center space-x-2'>
-                <CalendarIcon className='h-4 w-4' />
-                <span>Created {displayDate(bankStatement.createdAt)}</span>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <ClockIcon className='h-4 w-4' />
-                <span>{getTimeAgo(bankStatement.createdAt)}</span>
-              </div>
+        <div>
+          <h3 className='text-lg font-medium text-gray-900'>{bankStatement.title}</h3>
+          <div className='mt-1 flex items-center space-x-6 text-sm text-gray-500'>
+            <div className='flex items-center space-x-2'>
+              <CalendarIcon className='h-4 w-4' />
+              <span>Created {displayDate(bankStatement.createdAt)}</span>
+            </div>
+            <div className='flex items-center space-x-2'>
+              <ClockIcon className='h-4 w-4' />
+              <span>{getTimeAgo(bankStatement.createdAt)}</span>
             </div>
           </div>
         </div>
@@ -97,7 +85,7 @@ export default function () {
   );
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-12'>
         <div className='flex items-center justify-between'>
           <h1 className='text-3xl font-light text-gray-900'>Bank Statements</h1>
@@ -117,8 +105,11 @@ export default function () {
         <div className='space-y-5'>
           {activeStatements.length > 0 && (
             <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-              {collapseButton('Active', activeStatementsCollapsed, activeStatements.length, () =>
-                setActiveStatementsCollapsed(!activeStatementsCollapsed),
+              {collapseButton(
+                'Active statements',
+                activeStatementsCollapsed,
+                activeStatements.length,
+                () => setActiveStatementsCollapsed(!activeStatementsCollapsed),
               )}
               <div
                 className={`space-y-4 transition-all ${activeStatementsCollapsed ? 'hidden' : ''}`}
@@ -133,7 +124,7 @@ export default function () {
           {archivedStatements.length > 0 && (
             <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
               {collapseButton(
-                'Archived',
+                'Archived statements',
                 archivedStatementsCollapsed,
                 archivedStatements.length,
                 () => setArchivedStatementsCollapsed(!archivedStatementsCollapsed),

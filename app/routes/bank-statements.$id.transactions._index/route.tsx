@@ -351,7 +351,7 @@ export default function () {
     );
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-12'>
         <div className='mb-2 text-sm font-medium text-gray-900'>
           Bank statement

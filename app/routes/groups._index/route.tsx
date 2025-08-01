@@ -103,7 +103,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-12'>
         <div className='flex items-center justify-between'>
           <div>
@@ -122,16 +122,9 @@ export default function () {
       <div className='space-y-8'>
         {creatingGroup && (
           <div className='rounded-2xl border border-gray-100 bg-white p-8 shadow-sm'>
-            <div className='mb-6 flex items-center space-x-4'>
-              <div className='flex h-14 w-14 items-center justify-center rounded-2xl border border-primary'>
-                <UserGroupIcon className='h-7 w-7 text-primary' />
-              </div>
-              <div>
-                <h2 className='text-xl font-medium text-gray-900'>Create New Group</h2>
-                <p className='text-sm text-gray-500'>
-                  Set up a group to split expenses with others
-                </p>
-              </div>
+            <div className='mb-6'>
+              <h2 className='text-xl font-medium text-gray-900'>Create new group</h2>
+              <p className='text-sm text-gray-500'>Set up a group to split expenses with others</p>
             </div>
 
             <Form
@@ -188,7 +181,7 @@ export default function () {
                           >
                             {member.name}
                             {member._id === currentUser._id && (
-                              <span className='ml-1 text-xs text-purple-500'>(You)</span>
+                              <span className='ml-1 text-xs'>(You)</span>
                             )}
                             {member._id !== currentUser._id && (
                               <button
@@ -211,20 +204,22 @@ export default function () {
                       >
                         <div className='border-b border-gray-200 pb-2'>
                           <div className='flex justify-between px-4'>
-                            <button
+                            <Button
                               type='button'
+                              variant='text'
+                              className='text-sm'
                               onClick={handleSelectAll}
-                              className='text-sm font-medium text-primary hover:text-primary-active'
                             >
                               Select All
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               type='button'
+                              variant='text'
+                              className='text-sm'
                               onClick={handleClearAll}
-                              className='text-sm font-medium text-gray-600 hover:text-gray-700'
                             >
                               Clear All
-                            </button>
+                            </Button>
                           </div>
                         </div>
                         <div className='max-h-60 overflow-auto'>

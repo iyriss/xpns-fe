@@ -59,7 +59,7 @@ export default function MappingTemplatesRoute() {
   const fetcher = useFetcher();
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-5'>
         <h1 className='text-3xl font-light text-gray-900'>Mapping Templates</h1>
         <p className='mt-2 text-gray-500'>Save and reuse CSV column mappings for faster uploads</p>

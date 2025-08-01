@@ -99,7 +99,7 @@ export default function () {
   };
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-12'>
         <h1 className='text-3xl font-light text-gray-900'>Categories</h1>
         <p className='mt-2 text-gray-500'>Organize your expenses with custom categories</p>
@@ -128,7 +128,7 @@ export default function () {
                 className='space-x-2 !px-0 text-sm'
               >
                 <PlusIcon className='h-4 w-4' />
-                <span>Add Category</span>
+                <span>Add Category button that does not work yet</span>
               </Button>
             </div>
 

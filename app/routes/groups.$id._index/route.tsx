@@ -69,7 +69,7 @@ export default function () {
     : 0;
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-8'>
         <div className='flex items-center justify-between'>
           <div className='mb-2 text-sm font-medium text-gray-900'>Group</div>

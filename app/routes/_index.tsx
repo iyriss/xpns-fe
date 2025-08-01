@@ -13,8 +13,8 @@ export default function () {
   const navigate = useNavigate();
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
-      <div className='mb-12'>
+    <div className='mx-auto max-w-6xl p-6'>
+      <div className='mb-8'>
         <h1 className='text-3xl font-light text-gray-900'>Dashboard</h1>
       </div>
 
@@ -56,10 +56,10 @@ export default function () {
           className='group flex items-center justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-gray-200 hover:shadow-md'
         >
           <div className='flex items-center'>
-            <DocumentCurrencyDollarIcon className='mr-4 h-6 w-6 text-purple-500' />
+            <DocumentCurrencyDollarIcon className='mr-4 h-6 w-6 text-rose-500' />
             <span className='font-medium text-gray-900'>Bank statements</span>
           </div>
-          <ArrowRightIcon className='h-4 w-4 text-purple-400 transition-transform group-hover:translate-x-1' />
+          <ArrowRightIcon className='h-4 w-4 text-rose-400 transition-transform group-hover:translate-x-1' />
         </button>
 
         <button

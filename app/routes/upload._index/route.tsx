@@ -157,7 +157,7 @@ export default function UploadRoute() {
   };
 
   return (
-    <div className='mx-auto max-w-6xl px-6 py-12'>
+    <div className='mx-auto max-w-6xl p-6'>
       <div className='mb-12'>
         <h1 className='text-3xl font-light text-gray-900'>Upload bank statement</h1>
         <p className='mt-2 text-gray-500'>Add a new bank statement to track expenses</p>
